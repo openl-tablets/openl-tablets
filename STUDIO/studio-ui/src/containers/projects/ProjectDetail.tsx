@@ -138,7 +138,7 @@ interface ProjectDetailProps {
     reloadToken?: number
     /** The files the reload behind the current token is known to cover; null means anything. */
     changedFiles?: string[] | null
-    /** Rendered before the repository name, e.g. a breadcrumb link back to the projects list. */
+    /** The step of the trail before the repository, e.g. a link back to the projects list. */
     headerPrefix?: ReactNode
     /**
      * Called after an edit (tags, file save) that may change the project, to refresh the list. The promise
@@ -454,28 +454,26 @@ export const ProjectDetail = ({
                         }}
                     />
                 )}
-                crumbs={(
-                    <>
-                        {headerPrefix}
-                        {repositoryPath ? <Link to={repositoryPath}>{repoLabel}</Link> : <span>{repoLabel}</span>}
-                        {hasBranches && (
-                            <>
-                                <span aria-hidden>/</span>
-                                <BranchSwitcher
-                                    currentBranch={project.branch}
-                                    currentBranchDefault={project.branchDefault}
-                                    currentBranchProtected={project.branchProtected}
-                                    data-testid="crumb-branch"
-                                    disabled={pendingId !== null}
-                                    onBusyChange={onBranchSwitching}
-                                    onSwitched={() => onChanged?.()}
-                                    projectId={project.id}
-                                    tone="secondary"
-                                />
-                            </>
-                        )}
-                    </>
-                )}
+                crumbs={[
+                    headerPrefix,
+                    repositoryPath
+                        ? <Link key="repository" to={repositoryPath}>{repoLabel}</Link>
+                        : <span key="repository">{repoLabel}</span>,
+                    hasBranches && (
+                        <BranchSwitcher
+                            key="branch"
+                            currentBranch={project.branch}
+                            currentBranchDefault={project.branchDefault}
+                            currentBranchProtected={project.branchProtected}
+                            data-testid="crumb-branch"
+                            disabled={pendingId !== null}
+                            onBusyChange={onBranchSwitching}
+                            onSwitched={() => onChanged?.()}
+                            projectId={project.id}
+                            tone="secondary"
+                        />
+                    ),
+                ]}
                 titleAfter={(
                     <>
                         {project.readOnly && <ReadOnlyTag projectId={project.id} />}

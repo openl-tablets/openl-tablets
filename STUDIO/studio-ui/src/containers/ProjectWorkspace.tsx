@@ -50,23 +50,6 @@ const useStyles = createStyles(({ css, token }) => ({
         min-height: 0;
         background: ${token.colorBgContainer};
     `,
-    crumb: css`
-        display: inline-flex;
-        align-items: center;
-        gap: ${token.marginXXS}px;
-        margin-right: ${token.marginXXS}px;
-        color: ${token.colorTextTertiary};
-        font-size: ${token.fontSize}px;
-        font-weight: 400;
-
-        a {
-            color: ${token.colorTextSecondary};
-
-            &:hover {
-                color: ${token.colorPrimary};
-            }
-        }
-    `,
     body: css`
         position: relative;
         flex: 1;
@@ -502,12 +485,7 @@ export const ProjectWorkspace = () => {
                             repoType={repoType}
                             statusReadAt={statusReadAt}
                             virtualFolders={virtualFolders}
-                            headerPrefix={(
-                                <span className={styles.crumb}>
-                                    <Link to="/projects">{t('home.title')}</Link>
-                                    <span aria-hidden>/</span>
-                                </span>
-                            )}
+                            headerPrefix={<Link to="/projects">{t('home.title')}</Link>}
                         />
                         <CompileProblemsPanel
                             project={project}
