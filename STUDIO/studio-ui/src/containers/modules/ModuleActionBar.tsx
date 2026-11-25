@@ -1,7 +1,7 @@
-import { useState, type MouseEvent as ReactMouseEvent } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { ConfirmDiscard } from './useDiscardConfirm'
 import { useTranslation } from 'react-i18next'
-import { Badge, Button, Dropdown, Modal, Space, Tooltip } from 'antd'
+import { Badge, Button, Dropdown, Modal, Tooltip } from 'antd'
 import { CheckCircleOutlined, DownOutlined, ExperimentOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import type { SummaryTable } from 'types/tables'
 import type { Project } from '../../types/projects'
@@ -15,12 +15,28 @@ import { useProjectDialogs, type ProjectDialogActions } from '../projects/usePro
 import { ReformatExcelFilesModal } from './ReformatExcelFilesModal'
 import { useOverwriteConfirm } from './useOverwriteConfirm'
 import { isMarkdownPath, isWorkbookPath } from '../../utils/workbooks'
+import { useActionBarStyles, useActionFit } from '../../components/actionFit'
 
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
 
 /** The project's own actions the editor offers, in the order the old Editor kept them. */
 const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['save', 'sync', 'deploy', 'copy']
+
+/** A button of the row, and what it runs, from the button or from the item of More it becomes. */
+interface BarAction {
+    key: string
+    label: string
+    icon: ReactNode
+    disabled?: boolean | undefined
+    primary?: boolean
+    /** Why the action stands disabled, said when the pointer rests on it. */
+    hint?: string | undefined
+    /** How many there are of what it acts on, shown beside its name. */
+    count?: number | undefined
+    /** Runs the action; given what was clicked, which a launch anchors to. */
+    run: (from: HTMLElement) => void
+}
 
 interface ModuleActionBarProps {
     project: Project
@@ -127,8 +143,8 @@ export const ModuleActionBar = ({
 
     // The panel of EPBDS-16560 answers this: it runs the project's tests, with the choice of only this
     // module's — which is the only choice left while the rest of the project is still being compiled.
-    const openTests = (from: ReactMouseEvent<HTMLElement>) => {
-        const { top, left, width, height } = from.currentTarget.getBoundingClientRect()
+    const openTests = (from: HTMLElement) => {
+        const { top, left, width, height } = from.getBoundingClientRect()
         window.dispatchEvent(new CustomEvent('openTestsLaunch', {
             detail: {
                 projectId: project.id,
@@ -162,8 +178,11 @@ export const ModuleActionBar = ({
     // Every table of every module of the project is formatted, so a dialog says so before anything is written.
     const reformat = () => confirmWrite(() => setReformatOpen(true))
 
-    const chooseMore = (key: string) => {
-        if (key === 'revisions') {
+    const chooseMore = (key: string, from: HTMLElement) => {
+        const collapsed = barActions.find(action => `bar:${action.key}` === key)
+        if (collapsed) {
+            collapsed.run(from)
+        } else if (key === 'revisions') {
             setRevisionsOpen(true)
         } else if (key === 'localChanges') {
             setLocalChangesOpen(true)
@@ -179,101 +198,136 @@ export const ModuleActionBar = ({
         }
     }
 
-    /** One of the project's own actions, offered only where the project says it is allowed. */
-    const projectAction = (id: keyof ProjectDialogActions) => isActionAvailable(project, id) && (
-        <Button
-            key={id}
-            data-testid={`module-${id}`}
-            disabled={disabled}
-            icon={ACTION_ICONS[id]}
-            onClick={id === 'save' && beforeSave !== undefined ? () => beforeSave(actions.save) : actions[id]}
-            type={id === 'save' ? 'primary' : 'default'}
-        >
-            {t(PROJECT_ACTIONS[id].labelKey)}
-        </Button>
-    )
+    /**
+     * The buttons of the row, in their order: what the project needs done first, then what it offers. A button the row
+     * has no room for beside the name of the module is not dropped: it heads the More menu instead.
+     */
+    const barActions: BarAction[] = [
+        // Offered only while something is waiting: with automatic compilation on there is never anything to verify,
+        // and the row does not carry a button that can do nothing.
+        ...(verifyNeeded ? [{
+            key: 'verify',
+            label: t('browser.module.verify'),
+            icon: <CheckCircleOutlined />,
+            primary: true,
+            run: () => onVerify?.(),
+        }] : []),
+        // Saving, syncing, deploying and copying belong to the project: offered where the project says they are.
+        ...PROJECT_LEVEL.filter(id => isActionAvailable(project, id)).map((id): BarAction => ({
+            key: id,
+            label: t(PROJECT_ACTIONS[id].labelKey),
+            icon: ACTION_ICONS[id],
+            disabled,
+            primary: id === 'save',
+            run: id === 'save' && beforeSave !== undefined ? () => beforeSave(actions.save) : () => actions[id](),
+        })),
+        ...(canUpdateModule ? [{
+            key: 'update',
+            label: t('browser.module.update'),
+            icon: <UploadOutlined />,
+            disabled,
+            run: () => window.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
+                detail: { projectId: project.id, modulePath, onSuccess: () => onProjectChanged?.() },
+            })),
+        }] : []),
+        ...(ofModule ? [{
+            key: 'export',
+            label: t('browser.module.export'),
+            icon: ACTION_ICONS.export,
+            disabled: disabled || !exportable,
+            hint: exportable ? undefined : t(exportHint),
+            run: () => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
+                detail: { projectId: project.id, filePath: modulePath },
+            })),
+        }] : []),
+        {
+            key: 'test',
+            label: t('browser.module.test'),
+            icon: <ExperimentOutlined />,
+            disabled: disabled || !testCount,
+            count: testCount,
+            run: openTests,
+        },
+        ...((canWrite || readOnly) && ofModule && !singleFile ? [{
+            key: 'createTable',
+            label: t('browser.module.createTable'),
+            icon: <PlusOutlined />,
+            disabled: disabled || readOnly,
+            hint: readOnly ? t('browser.module.read_only') : undefined,
+            run: () => confirmWrite(() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
+                detail: { projectId: project.id, currentModuleName: moduleName, onSuccess: onTableCreated },
+            }))),
+        }] : []),
+    ]
 
-    return (
-        <Space data-testid="module-actions">
-            {/*
-              * Offered only while something is waiting: with automatic compilation on there is never anything
-              * to verify, and the row does not carry a button that can do nothing.
-              */}
-            {verifyNeeded && (
-                <Button
-                    data-testid="module-verify"
-                    icon={<CheckCircleOutlined />}
-                    onClick={() => onVerify?.()}
-                    type="primary"
-                >
-                    {t('browser.module.verify')}
-                </Button>
-            )}
-            {PROJECT_LEVEL.map(projectAction)}
-            {canUpdateModule && (
-                <Button
-                    data-testid="module-update"
-                    disabled={disabled}
-                    icon={<UploadOutlined />}
-                    onClick={() => window.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
-                        detail: { projectId: project.id, modulePath, onSuccess: () => onProjectChanged?.() },
-                    }))}
-                >
-                    {t('browser.module.update')}
-                </Button>
-            )}
-            {ofModule && (
-                <Tooltip title={exportable ? undefined : t(exportHint)}>
-                    <Button
-                        data-testid="module-export"
-                        disabled={disabled || !exportable}
-                        icon={ACTION_ICONS.export}
-                        onClick={() => window.dispatchEvent(new CustomEvent('openExportProjectModal', {
-                            detail: { projectId: project.id, filePath: modulePath },
-                        }))}
-                    >
-                        {t('browser.module.export')}
-                    </Button>
-                </Tooltip>
-            )}
+    const shownKeys = barActions.map(action => action.key).join()
+    const { barRef, measureRef, visible } = useActionFit(barActions.length, [shownKeys, moduleName], {
+        moreAlways: true,
+        wholeTitle: true,
+    })
+    const { styles: fit } = useActionBarStyles()
+
+    /** A button of the row, with the hint that says why it stands disabled. */
+    const button = (action: BarAction) => {
+        const node = (
             <Button
-                data-testid="module-test"
-                disabled={disabled || !testCount}
-                icon={<ExperimentOutlined />}
-                onClick={openTests}
+                key={action.key}
+                data-testid={`module-${action.key}`}
+                disabled={action.disabled === true}
+                icon={action.icon}
+                onClick={event => action.run(event.currentTarget)}
+                type={action.primary ? 'primary' : 'default'}
             >
-                {t('browser.module.test')}
-                {!!testCount && (
-                    <Badge color="blue" count={testCount} data-testid="module-test-count" />
+                {action.label}
+                {!!action.count && (
+                    <Badge color="blue" count={action.count} data-testid={`module-${action.key}-count`} />
                 )}
             </Button>
-            {(canWrite || readOnly) && ofModule && !singleFile && (
-                <Tooltip title={readOnly ? t('browser.module.read_only') : undefined}>
-                    <Button
-                        data-testid="module-createTable"
-                        disabled={disabled || readOnly}
-                        icon={<PlusOutlined />}
-                        onClick={() => confirmWrite(() => window.dispatchEvent(new CustomEvent('openCreateTableModal', {
-                            detail: {
-                                projectId: project.id,
-                                currentModuleName: moduleName,
-                                onSuccess: onTableCreated,
-                            },
-                        })))}
-                    >
-                        {t('browser.module.createTable')}
-                    </Button>
+        )
+        return action.hint ? <Tooltip key={action.key} title={action.hint}>{node}</Tooltip> : node
+    }
+
+    // The buttons that did not fit head the More menu, set apart from what it always offers.
+    const collapsed = barActions.slice(visible)
+    const menuItems = [
+        ...collapsed.map(action => ({
+            key: `bar:${action.key}`,
+            icon: action.icon,
+            disabled: action.disabled === true,
+            label: (
+                <Tooltip placement="left" title={action.hint}>
+                    <span data-testid={`module-${action.key}-item`}>
+                        {action.label}
+                        {!!action.count && ` (${action.count})`}
+                    </span>
                 </Tooltip>
-            )}
+            ),
+        })),
+        ...(collapsed.length > 0 ? [{ type: 'divider' as const }] : []),
+        ...more,
+    ]
+
+    return (
+        <div ref={barRef} className={fit.bar} data-testid="module-actions">
+            {barActions.slice(0, visible).map(button)}
             <Dropdown
                 disabled={disabled}
-                menu={{ items: more, onClick: ({ key }) => chooseMore(key) }}
+                menu={{ items: menuItems, onClick: ({ key, domEvent }) => chooseMore(key, domEvent.currentTarget) }}
                 trigger={['click']}
             >
                 <Button data-testid="module-more" disabled={disabled}>
                     {t('browser.module.more')} <DownOutlined />
                 </Button>
             </Dropdown>
+            <div ref={measureRef} aria-hidden className={fit.measure}>
+                {barActions.map(action => (
+                    <Button key={action.key} icon={action.icon}>
+                        {action.label}
+                        {!!action.count && <Badge color="blue" count={action.count} />}
+                    </Button>
+                ))}
+                <Button>{t('browser.module.more')} <DownOutlined /></Button>
+            </div>
             <Modal
                 destroyOnHidden
                 footer={null}
@@ -321,6 +375,6 @@ export const ModuleActionBar = ({
                 open={reformatOpen}
                 projectId={project.id}
             />
-        </Space>
+        </div>
     )
 }

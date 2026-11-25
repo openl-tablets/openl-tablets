@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
-import { fitActionCount, ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
+import { ProjectActionBar, type ProjectActionHandlers } from './ProjectActionBar'
 
 vi.mock('react-i18next', () => {
     // One t for every render: a fresh function each call would destabilize the memoized action set.
@@ -72,25 +72,6 @@ const mockSizes = (parentWidth: number, itemWidth: number) => {
 }
 
 afterEach(() => vi.restoreAllMocks())
-
-describe('fitActionCount', () => {
-    it('shows every action when they all fit', () => {
-        expect(fitActionCount([50, 50, 50], 40, 500, 8)).toBe(3)
-    })
-
-    it('reserves room for the overflow trigger once something spills', () => {
-        // 50 + 8 + 8 + 40 = 106 <= 110 fits one; a second (50 + 8) would need 164.
-        expect(fitActionCount([50, 50, 50], 40, 110, 8)).toBe(1)
-    })
-
-    it('always keeps at least the first action, however tight the space', () => {
-        expect(fitActionCount([200, 50], 40, 30, 8)).toBe(1)
-    })
-
-    it('returns zero only when there are no actions', () => {
-        expect(fitActionCount([], 40, 500, 8)).toBe(0)
-    })
-})
 
 describe('ProjectActionBar', () => {
     it('adds files at the root of a project the reader may write to, after the open and close actions', () => {
