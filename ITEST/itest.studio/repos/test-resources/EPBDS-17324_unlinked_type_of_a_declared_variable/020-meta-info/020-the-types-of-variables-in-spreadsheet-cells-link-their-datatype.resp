@@ -1,0 +1,256 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${SPREADSHEET_ID}",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "declarations",
+  "pos": "B11:C16",
+  "source": [
+    [
+      {
+        "cell": "B11",
+        "value": "Spreadsheet SpreadsheetResult declarations(Member[] members)",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 43,
+              "end": 49,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C11"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": "Step"
+      },
+      {
+        "cell": "C12",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "Array"
+      },
+      {
+        "cell": "C13",
+        "value": "{ Member[] found = new Member[1]; return found; }",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 2,
+              "end": 8,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 23,
+              "end": 29,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 41,
+              "end": 46,
+              "description": "Member[] found",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Several"
+      },
+      {
+        "cell": "C14",
+        "value": "{ Member first = new Member(), second = first; return second; }",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 2,
+              "end": 8,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 21,
+              "end": 27,
+              "description": "Datatype Member\nMember ()",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 40,
+              "end": 45,
+              "description": "Member first",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 54,
+              "end": 60,
+              "description": "Member second",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "JavaType"
+      },
+      {
+        "cell": "C15",
+        "value": "{ String text = members[0].name; return text; }",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 2,
+              "end": 8,
+              "description": "java.lang\nclass String",
+              "kind": "other"
+            },
+            {
+              "start": 16,
+              "end": 23,
+              "description": "Member[] members",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 27,
+              "end": 31,
+              "description": "Datatype Member\nString name",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 40,
+              "end": 44,
+              "description": "String text",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "Adults"
+      },
+      {
+        "cell": "C16",
+        "value": "= members[(Member m) select all having m.age > 17]",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: Member[]",
+              "kind": "other"
+            },
+            {
+              "start": 2,
+              "end": 9,
+              "description": "Member[] members",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 11,
+              "end": 17,
+              "description": "Datatype Member",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 18,
+              "end": 19,
+              "description": "Element of Member[]\nMember m",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 39,
+              "end": 40,
+              "description": "Member m",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 41,
+              "end": 44,
+              "description": "Datatype Member\nInteger age",
+              "tableId": "${DATATYPE_ID}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

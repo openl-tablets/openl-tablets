@@ -55,7 +55,9 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
         }
         try {
             var variable = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, nameOf(node).getIdentifier(), type);
-            return new IndexParameterNode(node, typeNode, variable, origin);
+            // The type is kept for the hint and the link of the editor only. Rule Services do not keep it.
+            var shownType = bindingContext.isExecutionMode() ? null : typeNode;
+            return new IndexParameterNode(node, shownType, variable, origin);
         } catch (DuplicatedVarException e) {
             BindHelper.processError(e, node, bindingContext);
             return null;
@@ -69,7 +71,7 @@ public class IndexParameterDeclarationBinder extends ANodeBinder {
     /**
      * The declaration of an element or of an index, with the variable it declares.
      */
-    static class IndexParameterNode extends ABoundNode {
+    static final class IndexParameterNode extends ABoundNode {
         @Getter
         private final ILocalVar variable;
 
