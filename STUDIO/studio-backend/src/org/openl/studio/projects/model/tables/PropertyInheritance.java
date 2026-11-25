@@ -31,7 +31,7 @@ public enum PropertyInheritance {
      * The level as this API names it, or nothing when the property is the table's own.
      *
      * <p>A property written on the table, and one the engine reports no level for, are both the table's own as
-     * far as a reader is concerned — which is how the Table Details panel has always shown them.
+     * far as a reader is concerned — which is how the Table Properties panel shows them.
      */
     public static @Nullable PropertyInheritance of(@Nullable InheritanceLevel level) {
         if (level == null) {

@@ -344,7 +344,7 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 
 For more information on table types, see [OpenL Tablets Reference Guide > Table Types](../reference-guide/index.md#table-types). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
 
-The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Details** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and an extended search of all table types, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
+The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Properties** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and an extended search of all table types, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
 
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
@@ -591,7 +591,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     Cells written and not yet saved live on the screen alone. Anything that reads the workbook afresh —
     switching the branch, opening a revision, restoring a local version, refreshing the module — asks
     whether to discard them first, so none of them is lost without a word. Saving the table's properties in
-    **Table Details** writes them along with the properties, since the properties are rows of the table
+    **Table Properties** writes them along with the properties, since the properties are rows of the table
     itself. The cells are written first, so they stay saved even when the properties are refused.
 
     A table that has no room to grow where it stands, such as one given a row at its end right above another
@@ -866,7 +866,7 @@ To create a table as a copy of the existing table, proceed as follows:
     another module is offered a sheet of that module.
 4.  Review the property name and value rows. A Properties or Environment table is copied as it stands and offers no
     rows. The names are the properties applicable to the copied table's type,
-    offered the way the **Table Details** editor lists them — by display name, under the **Info**, **Business
+    offered the way the **Table Properties** editor lists them — by display name, under the **Info**, **Business
     Dimension**, **Version** and **Dev** groups, so the dimensional properties are presented rather than guessed:
     - complete the last row to add another property, or delete a row with its row control;
     - select a property by its display name; a property another row already carries is not offered again, since

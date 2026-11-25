@@ -14,7 +14,7 @@ public interface TablePropertiesService {
 
     /**
      * The table's own properties, with each value as the string the copy API writes it as: a date in ISO-8601, any
-     * other value in the display form the Table Details editor shows.
+     * other value in the display form the Table Properties panel shows.
      *
      * @param table the table to read
      * @return the properties defined on the table

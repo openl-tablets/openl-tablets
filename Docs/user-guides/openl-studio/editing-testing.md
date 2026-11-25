@@ -60,7 +60,7 @@ beyond its precision. A whole JSON number is read exactly.
 
 This section describes table properties available in OpenL Studio. For more information on table properties, see [OpenL Tablets Reference Guide > Table Properties](../reference-guide/02-working-with-openl-tables/04-table-properties/01-category-and-module-level-properties.md#table-properties).
 
-The properties of a table are shown in the **Table Details** pane on the right of the table. The pane lists only the properties that the table declares or inherits, grouped as **Info**, **Business Dimension**, **Version** and **Dev**. The default value of a property that the table does not declare is not listed, though it applies to the table. In the following example, the table declares only its description, so the default properties, such as **Active = true** and **Fail On Miss = false**, are not shown.
+The properties of a table are shown in the **Table Properties** pane on the right of the table. The pane lists only the properties that the table declares or inherits, grouped as **Info**, **Business Dimension**, **Version** and **Dev**. The default value of a property that the table does not declare is not listed, though it applies to the table. In the following example, the table declares only its description, so the default properties, such as **Active = true** and **Fail On Miss = false**, are not shown.
 
 ![](images/default-table-properties.png)
 
@@ -68,7 +68,7 @@ The properties of a table are shown in the **Table Details** pane on the right o
 
 Default properties can be overridden at the table level; in other words, a default property can be set for the table as follows:
 
-1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon.
+1.  In the **Table Properties** pane, click **Edit the properties**, the pencil icon.
 1.  Open the **Add a property** list, start typing the name of the property, such as **Fail On Miss**, and select it.
 
     A field for the value appears. For a property with the values **true** and **false**, it is a check box:
@@ -79,7 +79,7 @@ Default properties can be overridden at the table level; in other words, a defau
 
 1.  Select or deselect the check box as needed and click the **Save** button.
 
-    The property appears in the **Table Details** pane with its new value and is written to the table.
+    The property appears in the **Table Properties** pane with its new value and is written to the table.
 
     ![](images/default-property-updated.png)
 
@@ -87,7 +87,7 @@ Default properties can be overridden at the table level; in other words, a defau
 
 #### Editing Inherited Table Properties
 
-Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](../reference-guide/02-working-with-openl-tables/03-table-types/11-less-common-table-types/01-properties-table.md#properties-table). In the **Table Details** pane of the given table, inherited properties appear in a different color and are marked with an arrow icon. Resting the pointer on the icon tells where the property is inherited from, for example, **Inherited from the module properties table** or **Inherited from the category properties table**. The values of the inherited properties are not stored in the table, they are displayed in the **Table Details** pane, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
+Module or category level properties are those inherited from a **Properties** table as described in [OpenL Tablets Reference Guide > Properties Table](../reference-guide/02-working-with-openl-tables/03-table-types/11-less-common-table-types/01-properties-table.md#properties-table). In the **Table Properties** pane of the given table, inherited properties appear in a different color and are marked with an arrow icon. Resting the pointer on the icon tells where the property is inherited from, for example, **Inherited from the module properties table** or **Inherited from the category properties table**. The values of the inherited properties are not stored in the table, they are displayed in the **Table Properties** pane, since they are inherited and applied to this table. Inherited properties can be overridden at a Table level, i.e. they can be changed.
 
 ![](images/inherited-category-level-properties.png)
 
@@ -95,7 +95,7 @@ Module or category level properties are those inherited from a **Properties** ta
 
 To change an inherited property, perform the following steps:
 
-1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon.
+1.  In the **Table Properties** pane, click **Edit the properties**, the pencil icon.
 2.  Enter or select the required values from the drop-down list and click **Save**.
 
     ![](images/updating-inherited-property.png)
@@ -115,7 +115,7 @@ The following topics are included in this section:
 
 ##### Editing System Properties
 
-When **Update table properties** is selected in [System Settings](administration/02-system-settings.md), which it is not by default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the **Table Details** pane.
+When **Update table properties** is selected in [System Settings](administration/02-system-settings.md), which it is not by default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the **Table Properties** pane.
 
 The **modifiedBy** property value is set using the name of the currently logged in user. The **modifiedOn** property is set according to the current date. These properties are applied upon each save.
 
@@ -131,9 +131,9 @@ System properties cannot be edited in UI. The OpenL Studio users can delete thos
 
 ##### Editing Properties for a Particular Table Type
 
-Some properties are only applicable to particular types of tables. When opening a table in OpenL Studio, the **Table Details** pane offers properties depending on the type of the table.
+Some properties are only applicable to particular types of tables. When opening a table in OpenL Studio, the **Table Properties** pane offers properties depending on the type of the table.
 
-For example, such property as **Validate DT** is available for Decision Tables. That means it can be selected in the **Add a property** list of the **Table Details** pane while the properties are edited. The following figure shows properties applied to a Decision Table:
+For example, such property as **Validate DT** is available for Decision Tables. That means it can be selected in the **Add a property** list of the **Table Properties** pane while the properties are edited. The following figure shows properties applied to a Decision Table:
 
 ![](images/decision-table-properties.png)
 
@@ -147,7 +147,7 @@ When opening a Data Table in the same project, these properties are not availabl
 
 The **Copy table** window reads the properties explicitly defined on the source table. It displays them as editable
 property name and value rows, offering the properties applicable to the table's type by their display names under the
-**Info**, **Business Dimension**, **Version** and **Dev** groups — the same names and grouping the **Table Details**
+**Info**, **Business Dimension**, **Version** and **Dev** groups — the same names and grouping the **Table Properties**
 editor uses. The copy keeps the source table's formatting — its cell styles, merged cells and comments.
 
 Datatype tables and tables of the **Other** type cannot be copied: they carry no properties to tell a copy from the
@@ -173,7 +173,7 @@ the copy becomes the version the rule runs.
 
 To add a new property for the selected table, perform the following steps:
 
-1.  In the **Table Details** pane, click **Edit the properties**, the pencil icon. The **Add a property** list appears under the properties of the table.
+1.  In the **Table Properties** pane, click **Edit the properties**, the pencil icon. The **Add a property** list appears under the properties of the table.
 
     ![](images/add-new-property-link.png)
 

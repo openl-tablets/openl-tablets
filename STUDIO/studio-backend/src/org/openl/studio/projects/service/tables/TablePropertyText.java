@@ -19,7 +19,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  * <p>A date crosses the wire in ISO-8601 — the day alone, with the time after it only when the value carries one —
  * so the same text is read the same way at both ends whatever the reader's locale. A property closing a period,
  * which the engine keeps at the close of the day it names, crosses as that day. Every other value crosses in the
- * display form its definition gives, the one the Table Details editor shows.
+ * display form its definition gives, the one the Table Properties panel shows.
  *
  * <p>A value is read back as the property it names: a date, a flag, an enumeration or a list of them, the way the
  * engine reads the cell it is written to. A text the property cannot be read from is kept as it stands, so a value
@@ -46,7 +46,7 @@ public final class TablePropertyText {
         }
         if (value instanceof Date date) {
             // A property closing a period stands for the end of its day, which is the engine's moment rather than
-            // a value the author wrote: the day it names is what crosses, the way Table Details shows it.
+            // a value the author wrote: the day it names is what crosses, the way Table Properties shows it.
             return TableProperties.END_OF_DAY_PROPERTIES.contains(name) ? isoDay(date) : iso(date);
         }
         var definition = TablePropertyDefinitionUtils.getPropertyByName(name);

@@ -30,11 +30,11 @@ export const isValidPropertyValue = (
 ): boolean =>
     !definition?.pattern || new RegExp(`^(?:${definition.pattern})$`).test(String(value ?? '').trim())
 
-/** The groups Table Details lists properties under, in its order; a group it does not know follows them. */
+/** The groups Table Properties lists properties under, in its order; a group it does not know follows them. */
 const PROPERTY_GROUPS = ['Info', 'Business Dimension', 'Version', 'Dev']
 
 /**
- * The properties a dialog offers: display names under their groups, the way Table Details lists them.
+ * The properties a dialog offers: display names under their groups, the way Table Properties lists them.
  *
  * <p>An author reads a property as *Effective Date* under *Business Dimension*, not as `effectiveDate` in one flat
  * list, and the grouping is what tells the dimensional properties apart from the rest. The value stays the technical

@@ -19,7 +19,7 @@ import org.openl.studio.projects.model.tables.TablePropertyDetailView;
 import org.openl.studio.projects.model.tables.TablePropertyGroupView;
 
 /**
- * Reads the properties that apply to a table, the way the Table Details panel has always read them.
+ * Reads the properties that apply to a table, the way the Table Properties panel reads them.
  *
  * <p>A table carries some of its properties in its own header and inherits the rest from the properties table
  * of its module or category. Both kinds are answered here, in the order and the groups the property dictionary

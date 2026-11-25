@@ -5,7 +5,7 @@ import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 /**
- * One property that applies to a table, as the Table Details panel shows it.
+ * One property that applies to a table, as the Table Properties panel shows it.
  *
  * <p>A property is either written on the table itself or inherited from the properties table of its module or
  * its category, and the answer says which — a reader looking at a table whose header is hidden has no other way

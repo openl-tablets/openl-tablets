@@ -475,9 +475,7 @@ i18next.addResourceBundle('en', 'repository', {
             partial_table: 'This table is written as several partial tables, so it cannot be edited here. Open it in Excel to change it.',
             partial_markdown_table: 'This table is written in parts, a Markdown file for each part, so it cannot be '
                 + 'edited here. Change the parts in their files, picked in the projects tree.',
-            details: 'Table Details',
-            details_show: 'Show table details',
-            details_hide: 'Hide table details',
+            details: 'Table Properties',
             details_none: 'This table declares no properties',
             details_edit: 'Edit the properties',
             details_add: 'Add a property',

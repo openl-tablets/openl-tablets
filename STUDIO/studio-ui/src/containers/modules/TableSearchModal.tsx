@@ -251,7 +251,7 @@ const TableSearchForm = ({
     }, [projectId])
 
     // Grouped the way the copy dialog groups them — Info, Business Dimension, Version, Dev — so a property is
-    // looked for where the Table Details panel lists it.
+    // looked for where the Table Properties panel lists it.
     const propertyOptions = useMemo(() => toPropertyGroups(properties), [properties])
     const definitionOf = (name: string) => properties.find(property => property.name === name.trim())
 

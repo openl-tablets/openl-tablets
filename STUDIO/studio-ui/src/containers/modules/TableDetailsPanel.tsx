@@ -5,9 +5,6 @@ import {
     ArrowUpOutlined,
     DeleteOutlined,
     EditOutlined,
-    LeftOutlined,
-    ProfileOutlined,
-    RightOutlined,
 } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { ProjectProperty } from 'types/tables'
@@ -24,6 +21,7 @@ import type { Written } from './TableEditor'
 import type { ConfirmWrite } from './useOverwriteConfirm'
 import { formatLocalDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useStoredSetting } from '../../hooks/useStoredSetting'
+import { FOLDED_WIDTH, FoldRailButton, PanelSpine } from '../projects/RailFold'
 
 /** The name takes a fixed share of the panel, so a value is not squeezed into a column of its own. */
 const LABEL_WIDTH = 130
@@ -396,26 +394,15 @@ export const TableDetailsPanel = ({
         </div>
     )
 
-    const toggle = (
-        <Tooltip title={t(open ? 'browser.module.details_hide' : 'browser.module.details_show')}>
-            <Button
-                aria-label={t(open ? 'browser.module.details_hide' : 'browser.module.details_show')}
-                data-testid="table-details-toggle"
-                icon={open ? <RightOutlined /> : <LeftOutlined />}
-                onClick={() => setOpen(!open)}
-                size="small"
-                type="text"
-            />
-        </Tooltip>
-    )
-
     if (!open) {
         return (
-            <aside className={styles.panel} data-testid="table-details">
-                <div className={styles.header}>
-                    <ProfileOutlined className={styles.inherited} />
-                    {toggle}
-                </div>
+            <aside className={styles.panel} data-testid="table-details" style={{ width: FOLDED_WIDTH }}>
+                <PanelSpine
+                    name={t('browser.module.details')}
+                    onUnfold={() => setOpen(true)}
+                    side="right"
+                    testId="table-details-expand"
+                />
             </aside>
         )
     }
@@ -424,10 +411,7 @@ export const TableDetailsPanel = ({
         <aside className={styles.panel} data-testid="table-details" style={{ width }}>
             <ResizeHandle edge="left" onPointerDown={startResize} testId="table-details-resizer" />
             <div className={styles.header}>
-                <span className={styles.title} title={details?.name}>
-                    {/* A properties table carries no name of its own, and the panel keeps its own instead. */}
-                    {details?.name || t('browser.module.details')}
-                </span>
+                <span className={styles.title}>{t('browser.module.details')}</span>
                 {canWrite && details?.canEditProperties && !editing && (
                     <Tooltip title={t('browser.module.details_edit')}>
                         <Button
@@ -440,7 +424,7 @@ export const TableDetailsPanel = ({
                         />
                     </Tooltip>
                 )}
-                {toggle}
+                <FoldRailButton onFold={() => setOpen(false)} side="right" testId="table-details" />
             </div>
             <div className={styles.body} data-testid="table-details-body">
                 {loading && <Skeleton active title data-testid="table-details-loading" paragraph={{ rows: 4 }} />}

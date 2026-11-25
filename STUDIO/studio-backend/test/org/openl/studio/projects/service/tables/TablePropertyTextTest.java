@@ -35,7 +35,7 @@ class TablePropertyTextTest {
     @Test
     void writesTheDayAPropertyClosingAPeriodNames() {
         // The engine keeps an expiration date at the close of its day. That moment is the engine's, so the day the
-        // table declares is what crosses — the way the Table Details editor shows it.
+        // table declares is what crosses — the way the Table Properties panel shows it.
         assertEquals("2009-12-31",
                 TablePropertyText.format("expirationDate", date("2009-12-31T23:59:59.999")));
         assertEquals("2009-12-31", TablePropertyText.format("endRequestDate", date("2009-12-31T23:59:59.999")));

@@ -141,7 +141,7 @@ which changes the requests the table answers.
 
 A property closing a period — **Expiration Date**, **End Request Date** — is the exception. A table stays in force
 through its last day, so the engine keeps such a value at the close of the day it names. That moment is the engine's
-rather than one an author wrote, and it is left where the Table Details editor leaves it: the day is what crosses the
+rather than one an author wrote, and it is left where the Table Properties editor leaves it: the day is what crosses the
 network, and the engine stamps the end of it again when the value is read back. A declared dimension value is
 compared the way the engine keeps it — several values ordered, a closing date moved to the end of its day — so a copy
 declaring the day its source declares is a new version of it rather than a table standing beside it. A partially filled row or repeated
@@ -242,7 +242,7 @@ One question per resource, each asked of the thing that owns the answer:
 - **The versions of the table being copied** — `/projects/{projectId}/tables/{tableId}/properties` answers with the
   table's own properties and, for a kind of table that carries versions, the one it stands for, the ones its versions
   already carry and the first one left free. A value crosses in the form the dialog edits it in — a date in ISO 8601,
-  every other value the way the Table Details editor shows it — and the copy request carries it back the same way,
+  every other value the way the Table Properties editor shows it — and the copy request carries it back the same way,
   so a value left untouched reaches the copy as the one the source declared.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.

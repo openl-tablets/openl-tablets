@@ -885,7 +885,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         }
     }
 
-    // Display names under their groups, the way Table Details lists them; the cell keeps the technical name, which
+    // Display names under their groups, the way Table Properties lists them; the cell keeps the technical name, which
     // is what a Properties table declares.
     const propertyOptions = useMemo(() => toPropertyGroups(properties), [properties])
 

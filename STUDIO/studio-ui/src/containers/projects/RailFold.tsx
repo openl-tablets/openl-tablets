@@ -5,15 +5,17 @@ import { useTranslation } from 'react-i18next'
 import { booleanText, storedSetting, type StoredSetting } from '../../utils/localStore'
 import { useSharedStyles } from './sharedStyles'
 
+/** How wide a panel folded away stands: a strip as narrow as its handle. */
+export const FOLDED_WIDTH = 28
+
 const useStyles = createStyles(({ css, token }) => ({
-    /** The rail put away: a strip as narrow as its handle. */
     folded: css`
-        width: 28px;
-        min-width: 28px;
+        width: ${FOLDED_WIDTH}px;
+        min-width: ${FOLDED_WIDTH}px;
     `,
     /**
-     * The strip is one button from top to bottom, like the spine of a book: the arrow that opens the rail, and under it
-     * the name of the rail written up the strip, so the reader sees what is put away and that it opens.
+     * The strip is one button from top to bottom, like the spine of a book: the arrow that opens the panel, and under
+     * it the name of the panel written along the strip, so the reader sees what is put away and that it opens.
      */
     spine: css`
         display: flex;
@@ -51,12 +53,15 @@ const useStyles = createStyles(({ css, token }) => ({
         height: ${token.controlHeightSM}px;
         font-size: ${token.fontSizeSM}px;
     `,
-    /** The name, read from the bottom up, as on the spine of a book; a strip shorter than the name cuts it. */
+    /** The name, read from the top down; a strip shorter than the name cuts it. */
     name: css`
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         writing-mode: vertical-rl;
+    `,
+    /** On a left panel the name reads from the bottom up instead, as on the spine of a book. */
+    upward: css`
         transform: rotate(180deg);
     `,
 }))
@@ -69,23 +74,59 @@ export const railFolded = (key: string): StoredSetting<boolean> => storedSetting
 
 interface FoldRailButtonProps {
     onFold: () => void
+    /** The edge of the window the panel stands at: its handle points there. A left panel is the default. */
+    side?: 'left' | 'right'
     /** The test id of the rail; the handle is named with `-collapse` after it. */
     testId: string
 }
 
-/** The handle on the header row of a left rail that folds the rail away. */
-export const FoldRailButton = ({ onFold, testId }: FoldRailButtonProps) => {
+/** The handle on the header row of a panel that folds the panel away, toward the edge it stands at. */
+export const FoldRailButton = ({ onFold, side = 'left', testId }: FoldRailButtonProps) => {
     const { t } = useTranslation()
     return (
         <Tooltip title={t('common:rail.hide')}>
             <Button
                 aria-label={t('common:rail.hide')}
                 data-testid={`${testId}-collapse`}
-                icon={<LeftOutlined />}
+                icon={side === 'left' ? <LeftOutlined /> : <RightOutlined />}
                 onClick={onFold}
                 size="small"
                 type="text"
             />
+        </Tooltip>
+    )
+}
+
+interface PanelSpineProps {
+    /** The name of the panel, written along the strip: what the reader brings back by clicking it. */
+    name: string
+    onUnfold: () => void
+    /**
+     * The edge of the window the panel stands at. A left panel opens to the right and its name reads from the bottom
+     * up; a right panel opens to the left and its name reads from the top down. Either way the tops of the letters face
+     * the edge.
+     */
+    side: 'left' | 'right'
+    testId: string
+}
+
+/** The strip of a panel folded away: one button with the arrow that opens the panel and the name of the panel. */
+export const PanelSpine = ({ name, onUnfold, side, testId }: PanelSpineProps) => {
+    const { t } = useTranslation()
+    const { styles, cx } = useStyles()
+    const left = side === 'left'
+    return (
+        <Tooltip placement={left ? 'right' : 'left'} title={t('common:rail.show')}>
+            <button
+                aria-label={t('common:rail.show_named', { name })}
+                className={styles.spine}
+                data-testid={testId}
+                onClick={onUnfold}
+                type="button"
+            >
+                <span className={styles.arrow}>{left ? <RightOutlined /> : <LeftOutlined />}</span>
+                <span className={cx(styles.name, left && styles.upward)}>{name}</span>
+            </button>
         </Tooltip>
     )
 }
@@ -100,23 +141,11 @@ interface FoldedRailProps {
 
 /** A left rail folded away: a narrow strip with the name of the rail, which brings the rail back on a click. */
 export const FoldedRail = ({ name, onUnfold, testId }: FoldedRailProps) => {
-    const { t } = useTranslation()
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
     return (
         <aside className={cx(shared.rail, styles.folded)} data-testid={`${testId}-collapsed`}>
-            <Tooltip placement="right" title={t('common:rail.show')}>
-                <button
-                    aria-label={t('common:rail.show_named', { name })}
-                    className={styles.spine}
-                    data-testid={`${testId}-expand`}
-                    onClick={onUnfold}
-                    type="button"
-                >
-                    <span className={styles.arrow}><RightOutlined /></span>
-                    <span className={styles.name}>{name}</span>
-                </button>
-            </Tooltip>
+            <PanelSpine name={name} onUnfold={onUnfold} side="left" testId={`${testId}-expand`} />
         </aside>
     )
 }
