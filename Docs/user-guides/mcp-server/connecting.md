@@ -116,7 +116,7 @@ environment variable, such as `OPENL_TOKEN`:
 
 Claude Desktop starts its local MCP servers as programs, so it reaches the server through `mcp-remote`, a program that
 forwards the messages over Streamable HTTP. It runs with `npx`, which comes with Node.js. In Claude Desktop, select
-**Settings** > **Developer** > **Edit Config**, and add the server to the `claude_desktop_config.json` file:
+**Settings** > **Desktop App** > **Extensions** > **Edit Config**, and add the server to the `claude_desktop_config.json` file:
 
 ```json
 {
