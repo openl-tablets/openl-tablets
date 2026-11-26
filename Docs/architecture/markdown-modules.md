@@ -223,9 +223,14 @@ The converter leaves such a table in its workbook. OpenL Studio shows the reason
 - `MarkdownProjectWriter` writes a copy of a project: a module folder at the path of each workbook without its
   extension, and a `rules.xml` that names the folders. A workbook stays a workbook when a table of it has no Markdown
   form, when another module includes it, when it includes the workbook of another module, or when its folder would
-  take the place of a folder of the project.
+  take the place of a folder of the project. Every other file is copied, but for the files and folders inside the
+  project the caller leaves out, compared as the file system names them, links followed. A module whose file lies
+  there, as a workbook of a build folder a module path with a wildcard matches, is no module of the copy, and nor is
+  a module of an earlier copy the project holds; the result names them.
 - [OpenL Maven Plugin](../ref/openl-maven-plugin.md) writes the copy in `openl:compile` when `markdown` is set, and
-  packages and deploys it instead of the sources.
+  packages and deploys it instead of the sources. The copy leaves out the build folder of the project, the one the
+  build names, and the `pom.xml`, which the archive leaves out by default too: the sources of a project kept in the
+  folder of its build hold both.
 - `MarkdownCorpusTest` (`-Dopenl.markdown.corpus=true`) converts every functional test project of the engine and
   compares the messages and the test results of the copy with those of the workbooks;
   `-Dopenl.markdown.corpus.dir` points it at another folder of projects.

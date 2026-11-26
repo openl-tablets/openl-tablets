@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,7 +37,9 @@ import org.openl.util.FileUtils;
  * <p>A module folder stands where its workbook stood, at the path of the workbook without its extension, and the
  * {@code rules.xml} of the copy names the folders, a module path matching several workbooks module by module. A file
  * name pattern of the project reads a folder as it read the workbook. Every other file of the project is copied as it
- * is.
+ * is, but for the files and folders the caller leaves out, such as the build folder of a project kept in the folder of
+ * its build. The copy drops a module whose file lies there, as a workbook of the build folder a module path with a
+ * wildcard matches, and a module of an earlier copy the project holds; the result names them.
  *
  * <p>A workbook holding a table no Markdown file can hold stays in the copy as it is, and the result tells which table
  * and why, so the copy compiles to the same rules. So do a workbook another module includes and a workbook including
@@ -50,17 +53,30 @@ public final class MarkdownProjectWriter {
      * Writes the copy of a project.
      *
      * @param factory the engine factory of the project, set up as the project is compiled — its class loader, its
-     *                workspace, its external parameters — and not in the execution mode, which drops the tables
+     *                workspace, its external parameters — and not in the execution mode, which drops the tables; the
+     *                modules the copy drops are taken out of its project
      * @param target  the folder of the copy, replaced when it exists; it may lie inside the project
-     * @return the modules written as folders and the modules kept as workbooks
+     * @param leftOut the files and folders inside the project the copy leaves out with all they hold, and with the
+     *                modules whose files lie there; a path not inside the project, such as a folder that holds it,
+     *                changes nothing
+     * @return the modules written as folders, the modules kept as workbooks and the modules dropped
      * @throws Exception when the project cannot be compiled or a file cannot be written
      */
-    public static Written write(SimpleProjectEngineFactory<?> factory, Path target) throws Exception {
+    public static Written write(SimpleProjectEngineFactory<?> factory, Path target, Collection<Path> leftOut)
+            throws Exception {
         var project = factory.getProjectDescriptor();
+        // A module of an earlier copy the project holds goes with that copy
+        var paths = new ArrayList<>(leftOut);
+        paths.add(target);
+        var skipped = inside(project.getProjectFolder(), paths);
+        var dropped = dropModules(project, skipped);
         if (Files.exists(target)) {
             FileUtils.delete(target);
         }
-        FileUtils.copy(project.getProjectFolder().toFile(), target.toFile());
+        var skippedFiles = skipped.stream()
+                .map(Path::toFile)
+                .toList();
+        FileUtils.copy(project.getProjectFolder().toFile(), target.toFile(), skippedFiles);
         factory.getCompiledOpenClass();
         var includes = includesOf(factory, project);
         var converted = new ArrayList<Converted>();
@@ -73,10 +89,57 @@ public final class MarkdownProjectWriter {
                 }
             }
         }
-        if (!converted.isEmpty()) {
+        if (!converted.isEmpty() || !dropped.isEmpty()) {
             writeDescriptor(project, converted, target);
         }
-        return new Written(List.copyOf(converted), List.copyOf(kept));
+        return new Written(List.copyOf(converted), List.copyOf(kept), dropped);
+    }
+
+    /** The paths that lie inside a folder and are not the folder itself, as the file system names them. */
+    private static List<Path> inside(Path folder, Collection<Path> paths) throws IOException {
+        var canonicalFolder = canonical(folder);
+        var found = new ArrayList<Path>();
+        for (var path : paths) {
+            var canonicalPath = canonical(path);
+            if (canonicalPath.startsWith(canonicalFolder) && !canonicalPath.equals(canonicalFolder)) {
+                found.add(canonicalPath);
+            }
+        }
+        return found;
+    }
+
+    /** The path as the file system names it, as {@link FileUtils#copy} compares the files it leaves out. */
+    private static Path canonical(Path path) throws IOException {
+        return path.toFile().getCanonicalFile().toPath();
+    }
+
+    /**
+     * Takes the modules whose files lie in the given paths out of the project, so that the copy neither compiles nor
+     * names them.
+     */
+    private static List<Dropped> dropModules(ProjectDescriptor project, List<Path> paths) throws IOException {
+        var modules = new ArrayList<Module>();
+        var dropped = new ArrayList<Dropped>();
+        for (var module : project.getModules()) {
+            if (liesIn(module, paths)) {
+                dropped.add(new Dropped(module.getName(), module.getRulesRootPath()));
+            } else {
+                modules.add(module);
+            }
+        }
+        if (!dropped.isEmpty()) {
+            project.setModules(modules);
+        }
+        return List.copyOf(dropped);
+    }
+
+    /** Whether the file of a module lies in one of the given paths. */
+    private static boolean liesIn(Module module, List<Path> paths) throws IOException {
+        if (module.getRulesRootPath() == null) {
+            return false;
+        }
+        var file = canonical(module.getRulesPath());
+        return paths.stream().anyMatch(file::startsWith);
     }
 
     /** The workbooks each module includes besides its own, by the file of the module. */
@@ -211,12 +274,22 @@ public final class MarkdownProjectWriter {
     }
 
     /**
-     * The modules of a project written as folders, and the modules kept as workbooks.
+     * The modules of a project written as folders, the modules kept as workbooks and the modules the copy drops.
      *
      * @param converted the modules written as folders
      * @param kept      the modules kept as workbooks
+     * @param dropped   the modules whose files lie in a folder the copy leaves out, which the copy does not name
      */
-    public record Written(List<Converted> converted, List<Kept> kept) {
+    public record Written(List<Converted> converted, List<Kept> kept, List<Dropped> dropped) {
+    }
+
+    /**
+     * A module the copy drops, as its file lies in a folder the copy leaves out.
+     *
+     * @param name the name of the module
+     * @param path the path of its file in the project
+     */
+    public record Dropped(String name, String path) {
     }
 
     /** What became of a module read from a workbook. */

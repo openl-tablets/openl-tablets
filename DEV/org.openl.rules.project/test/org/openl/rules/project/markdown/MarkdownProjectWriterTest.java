@@ -9,10 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -27,6 +30,10 @@ import org.openl.rules.vm.SimpleRulesVM;
  * {@code rules.xml} names the folders, and a workbook a Markdown file cannot hold stays as it is.
  */
 class MarkdownProjectWriterTest {
+
+    /** The module the wildcard of {@link #projectWithWorkbookInItsBuild} finds in the build folder. */
+    private static final MarkdownProjectWriter.Dropped COMMON = new MarkdownProjectWriter.Dropped("Common",
+            "build/openl-workspace/Common/rules/Common.xlsx");
 
     @TempDir
     Path dir;
@@ -68,13 +75,10 @@ class MarkdownProjectWriterTest {
             row(sheet, 6, 10.0, 1.5);
             row(sheet, 7, 40.0, 1.0);
         });
-        workbook(project.resolve("rules/Algorithms.xlsx"), "Algorithms", sheet -> {
-            row(sheet, 0, "Method Integer three()", "// a note beside the header");
-            row(sheet, 1, "return 3;");
-        });
+        algorithms(project.resolve("rules/Algorithms.xlsx"));
         var copy = dir.resolve("copy");
 
-        var written = MarkdownProjectWriter.write(factory(project), copy);
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of());
 
         assertEquals(List.of("Rates rules/Rates.xlsx -> rules/Rates", "Tests rules/Tests.xlsx -> rules/Tests"),
                 written.converted().stream()
@@ -89,10 +93,8 @@ class MarkdownProjectWriterTest {
         assertTrue(Files.isRegularFile(copy.resolve("rules/Rates/rate.md")));
         assertFalse(Files.exists(copy.resolve("rules/Rates.xlsx")));
         assertTrue(Files.isRegularFile(copy.resolve("rules/Algorithms.xlsx")));
-        var descriptor = ProjectDescriptor.read(copy);
-        assertEquals("Rating", descriptor.getName());
-        assertEquals(List.of("rules/Rates", "rules/Tests", "rules/Algorithms.xlsx"),
-                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
+        assertEquals("Rating", Objects.requireNonNull(ProjectDescriptor.read(copy)).getName());
+        assertEquals(List.of("rules/Rates", "rules/Tests", "rules/Algorithms.xlsx"), modulePaths(copy));
         assertEquals(List.of("rateTest: 2 units, 0 failed"), tests(copy));
         assertEquals(tests(project), tests(copy));
     }
@@ -127,7 +129,7 @@ class MarkdownProjectWriterTest {
         });
         var copy = dir.resolve("copy");
 
-        var written = MarkdownProjectWriter.write(factory(project), copy);
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of());
 
         assertEquals(List.of("Common: Another module includes the workbook",
                 "Main: The workbook includes Common.xlsx, the workbook of another module"), written.kept().stream()
@@ -137,6 +139,185 @@ class MarkdownProjectWriterTest {
         assertTrue(Files.isRegularFile(copy.resolve("Main.xlsx")));
         // The copy compiles as the project does
         assertEquals(errorsOf(project), errorsOf(copy));
+    }
+
+    @Test
+    void copyLeavesOutTheFilesAndFoldersItIsGiven() throws Exception {
+        var project = ratesProject(dir.resolve("project"));
+        Files.writeString(project.resolve("README.txt"), "The rates");
+        var pom = Files.writeString(project.resolve("pom.xml"), "<project/>");
+        // A build folder named otherwise than target, holding the copy and the projects the build depends on
+        var build = project.resolve("build");
+        Files.writeString(Files.createDirectories(build.resolve("openl-workspace/Common")).resolve("rules.xml"),
+                "<project/>");
+        var copy = build.resolve("openl-markdown");
+
+        MarkdownProjectWriter.write(factory(project), copy, List.of(build, pom, dir.resolve("elsewhere")));
+
+        try (var files = Files.list(copy)) {
+            var names = files.map(file -> file.getFileName().toString())
+                    .sorted()
+                    .toList();
+            assertEquals(List.of("README.txt", "rules", "rules.xml"), names);
+        }
+        assertTrue(Files.isRegularFile(copy.resolve("rules/Rates/rate.md")));
+    }
+
+    @Test
+    void moduleOfAFolderLeftOutIsNoModuleOfTheCopy() throws Exception {
+        var project = projectWithWorkbookInItsBuild();
+        rates(project.resolve("rules/Rates.xlsx"));
+        var copy = project.resolve("build/openl-markdown");
+
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of(project.resolve("build")));
+
+        assertEquals(List.of("rules/Rates.xlsx -> rules/Rates"), written.converted()
+                .stream()
+                .map(module -> module.workbook() + " -> " + module.folder())
+                .toList());
+        assertEquals(List.of(), written.kept());
+        assertEquals(List.of(COMMON), written.dropped());
+        assertFalse(Files.exists(copy.resolve("build")));
+        assertEquals(List.of("rules/Rates"), modulePaths(copy));
+        var compiled = factory(copy).getCompiledOpenClass();
+        assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+    }
+
+    /** The folder left out is named through a link, as a build folder Maven names while the sources are resolved. */
+    @DisabledOnOs(OS.WINDOWS)
+    @Test
+    void folderLeftOutThroughALinkIsLeftOut() throws Exception {
+        var project = projectWithWorkbookInItsBuild();
+        rates(project.resolve("rules/Rates.xlsx"));
+        var link = Files.createSymbolicLink(dir.resolve("link"), project);
+        var copy = project.resolve("build/openl-markdown");
+
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of(link.resolve("build")));
+
+        assertEquals(List.of(COMMON), written.dropped());
+        assertFalse(Files.exists(copy.resolve("build")));
+        assertEquals(List.of("rules/Rates"), modulePaths(copy));
+    }
+
+    @Test
+    void copyNamesNoModuleItDropsWhenItConvertsNone() throws Exception {
+        var project = projectWithWorkbookInItsBuild();
+        algorithms(project.resolve("rules/Algorithms.xlsx"));
+        var copy = project.resolve("build/openl-markdown");
+
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of(project.resolve("build")));
+
+        assertEquals(List.of(), written.converted());
+        assertEquals(List.of("Algorithms"), written.kept()
+                .stream()
+                .map(MarkdownProjectWriter.Kept::name)
+                .toList());
+        assertEquals(List.of(COMMON), written.dropped());
+        assertEquals(List.of("rules/Algorithms.xlsx"), modulePaths(copy));
+    }
+
+    /** The sources are built into the build folder, which therefore holds the project: nothing is left out. */
+    @Test
+    void folderHoldingTheProjectLeavesNothingOut() throws Exception {
+        var build = dir.resolve("build");
+        var project = ratesProject(build.resolve("openl"));
+        var copy = build.resolve("openl-markdown");
+
+        var written = MarkdownProjectWriter.write(factory(project), copy, List.of(build, project));
+
+        assertEquals(List.of("Rates"), written.converted()
+                .stream()
+                .map(MarkdownProjectWriter.Converted::name)
+                .toList());
+        assertEquals(List.of(), written.dropped());
+        assertTrue(Files.isRegularFile(copy.resolve("rules/Rates/rate.md")));
+    }
+
+    /** A second build without a clean finds the workbook its first copy kept, which goes with that copy. */
+    @Test
+    void moduleOfAnEarlierCopyIsNoModuleOfTheCopy() throws Exception {
+        var project = projectWithWorkbookInItsBuild();
+        rates(project.resolve("rules/Rates.xlsx"));
+        // A copy in the sources, out of the build folder
+        var copy = project.resolve("markdown");
+        var build = List.of(project.resolve("build"));
+        MarkdownProjectWriter.write(factory(project), copy, build);
+        workbook(copy.resolve("rules/Stale.xlsx"), "Stale", sheet -> {
+            row(sheet, 0, "Method Integer four()");
+            row(sheet, 1, "return 4;");
+        });
+
+        var written = MarkdownProjectWriter.write(factory(project), copy, build);
+
+        assertEquals(List.of(COMMON, new MarkdownProjectWriter.Dropped("Stale", "markdown/rules/Stale.xlsx")),
+                written.dropped());
+        assertFalse(Files.exists(copy.resolve("rules/Stale.xlsx")));
+        assertEquals(List.of("rules/Rates"), modulePaths(copy));
+    }
+
+    /**
+     * A project with a module path matching any workbook, a build folder among them: the project a build depends on,
+     * extracted into the build folder.
+     */
+    private Path projectWithWorkbookInItsBuild() throws IOException {
+        var project = Files.createDirectories(dir.resolve("project"));
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Rating</name>
+                    <modules>
+                        <module>
+                            <rules-root path="**/*.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        workbook(project.resolve("build/openl-workspace/Common/rules/Common.xlsx"), "Common", sheet -> {
+            row(sheet, 0, "Method Integer one()");
+            row(sheet, 1, "return 1;");
+        });
+        return project;
+    }
+
+    /** A project of the one module Rates, named in its {@code rules.xml}. */
+    private static Path ratesProject(Path folder) throws IOException {
+        var project = Files.createDirectories(folder);
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Rating</name>
+                    <modules>
+                        <module>
+                            <name>Rates</name>
+                            <rules-root path="rules/Rates.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        rates(project.resolve("rules/Rates.xlsx"));
+        return project;
+    }
+
+    /** A workbook a Markdown file cannot hold: a note stands beside the header. */
+    private static void algorithms(Path file) throws IOException {
+        workbook(file, "Algorithms", sheet -> {
+            row(sheet, 0, "Method Integer three()", "// a note beside the header");
+            row(sheet, 1, "return 3;");
+        });
+    }
+
+    private static void rates(Path file) throws IOException {
+        workbook(file, "Rates", sheet -> {
+            row(sheet, 0, "SmartRules Double rate(Integer age)");
+            row(sheet, 1, "Age", "Rate");
+            row(sheet, 2, "0-120", 1.0);
+        });
+    }
+
+    private static List<String> modulePaths(Path project) {
+        return Objects.requireNonNull(ProjectDescriptor.read(project))
+                .getModules()
+                .stream()
+                .map(Module::getRulesRootPath)
+                .toList();
     }
 
     private static List<String> errorsOf(Path project) throws Exception {

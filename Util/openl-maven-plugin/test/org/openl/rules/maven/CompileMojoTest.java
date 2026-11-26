@@ -25,6 +25,8 @@ import org.openl.rules.project.model.ProjectDescriptor;
  * a similar name or named in another letter case on disk is kept, and so is a module of a project folder named
  * {@code tests}. A module a pattern found is checked by its own path, and a module without a path stays for the
  * compilation to report.
+ *
+ * <p>The Markdown copy of a project leaves out the build folder, whatever the build names it, and the POM.
  */
 class CompileMojoTest {
 
@@ -109,6 +111,16 @@ class CompileMojoTest {
 
         assertSame(modules, descriptor.getModules());
         assertEquals(2, modules.size());
+    }
+
+    @Test
+    void leavesTheBuildFolderAndThePomOutOfTheMarkdownCopy(@TempDir Path project) {
+        var mojo = new CompileMojo();
+        // The build folder as the build names it, not target
+        mojo.buildDirectory = project.resolve("build").toFile();
+
+        assertEquals(List.of(project.resolve("build"), project.resolve("pom.xml")),
+                mojo.leftOutOfCopy(project.toString()));
     }
 
     private static ProjectDescriptor descriptor(Path project, String... paths) {

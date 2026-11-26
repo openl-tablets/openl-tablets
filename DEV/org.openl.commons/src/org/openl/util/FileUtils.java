@@ -158,6 +158,24 @@ public class FileUtils {
      * @throws IOException          if an IO error occurs during copying
      */
     public static void copy(File src, File dest) throws IOException {
+        copy(src, dest, List.of());
+    }
+
+    /**
+     * Copies a file or a directory to a new location, as {@link #copy(File, File)} does, without the given files and
+     * directories of the source.
+     *
+     * <p>A directory left out is not copied with any of its contents. The list leaves out only what a source directory
+     * holds: a source file, or the source itself, is copied whatever the list names. A file or a directory left out
+     * that lies outside the source changes nothing, and a relative path is read from the working directory, as
+     * {@link File} reads it.
+     *
+     * @param src      an existing file or directory to copy
+     * @param dest     the new file or directory
+     * @param excluded the files and directories of the source not to copy
+     * @throws IOException if source or destination is invalid, or if an IO error occurs during copying
+     */
+    public static void copy(File src, File dest, Collection<File> excluded) throws IOException {
         if (!src.exists()) {
             throw new FileNotFoundException("Source '%s' does not exist".formatted(src));
         }
@@ -168,8 +186,11 @@ public class FileUtils {
         }
 
         if (src.isDirectory()) {
-            var looped = getLoopedDirectories(src, dest);
-            doCopyDirectory(src, dest, looped);
+            var skipped = new ArrayList<>(getLoopedDirectories(src, dest));
+            for (var file : excluded) {
+                skipped.add(file.getCanonicalPath());
+            }
+            doCopyDirectory(src, dest, skipped);
         } else {
             if (destPath.startsWith(srcPath)) {
                 throw new IOException(

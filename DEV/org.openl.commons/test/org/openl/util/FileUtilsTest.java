@@ -13,6 +13,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -81,6 +82,23 @@ class FileUtilsTest {
         FileUtils.copy(src.toFile(), dest.toFile());
 
         assertEquals("content", Files.readString(dest.resolve("nested/file.txt")));
+    }
+
+    @Test
+    void testCopyDirectoryWithoutExcluded(@TempDir Path tempDir) throws IOException {
+        var src = tempDir.resolve("src");
+        Files.writeString(Files.createDirectories(src.resolve("kept")).resolve("file.txt"), "content");
+        Files.writeString(Files.createDirectories(src.resolve("skipped/nested")).resolve("file.txt"), "content");
+        var skippedFile = Files.writeString(src.resolve("skipped.txt"), "content");
+        var dest = tempDir.resolve("dest");
+
+        FileUtils.copy(src.toFile(),
+                dest.toFile(),
+                List.of(src.resolve("skipped").toFile(), skippedFile.toFile(), tempDir.resolve("outside").toFile()));
+
+        assertEquals("content", Files.readString(dest.resolve("kept/file.txt")));
+        assertFalse(Files.exists(dest.resolve("skipped")));
+        assertFalse(Files.exists(dest.resolve("skipped.txt")));
     }
 
     @Test

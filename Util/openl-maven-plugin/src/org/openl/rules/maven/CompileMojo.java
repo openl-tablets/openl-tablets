@@ -1,6 +1,8 @@
 package org.openl.rules.maven;
 
+import java.io.File;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,13 @@ public final class CompileMojo extends TestsSkippingMojo {
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", required = true, readonly = true)
     private List<String> classpath;
+
+    /**
+     * The build folder of the project, wherever the build names it. The Markdown copy of the project leaves it out
+     * when the sources hold it.
+     */
+    @Parameter(defaultValue = "${project.build.directory}", required = true, readonly = true)
+    File buildDirectory;
 
     // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
     @SuppressWarnings("java:S2093")
@@ -111,7 +120,7 @@ public final class CompileMojo extends TestsSkippingMojo {
                 .setExecutionMode(false)
                 .setExternalParameters(externalParameters)
                 .build();
-        var written = MarkdownProjectWriter.write(factory, markdownDirectory.toPath());
+        var written = MarkdownProjectWriter.write(factory, markdownDirectory.toPath(), leftOutOfCopy(sourcePath));
         info("Markdown     : ", markdownDirectory);
         for (var module : written.converted()) {
             info("  module '", module.name(), "' ", module.workbook(), " (", module.workbookBytes(), " bytes) -> ",
@@ -121,6 +130,18 @@ public final class CompileMojo extends TestsSkippingMojo {
             warn("  module '", module.name(), "' stays a workbook ", module.path(), ": ",
                     String.join("; ", module.reasons()));
         }
+        for (var module : written.dropped()) {
+            info("  module '", module.name(), "' ", module.path(), " is dropped with the folder it lies in");
+        }
+    }
+
+    /**
+     * The files of the sources the Markdown copy leaves out: the build folder of the project and the {@code pom.xml} of
+     * the sources. Both lie in the sources of a project kept in the folder of its build. The archive leaves them out
+     * too, unless {@code package} writes it into another folder than the build folder.
+     */
+    List<Path> leftOutOfCopy(String sourcePath) {
+        return List.of(buildDirectory.toPath(), Path.of(sourcePath, PackageMojo.POM_FILE_NAME));
     }
 
     @Override

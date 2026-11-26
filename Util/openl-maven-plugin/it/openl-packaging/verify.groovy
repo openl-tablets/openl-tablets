@@ -271,7 +271,14 @@ try {
     assert markdown.any { it.contains('Total tests run: 2, Failures: 0, Errors: 0') }
     assert markdown.any { it.contains("Packaging the Markdown copy of the project from '") }
     assert markdown.any { it.contains("Verification is passed for 'org.openl.internal:openl-markdown-package' artifact.") }
-    new ZipFile(new File(folder, 'openl-markdown-package/target/openl-markdown-package-0.0.0.zip')).withCloseable { closeable ->
+    // The sources are the folder of the project. They hold its POM and its build folder 'build', where the project it
+    // depends on is extracted into openl-workspace before the copy is written: the copy holds neither
+    def markdownCopy = new File(folder, 'openl-markdown-package/build/openl-markdown')
+    assert new File(markdownCopy, 'rules.xml').isFile()
+    assert new File(markdownCopy, 'rules/Rates/rate.md').isFile()
+    assert !new File(markdownCopy, 'build').exists()
+    assert !new File(markdownCopy, 'pom.xml').exists()
+    new ZipFile(new File(folder, 'openl-markdown-package/build/openl-markdown-package-0.0.0.zip')).withCloseable { closeable ->
         ZipFile zf = closeable as ZipFile
         def fileNames = zf.entries().findAll { !it.directory }.collect { it.name }
         assert fileNames.contains('rules/Rates/rate.md')
