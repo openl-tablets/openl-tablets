@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-17330_Combined_type_of_dependency</name>
+    <modules>
+        <module>
+            <name>Algorithm</name>
+            <rules-root path="Algorithm.xlsx"/>
+        </module>
+        <module>
+            <name>Tests</name>
+            <rules-root path="Tests.xlsx"/>
+        </module>
+    </modules>
+</project>

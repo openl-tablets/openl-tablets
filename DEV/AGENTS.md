@@ -57,6 +57,11 @@ Key implementations:
 
 **Rules**: Never change method signatures on `IOpenClass`/`IOpenMethod`/`IOpenField`. Add new capabilities via new interfaces.
 
+**The order of the types of a module changes from one start of the JVM to another**: `ModuleOpenClass.getTypes()`
+is a `Set.copyOf`, which the JDK walks in a random order chosen at each start. Code that walks the types must give the
+same result in any order. A module takes the `SpreadsheetResult` types of its dependencies in that order
+(`XlsModuleOpenClass.addDependencyTypes`, EPBDS-17330).
+
 ### Parser & Grammar (`org.openl.rules/grammar/bexgrammar.jj`)
 
 JavaCC grammar defining OpenL business expression syntax. Generated sources go to `target/generated-sources/`. After grammar changes:
