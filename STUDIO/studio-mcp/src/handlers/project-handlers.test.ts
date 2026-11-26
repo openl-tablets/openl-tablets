@@ -597,8 +597,8 @@ describe('project status', () => {
             second: { path: 'rules/Main.xlsx' },
         }])
         expect(text).toBe('Compile state: ok; 0 errors, 0 warnings; 0 test tables; 1 of 1 module compiled.\nBranch: main. Revision: r1.\n'
-            + 'Changed since the last save, 3 files:\n- Rating/rules/Main.xlsx modified: Rates/RateCard changed, Rates/Limits moved\n'
-            + '- Rating/rules.xml modified\n- Rating/rules/New.xlsx added')
+            + 'Changed since the last save, 3 files:\n- rules/Main.xlsx modified: Rates/RateCard changed, Rates/Limits moved\n'
+            + '- rules.xml modified\n- rules/New.xlsx added')
     })
 
     it('names a message about a localization file by the file, its places from 1 and the key', async () => {
