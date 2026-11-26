@@ -209,7 +209,7 @@ export const listTablesSchema = z.strictObject({
 
 export const getTableSchema = z.strictObject({
     projectId: projectIdSchema,
-    tableId: tableIdSchema,
+    tableId: tableIdSchema.describe('The id, or the name of a table no other table shares; openl_list_tables lists both.'),
     find: nonBlankString.optional().describe("Read only the rows with a cell containing this text, case-insensitive, and the header rows, 'rows' keyed by position. '900' finds the number 900."),
     offset: z.number().int().min(0).optional().describe('The first row to read, from 0; the next slice starts at window.next_offset.'),
     limit: z.number().int().min(1).optional().describe('How many rows to read from offset; omit to read up to 100 rows whole, or the first 50 of a larger table. A merged cell the slice cuts keeps its value in its first row there, and merges names its whole area.'),

@@ -156,7 +156,8 @@ export function registerTableHandlers(): void {
         description:
             `Read a table as JSON, in the shape openl_update_table and openl_create_project_table take. ${TABLE_SHAPE} 'notes' holds the Excel notes, 'styles' the cell styles; writes keep both. 'pos' is the A1 address of the first cell, for the cells compilation messages name. Positions are those of the whole table, also in a slice. Answers the 'version' the edit tools take.`,
         schema: schemas.getTableSchema,
-        aliases: TABLE_ID_ALIAS,
+        // Agents name the table they look for by its name, which tableId takes when no other table has it
+        aliases: { ...TABLE_ID_ALIAS, name: 'tableId' },
         annotations: {
             readOnlyHint: true,
             idempotentHint: true,
