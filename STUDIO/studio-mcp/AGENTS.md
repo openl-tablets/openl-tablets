@@ -472,7 +472,11 @@ OpenL Studio and where the server keeps its state; the
   `valueAliases` of the tool, such as `spec` for `specification`: the schema publishes each option once.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
   leaves out what tells it nothing: the `$schema` dialect, the safe-integer bounds of `.int()` and the `minLength: 1`
-  of a non-empty string. Zod still checks them when the tool runs. For the same reason the ids most tools take,
+  of a non-empty string. Zod still checks them when the tool runs. `makePortable` writes the rest in the form
+  `npx @modelcontextprotocol/inspector --cli <url> --transport http --method tools/list --strict` passes, which a test
+  of `common.test.ts` checks with the same rules: one `type` per schema (a union becomes `anyOf` branches), no bare
+  boolean schema but `additionalProperties` (a tuple is closed by `maxItems`), and no schema of any value (`items`
+  left out, `additionalProperties: true`). For the same reason the ids most tools take,
   `projectId` first, carry no description or a short one: a refusal names the tool that lists them. A test of
   `mcp-core.test.ts` caps what a client loads, the tool list and the server instructions: a description says what a
   tool does and answers, when to take it instead of its neighbour, and shows one call where the argument shape is
