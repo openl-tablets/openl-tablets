@@ -9,7 +9,7 @@ A table is a rectangular block of cells on a worksheet. Rows are read top to bot
 | Row              | Presence                        | Contains                                                    |
 |------------------|---------------------------------|-------------------------------------------------------------|
 | Header           | always, first row               | Keyword, return type, name, parameters — one merged cell     |
-| Properties       | optional, right after header    | `<propertyName>` \| `<value>`, one property per row           |
+| Properties       | optional, right after header    | `properties` \| `<propertyName>` \| `<value>`, one per row   |
 | Structure        | per table type                  | Column roles: `C1`, `RET1`, field names, argument paths      |
 | Titles           | per table type                  | Business names of the columns, shown to the author           |
 | Body             | always                          | The data: one rule, field, step, test case or value per row  |
@@ -98,10 +98,24 @@ Constants [<tableName>]
 
 ## Properties and Metadata
 
-All tables can have properties defined in the header or in subsequent property rows. Properties are inherited by
-all tables in the same scope (worksheet, workbook, or module) unless overridden at the table level. Not all properties
-are applicable to all table types; see the Properties Reference below for details.
+Every table except Properties and Environment can hold properties of its own, in a properties section:
 
+- **Right after the header**, before the rows of the table itself, one property per row.
+- **The first cell holds the keyword `properties`**, in lower case, merged down over all the property rows.
+- **The property name goes in the second column, its value in the third.** A table narrower than three columns is
+  widened for them: its other rows merge their last cell across the added columns.
+- **A row without the keyword is no property.** Right under the header it is the first row of the table itself, so a
+  `<propertyName> | <value>` row becomes its titles or its first rule, step or record.
+- **A table property overrides the inherited one** — set by a [Properties](#properties-properties) table for a
+  worksheet, workbook or module, or by the file or folder name. See the [Properties Reference](#properties-reference).
+
+```
+| Spreadsheet SpreadsheetResult Quote(Policy policy)         |
+| properties | description   | Main rating entry point        |  <- the keyword, merged down over both properties
+| ↑          | tags          | Rating                         |
+| Step       | Formula       | ←                              |  <- titles: Formula widened over the third column
+| Premium    | = policy.rate | ←                              |
+```
 
 
 ## Table Type Details
