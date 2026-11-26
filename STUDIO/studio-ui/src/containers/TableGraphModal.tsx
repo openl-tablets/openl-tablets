@@ -26,6 +26,7 @@ import {
     buildGraphModel,
     DATATYPE_KIND,
     DISPATCHER_KIND,
+    ENTITY_LINE_CHARS,
     findCycles,
     type GraphCycle,
     type GraphNode,
@@ -97,7 +98,25 @@ const ERD_MARKER = { fontFamily: MONO, fontSize: 12, whiteSpace: 'nowrap' as con
 // A faint blueprint dot-grid behind the graph, so nodes read as placed on a board rather than floating in a void.
 const dotGrid = (colour: string): string => `radial-gradient(circle, ${colour} 1.1px, transparent 1.2px)`
 
-const buildStyle = (maxWeight: number, token: GlobalToken) => {
+/**
+ * The widest a table block grows to fit the name of its table; a longer name ends in an ellipsis, and the panel of the
+ * table shows it in full.
+ */
+const TABLE_LABEL_MAX_WIDTH = 240
+
+/** The size of the monospaced font an entity box is written in, in px. */
+const ENTITY_FONT_SIZE = 10
+
+/** How wide a character of the monospaced fonts of {@link MONO} is, in em: the widest of them, so that none wraps. */
+const MONO_CHAR_WIDTH = 0.62
+
+/**
+ * The widest an entity box grows: room for the longest line it holds, cut at {@link ENTITY_LINE_CHARS} characters, so
+ * no line is ever wrapped. It follows the cut, so the two cannot drift apart.
+ */
+const ENTITY_LABEL_MAX_WIDTH = Math.ceil(ENTITY_LINE_CHARS * MONO_CHAR_WIDTH * ENTITY_FONT_SIZE)
+
+export const buildStyle = (maxWeight: number, token: GlobalToken) => {
     const palette = graphPalette(token)
     return [
         {
@@ -114,7 +133,7 @@ const buildStyle = (maxWeight: number, token: GlobalToken) => {
                 'text-valign': 'center',
                 'text-halign': 'center',
                 'text-wrap': 'ellipsis',
-                'text-max-width': '120px',
+                'text-max-width': `${TABLE_LABEL_MAX_WIDTH}px`,
                 'shape': 'round-rectangle',
                 'width': 'label',
                 'height': 'label',
@@ -136,14 +155,14 @@ const buildStyle = (maxWeight: number, token: GlobalToken) => {
                 'shape': 'round-rectangle',
                 'color': palette.entityText,
                 'font-family': MONO,
-                'font-size': 10,
+                'font-size': ENTITY_FONT_SIZE,
                 'font-weight': 400,
                 'text-outline-width': 0,
                 'text-valign': 'center',
                 'text-halign': 'center',
                 'text-wrap': 'wrap',
                 'text-justification': 'left',
-                'text-max-width': '260px',
+                'text-max-width': `${ENTITY_LABEL_MAX_WIDTH}px`,
                 'padding': '9px',
                 'border-width': 1.5,
                 'border-color': palette.dataModel,
