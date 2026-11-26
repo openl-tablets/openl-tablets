@@ -10,7 +10,7 @@ description: >
   Not for read-only questions, a plain test run, or finding why a result is
   wrong, which is `trace-investigation`'s.
 metadata:
-  summary: "The entry point for building, changing or fixing anything in a project: one ordered plan, one approval."
+  summary: "Every change to a project, even one cell: one ordered plan, one approval; read it before the first edit."
 ---
 
 # OpenL Change Planning
@@ -86,6 +86,8 @@ re-estimate.
 - **Nothing is written before approval** — no cell, branch, change log or save — unless the plan needs none: a plan
   that asks nothing of step 7 and saves, merges, deploys and deletes nothing, such as "set X to Y, check it, do not
   save".
+- **A request to make and save a change** approves a plan stated in one line; it never drops the plan's test items.
+  Add the test rows of the confirmed cases and run the suite before you report, unless the user said not to test.
 - **At most one approval**, for the plan. A catalog or mechanic skill called from the plan does not ask again for
   work the plan covers. Green tests, clean compilation or a clean preflight are checks to record, not approvals.
 - **Existing test rows** may change only if the plan item names the Test table, the row key, and the old and new

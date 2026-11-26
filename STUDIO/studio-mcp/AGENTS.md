@@ -230,9 +230,11 @@ which every client calls:
 
 - `planning` — the entry point for building, changing, or fixing anything in a project
 - `branching` — task branches, sync with the base, conflicts, merge, hotfixes, cleanup
-- `testing` — test rows, running the tests on the saved revision, diagnosing failures
+- `testing` — test rows, running the tests on the saved revision, or on the working copy when the user asks to
+  verify their unsaved changes, diagnosing failures
 - `versioning` — table versions by date, LOB, state or currency, and their tests
-- `trace-investigation` — the root cause of an unexpected rule result over the trace tools
+- `trace-investigation` — the root cause of an unexpected rule result over the trace tools, even for a question
+  alone; a value a recent revision changed is checked against the value before it
 - `change-log-and-reapply` — a log of the changes of a feature, and reapplying the missing ones
 - `project-guidance` — what a project's `AGENTS.md` holds, creating it when the project has none and keeping it
   current after every change; the guidance item of each `planning` plan
