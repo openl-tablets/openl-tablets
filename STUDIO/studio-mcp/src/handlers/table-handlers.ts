@@ -229,7 +229,7 @@ export function registerTableHandlers(): void {
         compiled: true,
         title: 'Replace Entire Table',
         description:
-            'Replace a whole table with the rows, merges and formulas openl_get_table answered, changed; to change a few cells or remove rows use openl_edit_table. A row may end before the last column; notes and styles are kept. Example: {"tableId":"rates","version":"…","rows":[["Data Rate rates"],["code","rate"],["Code","Rate"],["A",1.5]]}.',
+            'Replace a whole table with the rows, merges and formulas openl_get_table answered, changed; to change a few cells or remove rows use openl_edit_table, properties openl_set_table_properties. A row may end before the last column; notes and styles are kept. Example: {"tableId":"rates","version":"…","rows":[["Data Rate rates"],["code","rate"],["Code","Rate"],["A",1.5]]}.',
         schema: schemas.updateTableSchema,
         aliases: TABLE_ID_ALIAS,
         annotations: {

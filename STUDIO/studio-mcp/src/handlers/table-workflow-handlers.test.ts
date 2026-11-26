@@ -1,6 +1,7 @@
 /**
  * Integration tests of the table workflow tools of src/handlers/table-workflow-handlers.ts: running a table, its
- * dependency graph, the property definitions of a table type, and a server-side copy of a table.
+ * dependency graph, the property definitions of a table type, the properties of a table, and a server-side copy of a
+ * table.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -311,6 +312,56 @@ describe('table workflow handlers', () => {
         expect(text.split('\n')[0]).toBe('3 properties; 2–2 below, the next page at offset=2.')
         expect(text).toContain('| lob | string |')
         expect(text).not.toContain('| state |')
+    })
+
+    it('writes the properties of a table alone, as text, over the version read, and answers the id it has after', async () => {
+        harness.mockHttp.onPatch('/projects/p1/tables/t1/properties').reply(200, { id: 't2' })
+        harness.mockHttp.onGet('/projects/p1/tables/t2').reply(200, { id: 't2', tableType: 'RawSource', source: [], version: 'v2' })
+
+        const response = await executeTool('set_table_properties', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            properties: { description: 'Rates of 2027', effectiveDate: '2027-01-01', state: ['CA', 'NY', 'Washington, D.C.'], nature: 7, active: true, lob: null, id: '' },
+        }, harness.client)
+
+        const [write] = harness.mockHttp.history.patch
+        expect(write.headers).toMatchObject({ 'If-Match': '"v1"' })
+        expect(bodyOf(write)).toEqual({
+            properties: [
+                { name: 'description', value: 'Rates of 2027' },
+                { name: 'effectiveDate', value: '2027-01-01' },
+                // A comma inside a value is escaped, so the value stays one
+                { name: 'state', value: String.raw`CA,NY,Washington\, D.C.` },
+                { name: 'nature', value: '7' },
+                { name: 'active', value: 'true' },
+                { name: 'lob', value: null },
+                { name: 'id', value: '' },
+            ],
+        })
+        // A write of the id property renames the table: the answer names it by the new id
+        expect(dataOf<Record<string, unknown>>(response)).toMatchObject({ tableId: 't2', version: 'v2', previousTableId: 't1' })
+    })
+
+    it("passes on Studio's refusal of a property and reads nothing back", async () => {
+        harness.mockHttp.onPatch('/projects/p1/tables/t1/properties').reply(400, {
+            code: 'openl.error.400.table.properties.unsupported-property.message',
+            message: "The 'modifiedBy' property cannot be written on this kind of table.",
+        })
+
+        await expect(executeTool('set_table_properties', {
+            projectId: 'p1',
+            tableId: 't1',
+            version: 'v1',
+            properties: { modifiedBy: 'agent' },
+        }, harness.client)).rejects.toThrow(/'modifiedBy' property cannot be written/)
+        expect(harness.mockHttp.history.get.map(({ url }) => url)).not.toContain('/projects/p1/tables/t1')
+    })
+
+    it('refuses a call naming no property before reaching Studio', async () => {
+        await expect(executeTool('set_table_properties', { projectId: 'p1', tableId: 't1', version: 'v1', properties: {} }, harness.client))
+            .rejects.toMatchObject({ code: ProtocolErrorCode.InvalidParams, message: expect.stringMatching(/at least one property/) })
+        expect(harness.mockHttp.requests).toHaveLength(0)
     })
 
     it('copies a table server-side with the exact current request shape', async () => {

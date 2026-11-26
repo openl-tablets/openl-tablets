@@ -71,6 +71,7 @@ describe('tool registry', () => {
             'project_localization_edit',
             'resolve_merge_conflicts',
             'restore_project_local_change',
+            'set_table_properties',
             'update_table',
             'write_project_file',
         ])

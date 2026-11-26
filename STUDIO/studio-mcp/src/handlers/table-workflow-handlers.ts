@@ -1,6 +1,6 @@
 /**
  * Higher-level table workflows backed by the Studio BETA APIs: regular table
- * execution, dependency discovery, table property discovery, and server-side
+ * execution, dependency discovery, the properties of a table, and server-side
  * table copying.
  */
 import { ProtocolError, ProtocolErrorCode } from '@modelcontextprotocol/server'
@@ -77,6 +77,15 @@ function graphText(nodes: Types.TableNodeView[]): string {
         lines,
         more: (left) => `… ${formatCount(left, 'more table')}: narrow the graph by tableId, module or layer to read them.`,
     })
+}
+
+/**
+ * The text a property value is written as, as Table Details shows it: several values separated by commas, a comma
+ * inside a value escaped so that it stays in that value. Null, as an empty text, takes the property away.
+ */
+function propertyText(value: string | number | boolean | string[] | null): string | null {
+    if (value === null) return null
+    return Array.isArray(value) ? value.map((item) => item.replaceAll(',', String.raw`\,`)).join(',') : String(value)
 }
 
 export function registerTableWorkflowHandlers(): void {
@@ -188,6 +197,26 @@ export function registerTableWorkflowHandlers(): void {
                         (value === undefined || value === code ? code : `${code} (${value})`)) },
                 ],
             }))
+        },
+    })
+
+    registerTool({
+        name: 'set_table_properties',
+        compiled: true,
+        title: 'Set Table Properties',
+        description:
+            "Add, change or remove properties of a table without its cells, which stay, as do the properties not named; a table narrower than three columns gets the last cell of each row stretched. Refuses a property its kind does not take, one Studio records (modifiedBy) and version. Example: {\"tableId\":\"AgeFactor\",\"version\":\"…\",\"properties\":{\"effectiveDate\":\"2027-01-01\",\"lob\":null}}. Answers the 'tableId' and 'version' after it.",
+        schema: schemas.setTablePropertiesSchema,
+        aliases: TABLE_ID_ALIAS,
+        annotations: {
+            destructiveHint: true,
+            idempotentHint: true,
+            openWorldHint: true,
+        },
+        handler: async (args, client): Promise<ToolResponse> => {
+            const properties = Object.entries(args.properties).map(([name, value]) => ({ name, value: propertyText(value) }))
+            const reportedId = await client.updateTableProperties(args.projectId, args.tableId, properties, args.version)
+            return finishTableEdit(client, args, reportedId, 'property change')
         },
     })
 
