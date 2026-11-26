@@ -75,6 +75,10 @@ The `testing` skill owns writing and running tests; for versioned tables add:
 - `openl_copy_table` `properties` **replaces** the whole property set: list every property to keep (e.g. `state`)
   next to the changed `effectiveDate`. Omitting it keeps the source properties — a duplicate version.
 - `openl_copy_table` puts the copy on a sheet named after the table unless `sheetName` is given.
+- Change a property of an existing table — ending a version, adding a dimension — with `openl_set_table_properties`,
+  never as cells: a row written without the `properties` keyword becomes part of the table and still compiles.
+- A module or category Properties table holds its values as cells: change them with `openl_edit_table`;
+  `openl_set_table_properties` refuses that kind of table.
 - Never version the same property at module (file name) and table level at once; never declare one property in both
   the file name pattern and the module Properties table.
 - File names carry property **values**, never names: `MyModule-US-20270101.xlsx`, not `MyModule-Country-US-…`; the

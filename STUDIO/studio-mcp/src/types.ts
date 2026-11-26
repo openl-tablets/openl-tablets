@@ -313,10 +313,10 @@ export interface PropertyDefinitionView {
     values?: PropertyValueView[]
 }
 
-/** Replacement property sent when copying a table. */
-interface TableProperty {
+/** A property sent when copying a table, or when writing the properties of one: no value takes it away. */
+export interface TableProperty {
     name: string
-    value?: string
+    value?: string | null
 }
 
 /** Request body for POST /projects/{projectId}/tables/{tableId}/copy. */

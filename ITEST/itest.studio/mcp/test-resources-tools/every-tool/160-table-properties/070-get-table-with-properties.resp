@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"window\":{\"offset\":0,\"rows\":6,\"totalRows\":6,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Spreadsheet\",\"name\":\"Premium\",\"pos\":\"B8:D13\",\"headerHeight\":2,\"version\":\"@@@\",\"rows\":[[\"Spreadsheet Double Premium(Driver driver)\"],[\"properties\",\"description\",\"The premium of a driver\"],[\"Step\",\"Value\"],[\"Base\",100],[\"Factor\",\"= AgeFactor(driver.age)\"],[\"Total\",\"= $Value$Base * $Value$Factor\"]],\"merges\":[[0,0,1,3],[2,1,1,2],[3,1,1,2],[4,1,1,2],[5,1,1,2]]}}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

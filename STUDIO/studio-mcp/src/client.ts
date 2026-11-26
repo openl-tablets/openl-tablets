@@ -1329,7 +1329,7 @@ export class OpenLClient {
    * before a rename, answers 200 with `{ id }`; any other write answers 204, which leaves the id as it was.
    */
     private async writeTable(
-        method: 'put' | 'post',
+        method: 'put' | 'post' | 'patch',
         path: string,
         body: unknown,
         version: string | undefined
@@ -1383,6 +1383,22 @@ export class OpenLClient {
         version: string
     ): Promise<string | undefined> {
         return this.writeTable('post', `${tablePath(projectId, tableId)}/actions/batch`, { actions }, version)
+    }
+
+    /**
+   * Write the properties of a table, its cells untouched: a property with a value is added or changed, one without a
+   * value taken away, and the properties not named stay.
+   *
+   * @param version - The version of the table the write is based on, as a read or the previous edit answered it
+   * @returns the table's id after the write when Studio answered one, otherwise undefined (204 — id unchanged)
+   */
+    async updateTableProperties(
+        projectId: string,
+        tableId: string,
+        properties: Types.TableProperty[],
+        version: string
+    ): Promise<string | undefined> {
+        return this.writeTable('patch', `${tablePath(projectId, tableId)}/properties`, { properties }, version)
     }
 
     /**

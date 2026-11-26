@@ -84,7 +84,8 @@ The tools of the MCP server have names that start with `openl_` and fall into th
     them, showing merge conflicts, a conflicting text file line by line and a conflicting workbook table by table and
     cell by cell included, and resolving them as the user decides.
 -   **Tables** — listing, reading, creating, copying, changing, running, and deleting tables, adding or removing rows
-    and columns, merging cells, listing the properties a table accepts, and showing the dependencies between tables.
+    and columns, merging cells, listing the properties a table accepts, adding, changing, or removing the properties of
+    a table without rewriting its cells, and showing the dependencies between tables.
 -   **Project files** — reading, writing, searching, copying, moving, and deleting any file of a project. A short
     text file is read in the conversation; any other file, a workbook or an image for one, the agent downloads and
     uploads by a link it runs `curl` with, so the content of the file never fills the conversation.

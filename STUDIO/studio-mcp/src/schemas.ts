@@ -320,6 +320,19 @@ export const copyTableSchema = z.strictObject({
     properties: z.record(nonBlankString, z.string()).optional().describe("Replace all of the source's properties: name every one the copy keeps. Omit to keep them."),
 })
 
+/**
+ * The value of a table property: its text, a number or a flag, or several values of a property taking a list. Null or
+ * an empty text takes the property away.
+ */
+const propertyValueSchema = z.union([z.string(), z.number(), z.boolean(), z.array(nonBlankString).min(1), z.null()])
+
+export const setTablePropertiesSchema = z.strictObject({
+    ...tableActionBase,
+    properties: z.record(nonBlankString, propertyValueSchema)
+        .refine((properties) => Object.keys(properties).length > 0, { error: 'Name at least one property to write.' })
+        .describe("Values by name, a list for several; null or '' removes one."),
+})
+
 const scalarCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 
 /**

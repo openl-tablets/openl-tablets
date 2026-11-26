@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "OpenL Studio API error (400): The 'modifiedBy' property cannot be written on this kind of table."
+      }
+    ],
+    "isError": true,
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
