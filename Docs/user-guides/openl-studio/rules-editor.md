@@ -387,6 +387,11 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
     -   A value is coloured by its type, in the colours the code editor of the theme gives values: a number and a
         date in one colour, a boolean and a text each in another. A value is coloured whole, such as `2026-10-15`,
         `1,000.50`, or `10%`.
+    -   A name that refers to a rule, a datatype or a field of a datatype is coloured by what it refers to, in the
+        colours the code editor of the theme gives the name of a method called, of a type and of a member of an
+        object. Each of the three keeps a colour of its own, apart from the text: where the code editor of the theme
+        gives two of them one colour, the later takes another colour of the theme. For more information, see
+        [Referring to Tables](#referring-to-tables).
 
     A table of the type **Other** is drawn as the Excel file formats it.
 
@@ -735,7 +740,15 @@ Links to the following tables are allowed:
 -   datatype table
 -   rule table types
 
-Links to the rule tables are underlined and marked blue. When a mouse cursor is put over the link, a tooltip with method name and input parameters with types is displayed.
+A name in a cell is coloured by what it refers to, whether it is a link or not, so a formula reads at a glance as rules called on fields of datatypes:
+
+| Refers to             | Excel Formatting on | Excel Formatting off                                        |
+|-----------------------|---------------------|-------------------------------------------------------------|
+| A rule                | Blue                | The colour the code editor of the theme gives a method call |
+| A datatype            | Dark green          | The colour the code editor of the theme gives a type        |
+| A field of a datatype | Dark grey           | The colour the code editor of the theme gives a member      |
+
+A link to a data table is drawn in the link colour. A link keeps its colour when the mouse cursor is put over it and is underlined. When a mouse cursor is put over a link to a rule table, a tooltip with method name and input parameters with types is displayed.
 
 ![](images/decision-table-method-link-tooltip.jpeg)
 
@@ -743,7 +756,7 @@ Links to the rule tables are underlined and marked blue. When a mouse cursor is 
 
 A link to a rule written in several versions, which differ by their business dimension properties, opens the table OpenL Tablets builds to choose between those versions, `validateGapOverlap_<rule name>`. The table is shown read-only, without the table toolbar: **Info** describes how it was built, and each of its rows links to the version it selects. OpenL Tablets builds the table anew every time the module is compiled, so open it from the link rather than from a saved address. A table you write yourself under such a name is an ordinary table of the module.
 
-Links to the data and datatype tables are underlined with a dotted line and has an appropriate tooltip with description.
+Links to the data and datatype tables have an appropriate tooltip with description.
 
 ![](images/datatype-table-links.png)
 

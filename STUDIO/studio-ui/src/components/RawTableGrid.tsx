@@ -17,6 +17,8 @@ import { withPathBreaks } from './pathBreaks'
 import { type MarkInks, markInksOf, markedRuns, marksOf } from './textMarks'
 import { opaque } from '../styles/colorMath'
 import { themePaper, workbookPaper } from '../styles/paper'
+import { variantOf } from '../styles/themes'
+import { usageInksOf } from '../styles/usageInks'
 import { type RawTableGridStyles, roleColoursOf, rowHeightOf, useStyles } from './RawTableGrid.styles'
 import { borders, collapsedBorders, indentOf, textDecoration } from './rawTableStyle'
 import { useLaidOut } from '../hooks/useLaidOut'
@@ -672,6 +674,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         colorLinkHover,
         colorError,
         colorTextSecondary,
+        colorTextTertiary,
         colorBorder,
         colorPrimary,
         colorTextBase,
@@ -680,23 +683,17 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         colorSuccessText,
         colorInfoText,
     } = token
-    // The marks read on every fill a role draws, in every theme.
-    const inks = React.useMemo(() => {
+    // The fills a role draws, opaque on the surface: what a mark and a name of a rule, a datatype or a field read on.
+    const grounds = React.useMemo(() => {
         const roles = roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary })
-        const grounds = [colorBgContainer, roles.inputTitleFill, roles.outputTitleFill, roles.outputFill]
+        return [colorBgContainer, roles.inputTitleFill, roles.outputTitleFill, roles.outputFill]
             .map(fill => opaque(fill, colorBgContainer))
-        return markInksOf({ colorErrorText, colorWarningText, colorSuccessText, colorInfoText }, grounds)
-    }, [
-        colorBgContainer,
-        colorErrorText,
-        colorFillTertiary,
-        colorInfoText,
-        colorPrimary,
-        colorSuccessText,
-        colorText,
-        colorTextSecondary,
-        colorWarningText
-    ])
+    }, [colorBgContainer, colorFillTertiary, colorPrimary, colorText, colorTextSecondary])
+    // The marks read on every fill a role draws, in every theme.
+    const inks = React.useMemo(
+        () => markInksOf({ colorErrorText, colorWarningText, colorSuccessText, colorInfoText }, grounds),
+        [colorErrorText, colorInfoText, colorSuccessText, colorWarningText, grounds]
+    )
     // The paper and the lines of the theme, worked out again only when a colour of them changes.
     const look = React.useMemo(() => ({
         paper: themePaper({
@@ -707,7 +704,16 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             colorLink,
             colorLinkHover,
             colorError
-        }),
+        }, usageInksOf(variantOf(themeName, isDarkMode).syntax, {
+            colorText,
+            colorLink,
+            colorInfoText,
+            colorSuccessText,
+            colorWarningText,
+            colorErrorText,
+            colorTextTertiary,
+            colorTextSecondary
+        }, grounds)),
         faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
         lines: {
             // Every line in the base text colour, so the parts of a table stand apart at a glance. A group line is
@@ -724,9 +730,17 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         colorLink,
         colorLinkHover,
         colorPrimary,
+        colorSuccessText,
         colorText,
         colorTextBase,
-        colorTextSecondary
+        colorTextSecondary,
+        colorTextTertiary,
+        colorInfoText,
+        colorWarningText,
+        colorErrorText,
+        grounds,
+        isDarkMode,
+        themeName
     ])
     const laidOn = studio ? look.paper : workbookPaper()
     const { styles, cx } = useStyles(laidOn)

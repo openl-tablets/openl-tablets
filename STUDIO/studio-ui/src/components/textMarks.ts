@@ -1,4 +1,4 @@
-import { contrastRatio, mix } from 'styles/colorMath'
+import { readableOn } from 'styles/colorMath'
 import { STANDARD_COLOURS } from 'styles/excelColours'
 import type { RawTableCellStyle, RawTableTextRun, RawTextMark, RawTextMarkColor } from 'types/tables'
 
@@ -24,23 +24,6 @@ export const MARK_RGB: Readonly<Record<RawTextMarkColor, string>> = {
 /** The colour each mark is drawn in on a screen. */
 export type MarkInks = Readonly<Record<RawTextMarkColor, string>>
 
-/** The contrast a mark keeps on the grounds it is drawn on, as the text of the application does on its surfaces. */
-const READABLE = 4.5
-
-/** How far an ink is moved towards white or black at a time, until it reads. */
-const STEP = 0.05
-
-/** An ink moved towards white or black as little as it takes to read on every ground. */
-const readable = (ink: string, text: string, grounds: readonly string[]): string => {
-    for (let share = 0; share < 1; share += STEP) {
-        const moved = mix(ink, text, share)
-        if (grounds.every(ground => contrastRatio(moved, ground) >= READABLE)) {
-            return moved
-        }
-    }
-    return text
-}
-
 /**
  * The colours a mark is drawn in in the Studio theme: the functional colours of the theme for text, darkened or
  * lightened where they would not read on a ground they are drawn on.
@@ -53,17 +36,12 @@ export const markInksOf = (token: {
     colorWarningText: string
     colorSuccessText: string
     colorInfoText: string
-}, grounds: readonly string[]): MarkInks => {
-    // Towards white on a dark ground and black on a light one, which keeps the hue of the mark the longest.
-    const ground = grounds[0] ?? '#ffffff'
-    const text = contrastRatio(ground, '#ffffff') > contrastRatio(ground, '#000000') ? '#ffffff' : '#000000'
-    return {
-        error: readable(token.colorErrorText, text, grounds),
-        warning: readable(token.colorWarningText, text, grounds),
-        success: readable(token.colorSuccessText, text, grounds),
-        info: readable(token.colorInfoText, text, grounds),
-    }
-}
+}, grounds: readonly string[]): MarkInks => ({
+    error: readableOn(token.colorErrorText, grounds),
+    warning: readableOn(token.colorWarningText, grounds),
+    success: readableOn(token.colorSuccessText, grounds),
+    info: readableOn(token.colorInfoText, grounds),
+})
 
 /** The mark a font draws: bold in one of the colours of the marks. */
 export const markOf = (style: RawTableCellStyle | undefined): RawTextMarkColor | undefined => {

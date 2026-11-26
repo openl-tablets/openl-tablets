@@ -257,7 +257,8 @@ The build writes two pages (`build.rollupOptions.input`):
   `openl.theme.name` and defaulting to `standard`, which is Ant Design's own. Every other theme is the colour scheme
   of a well-known code editor, in a light and a dark variant that the appearance picks between; a pair of schemes
   such as Dracula and Alucard counts as one theme. A variant names the editor's background, text and accent
-  (`EditorColors`) and the hues it writes a value in (`SyntaxHues`). `appTheme(name, isDarkMode)` turns them into
+  (`EditorColors`) and the hues it writes a value, the name of a method called, of a type and of a member in
+  (`SyntaxHues`: `call`, `type`, `field`). `appTheme(name, isDarkMode)` turns them into
   the application-wide Ant Design tokens: the editor's background becomes the background of every container, and
   the page, the borders and the raised surfaces are mixed from it, because Ant Design's own derivation turns a
   tinted background grey. The provider hands the token it works out to its `customToken`, where
@@ -516,7 +517,12 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       of the workbook only the indent. A cell finds its region by its address (`cellRoleOf`), so a window of rows, a
       hidden header and a line the reader laid down all draw right. Code (`holdsCode`) is highlighted as the code
       editor of the theme highlights it, as the `runs` of the cell, so a link in it still leads to its table; a value
-      takes the `syntax` hue of its type, a date the hue of a number. Every text of a role reads on its fill in every
+      takes the `syntax` hue of its type, a date the hue of a number. A piece of a cell naming a rule, a datatype or a
+      field (`kind` of a usage) is drawn in a colour of its kind, a link or not, so a formula reads as rules called on
+      fields of datatypes: in the Studio look the `call`, `type` and `field` hues of the theme made readable on every
+      fill (`usageInksOf` of `styles/usageInks.ts`), a kind whose hue stands too close to the text or to a kind
+      before it falling back on another colour of the theme; in the formatting of a workbook the Blue, the dark green
+      and the dark grey of Excel (`WORKBOOK_USAGE_INKS`). The paper carries them (`usages` of `TablePaper`). Every text of a role reads on its fill in every
       theme, light and dark, as the text of the application does on its surfaces (4.5:1), and a faint text as its
       secondary text (3:1): `RawTableGrid.test.tsx` holds every theme to it. A table read with no roles — a table of
       the kind Other, a side of a comparison, a table of a user guide — and every table while the reader has **Excel
