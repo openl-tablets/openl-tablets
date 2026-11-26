@@ -2,7 +2,8 @@ import { MemoryRouter } from 'react-router'
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { TableGraphModal } from 'containers/TableGraphModal'
+import { buildStyle, TableGraphModal } from 'containers/TableGraphModal'
+import { ENTITY_LINE_CHARS } from 'containers/tableGraph'
 import * as services from 'services'
 import { getProjectProperties } from 'services/projects'
 import { formatLocalDateTime } from 'utils/dateFormat'
@@ -11,6 +12,7 @@ import dagre from 'cytoscape-dagre'
 import { useThemeMode } from 'antd-style'
 import { AppThemeProvider } from 'providers/AppThemeProvider'
 import type { MockedFunction } from 'vitest'
+import { theme } from 'antd'
 
 const cyMocks = vi.hoisted(() => {
     const nodeAddClass = vi.fn()
@@ -540,5 +542,19 @@ describe('TableGraphModal', () => {
 
         await waitFor(() => expect(screen.getByText('graph:empty')).toBeInTheDocument())
         expect(mockCytoscape).not.toHaveBeenCalled()
+    })
+})
+
+describe('buildStyle', () => {
+    it('lets a table block grow to 240 px, and an entity box as wide as its longest line cut at 56 characters', () => {
+        const rules = buildStyle(1, theme.getDesignToken())
+        expect(rules.find(rule => rule.selector === 'node')).toMatchObject({
+            style: { 'text-wrap': 'ellipsis', 'text-max-width': '240px' },
+        })
+        // An entity box has room for its longest line: 56 characters of 10 px monospace, 0.62 em at the widest.
+        expect(ENTITY_LINE_CHARS).toBe(56)
+        expect(rules.find(rule => rule.selector === 'node.entity')).toMatchObject({
+            style: { 'font-size': 10, 'text-max-width': '348px' },
+        })
     })
 })

@@ -226,10 +226,11 @@ describe('entityLabel', () => {
             id: 'long',
             name: 'Long',
             kind: 'Datatype',
-            fields: [{ name: 'aVeryLongFieldNameIndeed', type: 'SomeEquallyLongDatatype' }],
+            fields: [{ name: 'aFieldNameLongerThanThirtyTwoCharactersX', type: 'SomeDatatypeWithAVeryLongNameIndeedForSure' }],
         })
 
-        expect(label.split('\n')[2]).toBe('aVeryLongFieldN…  SomeEqual…')
+        // The name is cut at 32 characters of its column, the line at 56.
+        expect(label.split('\n')[2]).toBe('aFieldNameLongerThanThirtyTwoCh…  SomeDatatypeWithAVery…')
     })
 })
 

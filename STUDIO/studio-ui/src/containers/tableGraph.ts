@@ -80,7 +80,7 @@ export const DATATYPE_KIND = 'Datatype'
 const ENTITY_ROWS = 12
 
 /** How wide a line of an entity box grows before it is cut, in characters of its monospaced font. */
-const ENTITY_LINE_CHARS = 28
+export const ENTITY_LINE_CHARS = 56
 
 const ELLIPSIS = '…'
 
@@ -105,7 +105,7 @@ const vocabularyRows = (vocabulary: GraphVocabulary): string[] => {
 }
 
 /** How wide the name column of an entity box grows before a longer name is cut, in characters. */
-const NAME_COLUMN_CHARS = 16
+const NAME_COLUMN_CHARS = 32
 
 /** Fields as the two columns of an ER entity: the name, then the type it holds. */
 const fieldRows = (fields: GraphField[]): string[] => {
