@@ -1,0 +1,524 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${TBASIC}",
+  "tableType": "RawSource",
+  "kind": "TBasic",
+  "name": "TBasicTable",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "DEPRECATED '++' operator will be removed in the next version. Use 'x += 1' instead.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TBASIC}",
+        "name": "TBasicTable",
+        "module": "Rules",
+        "projectId": "${PROJECT_ID}",
+        "project": "${PROJECT_NAME}",
+        "cell": "F34",
+        "start": 1,
+        "end": 3
+      }
+    }
+  ],
+  "pos": "B21:F34",
+  "source": [
+    [
+      {
+        "cell": "B21",
+        "value": "TBasic testDatatype3 TBasicTable (testDatatype3 n)",
+        "colspan": 5,
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 7,
+              "end": 20,
+              "description": "Datatype testDatatype3",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 34,
+              "end": 47,
+              "description": "Datatype testDatatype3",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B22",
+        "value": "Label",
+        "comment": "column \"label\""
+      },
+      {
+        "cell": "C22",
+        "value": "Description"
+      },
+      {
+        "cell": "D22",
+        "value": "Operation"
+      },
+      {
+        "cell": "E22",
+        "value": "Condition"
+      },
+      {
+        "cell": "F22",
+        "value": "Action"
+      }
+    ],
+    [
+      {
+        "cell": "B23",
+        "value": "Name"
+      },
+      {
+        "cell": "C23",
+        "value": "Description"
+      },
+      {
+        "cell": "D23",
+        "value": "Operation"
+      },
+      {
+        "cell": "E23",
+        "value": "Condition"
+      },
+      {
+        "cell": "F23",
+        "value": "Action"
+      }
+    ],
+    [
+      {
+        "cell": "B24"
+      },
+      {
+        "cell": "C24",
+        "value": "declare result value"
+      },
+      {
+        "cell": "D24",
+        "value": "VAR",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E24",
+        "value": "factorial"
+      },
+      {
+        "cell": "F24",
+        "value": 1,
+        "comment": "set value 1 bacause factorial (0)= !0 = 1",
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B25"
+      },
+      {
+        "cell": "C25",
+        "value": "multiplier (1 .. n)"
+      },
+      {
+        "cell": "D25",
+        "value": "VAR",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E25",
+        "value": "i"
+      },
+      {
+        "cell": "F25",
+        "value": 1,
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B26"
+      },
+      {
+        "cell": "C26"
+      },
+      {
+        "cell": "D26",
+        "value": "IF",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E26",
+        "value": "n== null",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "testDatatype3 n",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "F26"
+      }
+    ],
+    [
+      {
+        "cell": "B27"
+      },
+      {
+        "cell": "C27"
+      },
+      {
+        "cell": "D27",
+        "value": "SET",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E27"
+      },
+      {
+        "cell": "F27",
+        "value": "n=new testDatatype3()",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "testDatatype3 n",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 6,
+              "end": 19,
+              "description": "Datatype testDatatype3\ntestDatatype3 ()",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B28"
+      },
+      {
+        "cell": "C28"
+      },
+      {
+        "cell": "D28",
+        "value": "ELSE",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E28"
+      },
+      {
+        "cell": "F28"
+      }
+    ],
+    [
+      {
+        "cell": "B29"
+      },
+      {
+        "cell": "C29"
+      },
+      {
+        "cell": "D29",
+        "value": "WHILE",
+        "comment": "operator WHILE. The step and its nested steps will be executed while i<=n. When the last step related to WHILE is executed, execution flow control returns to the WHILE step and it is executed once again.",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E29",
+        "value": "i<=Value5",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "TBasicTable\nint i",
+              "kind": "field"
+            },
+            {
+              "start": 3,
+              "end": 9,
+              "description": "Datatype testDatatype3\nInteger Value5",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "F29"
+      }
+    ],
+    [
+      {
+        "cell": "B30"
+      },
+      {
+        "cell": "C30",
+        "value": "factorial(n)=!n = 1 * 2 * 3 … * (n-1) * n"
+      },
+      {
+        "cell": "D30",
+        "value": "SET",
+        "comment": "please pay attention that operator SET has 2 indents because it's nested to operator WHILE which is nested to operator IF. So the operator SET is on the 3rd level.",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E30"
+      },
+      {
+        "cell": "F30",
+        "value": "Calculation",
+        "comment": "call subroutine Calculation. After executing subroutine, execution flow returns back to this step because Calculation subroutine doesn't include GOTO operator.",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 11,
+              "description": "TBasicTable\nvoid Calculation",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B31"
+      },
+      {
+        "cell": "C31"
+      },
+      {
+        "cell": "D31",
+        "value": "RETURN",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E31",
+        "value": "n=new testDatatype3 ()",
+        "comment": "return result value",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "testDatatype3 n",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            },
+            {
+              "start": 6,
+              "end": 20,
+              "description": "Datatype testDatatype3\ntestDatatype3 ()",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "F31"
+      }
+    ],
+    [
+      {
+        "cell": "B32",
+        "value": "Calculation",
+        "comment": "in column \"label\" we define name of subroutine Calculation"
+      },
+      {
+        "cell": "C32",
+        "value": "Subroutine to calculate value of next factorial"
+      },
+      {
+        "cell": "D32",
+        "value": "SUB",
+        "comment": "SUB operator. The step and all nested steps are executed sequentially till the last step or GOTO operation.",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E32"
+      },
+      {
+        "cell": "F32"
+      }
+    ],
+    [
+      {
+        "cell": "B33"
+      },
+      {
+        "cell": "C33"
+      },
+      {
+        "cell": "D33",
+        "value": "SET",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E33"
+      },
+      {
+        "cell": "F33",
+        "value": "factorial*=Value5",
+        "comment": "the same as factorial = factorial * i",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 9,
+              "description": "TBasicTable\nint factorial",
+              "kind": "field"
+            },
+            {
+              "start": 11,
+              "end": 17,
+              "description": "Datatype testDatatype3\nInteger Value5",
+              "tableId": "${TEST_DATATYPE3}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B34"
+      },
+      {
+        "cell": "C34",
+        "value": "Increment multiplier"
+      },
+      {
+        "cell": "D34",
+        "value": "SET",
+        "metaInfo": {
+          "type": "operation",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "E34"
+      },
+      {
+        "cell": "F34",
+        "value": "i++",
+        "comment": "the same as i=i+1",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "TBasicTable\nint i",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 2
+}

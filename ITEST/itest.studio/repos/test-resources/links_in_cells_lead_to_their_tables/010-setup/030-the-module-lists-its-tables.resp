@@ -1,0 +1,113 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "kind": "Column Match",
+      "name": "ColumnMatchTable",
+      "pos": "B53:E57"
+    },
+    {
+      "id": "***",
+      "kind": "Method",
+      "name": "MethodTable",
+      "pos": "B37:B40"
+    },
+    {
+      "id": "***",
+      "kind": "Data",
+      "name": "myData",
+      "pos": "B85:B90"
+    },
+    {
+      "id": "***",
+      "kind": "Data",
+      "name": "myData2",
+      "pos": "B92:C96"
+    },
+    {
+      "id": "***",
+      "kind": "Data",
+      "name": "myData3",
+      "pos": "B25:C31"
+    },
+    {
+      "id": "***",
+      "kind": "Run",
+      "name": "RunTable",
+      "pos": "B2:B7"
+    },
+    {
+      "id": "***",
+      "kind": "Rules",
+      "name": "SimpleRulesTable",
+      "pos": "B98:C101"
+    },
+    {
+      "id": "***",
+      "kind": "Rules",
+      "name": "SmartLookup1",
+      "pos": "B65:E72"
+    },
+    {
+      "id": "***",
+      "kind": "Rules",
+      "name": "SmartRules1",
+      "pos": "B76:D83"
+    },
+    {
+      "id": "***",
+      "kind": "Spreadsheet",
+      "name": "SpreadsheetTable",
+      "pos": "B6:D9"
+    },
+    {
+      "id": "***",
+      "kind": "Spreadsheet",
+      "name": "SpreadsheetTable2",
+      "pos": "B11:D14"
+    },
+    {
+      "id": "***",
+      "kind": "TBasic",
+      "name": "TBasicTable",
+      "pos": "B21:F34"
+    },
+    {
+      "id": "***",
+      "kind": "Datatype",
+      "name": "testDatatype",
+      "pos": "B3:C4"
+    },
+    {
+      "id": "***",
+      "kind": "Datatype",
+      "name": "testDatatype2",
+      "pos": "B46:C48"
+    },
+    {
+      "id": "***",
+      "kind": "Datatype",
+      "name": "testDatatype3",
+      "pos": "B60:C61"
+    },
+    {
+      "id": "***",
+      "kind": "Test",
+      "name": "TestmethodTable",
+      "pos": "B19:C23"
+    },
+    {
+      "id": "***",
+      "kind": "Test",
+      "name": "TestTable",
+      "pos": "B10:B15"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 17,
+  "total": 17
+}

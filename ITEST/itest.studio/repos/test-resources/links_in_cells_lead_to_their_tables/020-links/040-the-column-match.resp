@@ -1,0 +1,134 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${COLUMN_MATCH}",
+  "tableType": "RawSource",
+  "kind": "Column Match",
+  "name": "ColumnMatchTable",
+  "pos": "B53:E57",
+  "source": [
+    [
+      {
+        "cell": "B53",
+        "value": "ColumnMatch <MATCH> testDatatype ColumnMatchTable(testDatatype RandNumber)",
+        "colspan": 4,
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 20,
+              "end": 32,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 50,
+              "end": 62,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B54",
+        "value": "names"
+      },
+      {
+        "cell": "C54",
+        "value": "operation"
+      },
+      {
+        "cell": "D54",
+        "value": "weight"
+      },
+      {
+        "cell": "E54",
+        "value": "values"
+      }
+    ],
+    [
+      {
+        "cell": "B55",
+        "value": "Bla"
+      },
+      {
+        "cell": "C55"
+      },
+      {
+        "cell": "D55",
+        "value": "Weigh"
+      },
+      {
+        "cell": "E55",
+        "value": "Value"
+      }
+    ],
+    [
+      {
+        "cell": "B56",
+        "value": "Return Values"
+      },
+      {
+        "cell": "C56"
+      },
+      {
+        "cell": "D56"
+      },
+      {
+        "cell": "E56",
+        "value": "No",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B57",
+        "value": "Value1",
+        "metaInfo": {
+          "type": "names",
+          "editor": "combo"
+        }
+      },
+      {
+        "cell": "C57",
+        "value": "match"
+      },
+      {
+        "cell": "D57",
+        "value": 2
+      },
+      {
+        "cell": "E57",
+        "value": "\"bla\"",
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 2
+}

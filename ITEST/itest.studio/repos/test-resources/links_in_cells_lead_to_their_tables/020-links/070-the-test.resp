@@ -1,0 +1,91 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${TEST_TABLE}",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "TestTable",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "'_res_' column is missing.",
+      "severity": "WARN",
+      "location": {
+        "type": "table",
+        "id": "${TEST_TABLE}",
+        "name": "TestTable",
+        "module": "Rules",
+        "projectId": "${PROJECT_ID}",
+        "project": "${PROJECT_NAME}",
+        "cell": "B10"
+      }
+    }
+  ],
+  "pos": "B10:B15",
+  "source": [
+    [
+      {
+        "cell": "B10",
+        "value": "Test SpreadsheetTable  TestTable"
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "a_byte"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": ">myData2",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 1,
+              "end": 8,
+              "description": "Data testDatatype myData2",
+              "tableId": "${MY_DATA2}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "data"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": 1
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": 2,
+        "metaInfo": {
+          "type": "a_byte",
+          "editor": "combo"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": 3,
+        "metaInfo": {
+          "type": "a_byte",
+          "editor": "combo"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 3,
+  "layout": {
+    "firstDataLine": 4
+  }
+}

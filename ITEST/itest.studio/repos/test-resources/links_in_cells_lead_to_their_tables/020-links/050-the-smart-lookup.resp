@@ -1,0 +1,332 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${SMART_LOOKUP}",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "SmartLookup1",
+  "pos": "B65:E72",
+  "source": [
+    [
+      {
+        "cell": "B65",
+        "value": "SmartLookup testDatatype SmartLookup1(testDatatype intValueParam, testDatatype arg2)",
+        "colspan": 4,
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 12,
+              "end": 24,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 38,
+              "end": 50,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 66,
+              "end": 78,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B66",
+        "value": "intValue",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 8,
+              "description": "Condition: MC1\nExpression: intValueParam\nType: testDatatype",
+              "kind": "other"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C66",
+        "value": "v1",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 2,
+              "description": "Condition: HC1\nExpression: arg2\nType: testDatatype",
+              "kind": "other"
+            }
+          ],
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D66",
+        "value": "v2",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 2,
+              "description": "Condition: HC1\nExpression: arg2\nType: testDatatype",
+              "kind": "other"
+            }
+          ],
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E66",
+        "value": "v3",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 2,
+              "description": "Condition: HC1\nExpression: arg2\nType: testDatatype",
+              "kind": "other"
+            }
+          ],
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B67",
+        "value": 1,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C67",
+        "value": "0.01",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D67",
+        "value": "0.07",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E67",
+        "value": "0.13",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B68",
+        "value": 2,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C68",
+        "value": "0.02",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D68",
+        "value": "0.08",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E68",
+        "value": "0.14",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B69",
+        "value": 3,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C69",
+        "value": "0.03",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D69",
+        "value": "0.09",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E69",
+        "value": "0.15",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B70",
+        "value": 4,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C70",
+        "value": "0.04",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D70",
+        "value": "0.10",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E70",
+        "value": "0.16",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B71",
+        "value": 5,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C71",
+        "value": "0.05",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D71",
+        "value": "0.11",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E71",
+        "value": "0.17",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B72",
+        "value": 6,
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C72",
+        "value": "0.06",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D72",
+        "value": "0.12",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "E72",
+        "value": "0.18",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
