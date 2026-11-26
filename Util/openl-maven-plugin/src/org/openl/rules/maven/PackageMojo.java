@@ -62,6 +62,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     static final String TESTS_FOLDER = "tests";
     /** Pattern of every file of the {@link #TESTS_FOLDER}. */
     private static final String TESTS_FILES = TESTS_FOLDER + "/**";
+    /** The POM of a project kept in the folder of its build, at the root of the sources: never packaged. */
+    static final String POM_FILE_NAME = "pom.xml";
     /** Classifier of the auto-attached jar with the project's compiled classes, like 'attachClasses' in war packaging. */
     private static final String CLASSES_CLASSIFIER = "classes";
 
@@ -620,7 +622,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
         final var targetDir = Path.of(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
         strings.add(targetDir);
-        strings.add("pom.xml");
+        strings.add(POM_FILE_NAME);
         strings.add(TESTS_FILES);
         return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }

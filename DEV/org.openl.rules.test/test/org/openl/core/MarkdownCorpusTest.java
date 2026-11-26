@@ -107,7 +107,7 @@ final class MarkdownCorpusTest {
             }
             var excel = run(source);
             var markdown = OUT.resolve("md").resolve(name);
-            var written = MarkdownProjectWriter.write(factory(source, false), markdown);
+            var written = MarkdownProjectWriter.write(factory(source, false), markdown, List.of());
             if (written.converted().isEmpty()) {
                 return new Entry(name, Status.KEPT, "No workbook written as Markdown", excel, null, Size.NONE,
                         written.kept());

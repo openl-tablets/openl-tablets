@@ -12,7 +12,20 @@
         <org.openl.version>@project.version@</org.openl.version>
     </properties>
 
+    <dependencies>
+        <!-- Extracted into the build folder, under openl-workspace, before the Markdown copy is written -->
+        <dependency>
+            <groupId>org.openl.internal.tests-module</groupId>
+            <artifactId>tested</artifactId>
+            <version>0.0.0</version>
+            <type>zip</type>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
     <build>
+        <!-- The build folder lies in the sources, named otherwise than target: the Markdown copy leaves it out -->
+        <directory>build</directory>
         <plugins>
             <plugin>
                 <groupId>org.openl.rules</groupId>

@@ -48,6 +48,10 @@ abstract class BaseOpenLMojo extends AbstractMojo {
      * project into {@link #markdownDirectory}, and the {@code package} goal packages it instead of the sources. A
      * workbook holding a table no Markdown file can hold stays as it is, and the build log names the table.
      * <p>
+     * The copy holds no build folder of the project and no {@code pom.xml}, which the sources of a project kept in the
+     * folder of its build hold; the build folder is the one the build names, not only {@code target}. A module whose
+     * file lies in the build folder is no module of the copy, and the build log names it.
+     * <p>
      * Off by default: the project is packaged as it is.
      *
      * @since 7.0.0
