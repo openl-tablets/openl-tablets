@@ -128,8 +128,12 @@ Evaluates multiple conditions and returns a result. The most common table type.
 - **Condition columns:** `C1`, `C2`, ... — each maps to an input parameter expression
 - **Return column:** `RET` — the return value
 - **Action columns:** `A1`, `A2`, ... — side-effect actions (no return)
-- **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style), after at least one
-  vertical condition; an `HC` header takes one column
+- **Horizontal conditions:** `HC1`, `HC2`, ... — conditions along the column axis (lookup-style), after the vertical
+  conditions; an `HC` header takes one column
+- A lookup part in the first column, with no `C` or Rule column before it: the `HC` values take one row per `HC`, and
+  a value may be merged down only within these rows
+- A column past the last whole group of a `RET` merged over several columns is left out when it holds no values or
+  has no `HC` value above it, such as a note; otherwise the table is an error
 - A lookup returns all the values under an `HC` value merged across columns as one array when its `RET` column is one
   column wide and declares an array parameter, or has none and no expression in a table returning an array
 - Supports merged cells for multi-row grouping
