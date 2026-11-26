@@ -34,7 +34,7 @@ class ProjectLocalizationTest {
         Files.writeString(folder.resolve("i18n/message.properties"), "greeting=Hello\ngreeting=Hi\n");
         var localization = new ProjectLocalization();
 
-        localization.checkFiles(project(), List.of());
+        localization.checkFiles(project(), List.of(), Map.of(), List.of());
 
         var status = statusOf(localization);
         assertEquals(1, status.getModulesCount());
@@ -49,7 +49,7 @@ class ProjectLocalizationTest {
         Files.createDirectories(folder.resolve("i18n"));
         Files.writeString(folder.resolve("i18n/message.properties"), "greeting=Hello\n");
         var localization = new ProjectLocalization();
-        localization.checkFiles(project(), List.of());
+        localization.checkFiles(project(), List.of(), Map.of(), List.of());
         var claimsLoader = mock(IDependencyLoader.class);
         var pricingLoader = mock(IDependencyLoader.class);
         var claims = moduleCalling("claims.missing");
@@ -57,36 +57,63 @@ class ProjectLocalizationTest {
 
         var loaders = List.of(claimsLoader, pricingLoader);
         // Each module that finished compiling is checked, in whatever order the checks end.
-        localization.checkCalls(Map.of(pricingLoader, pricing), loaders);
-        localization.checkCalls(Map.of(claimsLoader, claims), loaders);
+        localization.checkCalls(pricingLoader, pricing, Map.of(), loaders);
+        localization.checkCalls(claimsLoader, claims, Map.of(), loaders);
         assertEquals(List.of("claims.missing", "pricing.missing"), missingKeys(localization, claims, pricing));
 
         // A module compiled again replaces the one its loader compiled before: what was fixed is not told any more.
         var claimsFixed = moduleCalling("greeting");
-        localization.checkCalls(Map.of(claimsLoader, claimsFixed), loaders);
+        localization.checkCalls(claimsLoader, claimsFixed, Map.of(), loaders);
         assertEquals(List.of("pricing.missing"), missingKeys(localization, claims, claimsFixed, pricing));
 
-        // A write of the files checks the calls of the modules checked before against the new files.
+        // A write of the files checks the calls of the modules checked before against the new files, both told at once.
         Files.writeString(folder.resolve("i18n/message.properties"), "greeting=Hello\npricing.missing=Found\n");
-        localization.checkFiles(project(), List.of());
-        localization.checkCalls(Map.of(), loaders);
+        localization.checkFiles(project(), List.of(), Map.of(), loaders);
         assertEquals(List.of(), missingKeys(localization, claimsFixed, pricing));
+        assertEquals(0, statusOf(localization).getWarningsCount());
         // The warnings of a module are told with it alone.
         var pricingOther = moduleCalling("pricing.other");
-        localization.checkCalls(Map.of(pricingLoader, pricingOther), loaders);
+        localization.checkCalls(pricingLoader, pricingOther, Map.of(), loaders);
         assertEquals(List.of(), missingKeys(localization, claimsFixed));
         assertEquals(List.of("pricing.other"), missingKeys(localization, pricingOther));
 
         // A module that left the project is dropped with its warnings.
-        localization.checkCalls(Map.of(), List.of(claimsLoader));
+        localization.checkCalls(claimsLoader, claimsFixed, Map.of(), List.of(claimsLoader));
         assertEquals(List.of(), missingKeys(localization, pricingOther));
+    }
+
+    @Test
+    void aModuleCheckedMeanwhileStaysWhenTheModulesWereReadBeforeIt() throws IOException {
+        Files.createDirectories(folder.resolve("i18n"));
+        Files.writeString(folder.resolve("i18n/message.properties"), "greeting=Hello\n");
+        var localization = new ProjectLocalization();
+        localization.checkFiles(project(), List.of(), Map.of(), List.of());
+        var claimsLoader = mock(IDependencyLoader.class);
+        var pricingLoader = mock(IDependencyLoader.class);
+        var loaders = List.of(claimsLoader, pricingLoader);
+        var claims = moduleCalling("claims.missing");
+        localization.checkCalls(claimsLoader, claims, Map.of(), loaders);
+        var readBefore = Map.of(claimsLoader, claims);
+
+        // The module is compiled again while another check holds the modules read before.
+        var claimsAgain = moduleCalling("claims.other");
+        localization.checkCalls(claimsLoader, claimsAgain, Map.of(), loaders);
+        localization.checkCalls(pricingLoader, moduleCalling("greeting"), readBefore, loaders);
+        assertEquals(List.of("claims.other"), missingKeys(localization, claimsAgain));
+        localization.checkFiles(project(), List.of(), readBefore, loaders);
+        assertEquals(List.of("claims.other"), missingKeys(localization, claimsAgain));
+
+        // The modules read add a module not checked yet.
+        localization.clear();
+        localization.checkFiles(project(), List.of(), readBefore, loaders);
+        assertEquals(List.of("claims.missing"), missingKeys(localization, claims));
     }
 
     @Test
     void aProjectWithoutLocalizationFilesAddsNoStep() {
         var localization = new ProjectLocalization();
 
-        localization.checkFiles(project(), List.of());
+        localization.checkFiles(project(), List.of(), Map.of(), List.of());
 
         var status = statusOf(localization);
         assertEquals(0, status.getModulesCount());
@@ -109,13 +136,18 @@ class ProjectLocalizationTest {
         Files.createDirectories(folder.resolve("i18n"));
         Files.writeString(folder.resolve("i18n/message.properties"), "greeting=Hello\ngreeting=Hi\n");
         var localization = new ProjectLocalization();
-        localization.checkFiles(project(), List.of());
+        localization.checkFiles(project(), List.of(), Map.of(), List.of());
 
         localization.clear();
+        // A module that finishes compiling after it is not checked.
+        var loader = mock(IDependencyLoader.class);
+        var claims = moduleCalling("claims.missing");
+        localization.checkCalls(loader, claims, Map.of(), List.of(loader));
 
         var status = statusOf(localization);
         assertEquals(0, status.getModulesCount());
         assertEquals(0, status.getWarningsCount());
+        assertEquals(List.of(), missingKeys(localization, claims));
         assertFalse(localization.isOf(folder));
     }
 

@@ -42,10 +42,11 @@ import org.openl.rules.validation.MessageCallCheck;
  * dependencies and its libraries.
  *
  * <p>A write of the localization files is checked again without compiling anything: the files are read once more,
- * and the calls the compiled modules kept are checked against them.
+ * and the calls the compiled modules kept are checked against them. The files and the calls are told together, so a
+ * read never finds the calls checked against other files.
  *
- * <p>The calls are checked one check at a time, each over every module checked so far, so the warnings about a module
- * are not lost when two modules finish compiling at once.
+ * <p>The checks run one at a time, each over every module checked so far, so no warnings about a module are lost when
+ * two modules finish compiling at once or the files are written meanwhile. Reads never wait for a check.
  */
 @Slf4j
 public final class ProjectLocalization {
@@ -79,9 +80,14 @@ public final class ProjectLocalization {
      * A module as it was compiled, and the warnings about its calls.
      *
      * @param module the module, as the last compilation of it built it
-     * @param calls  the warnings about its calls, or {@code null} when they are to be checked again
+     * @param calls  the warnings about its calls
      */
-    private record Checked(XlsModuleOpenClass module, @Nullable List<OpenLMessage> calls) {
+    private record Checked(XlsModuleOpenClass module, List<OpenLMessage> calls) {
+
+        /** The module with its calls checked against the messages. */
+        static Checked of(XlsModuleOpenClass module, OpenLMessageSource source) {
+            return new Checked(module, MessageCallCheck.checkModule(module, source));
+        }
     }
 
     private final AtomicReference<@Nullable State> state = new AtomicReference<>();
@@ -102,57 +108,78 @@ public final class ProjectLocalization {
     }
 
     /**
-     * Checks the localization files of the project, and forgets what was found about the calls before. The modules of
-     * the same project checked before are kept, so the next check of the calls checks them against the new files.
+     * Checks the localization files of the project, then the calls of its modules against them, and tells both at
+     * once. The modules of the same project checked before are checked again, unless their loader is gone.
      *
      * @param project  the project compiled
      * @param projects the projects the compilation loads: those the project depends on give their messages
+     * @param modules  the modules the loaders hold, read before the check: they add the modules not checked yet
+     * @param loaders  every loader the compilation has now
      */
-    void checkFiles(ProjectDescriptor project, Collection<ProjectDescriptor> projects) {
+    @Synchronized
+    void checkFiles(ProjectDescriptor project,
+                    Collection<ProjectDescriptor> projects,
+                    Map<IDependencyLoader, XlsModuleOpenClass> modules,
+                    Collection<IDependencyLoader> loaders) {
         var folder = project.getProjectFolder();
         var loader = new URLClassLoader(classPathOf(project, projects), null);
         var source = new OpenLMessageSource(loader);
         var check = LocalizationCheck.check(folder, source);
         var previous = state.get();
-        var kept = new LinkedHashMap<IDependencyLoader, Checked>();
+        var checked = new LinkedHashMap<IDependencyLoader, Checked>();
         if (previous != null && previous.folder().equals(folder)) {
-            previous.checked().forEach((by, checked) -> kept.put(by, new Checked(checked.module(), null)));
+            checked.putAll(previous.checked());
         }
-        replace(new State(folder, loader, source, check, kept));
+        replace(new State(folder, loader, source, check, fill(checked, modules, loaders, source, true)));
     }
 
     /**
-     * Checks the calls of the modules compiled, each by the loader that compiles it, against the messages as they are
-     * now.
+     * Checks the calls of a module compiled a moment ago against the messages as they are now, with those of the
+     * modules compiled before it and not checked yet.
      *
-     * <p>A module compiled again replaces the one its loader compiled before, and only a module not checked yet, or
-     * compiled again, is checked: the warnings of the others stay. A module whose loader is gone, as the module left
-     * the project, is dropped with its warnings. After a check of the files every module is checked again.
+     * <p>The module replaces the one its loader compiled before. A loader holds a module only after it tells about
+     * it, so the modules the loaders hold may be older than those checked already: they add only the modules not
+     * checked yet, and the warnings of the others stay.
      *
-     * @param modules the modules compiled so far, by their loaders
-     * @param loaders every loader the compilation has now
+     * @param compiler the loader that compiled the module
+     * @param module   the module compiled
+     * @param modules  the modules the loaders hold, read before the check
+     * @param loaders  every loader the compilation has now
      */
     @Synchronized
-    void checkCalls(Map<IDependencyLoader, XlsModuleOpenClass> modules, Collection<IDependencyLoader> loaders) {
+    void checkCalls(IDependencyLoader compiler,
+                    XlsModuleOpenClass module,
+                    Map<IDependencyLoader, XlsModuleOpenClass> modules,
+                    Collection<IDependencyLoader> loaders) {
         var current = state.get();
-        while (current != null) {
-            var checked = new LinkedHashMap<>(current.checked());
-            checked.keySet().retainAll(Set.copyOf(loaders));
-            modules.forEach((by, module) -> {
-                var known = checked.get(by);
-                if (known == null || known.module() != module) {
-                    checked.put(by, new Checked(module, null));
-                }
-            });
+        if (current != null) {
             var source = current.source();
-            checked.replaceAll((by, known) -> known.calls() != null ? known
-                    : new Checked(known.module(), MessageCallCheck.checkModule(known.module(), source)));
-            if (state.compareAndSet(current, current.withChecked(Collections.unmodifiableMap(checked)))) {
-                return;
-            }
-            // The files were checked again meanwhile: the calls are checked against them.
-            current = state.get();
+            var checked = new LinkedHashMap<>(current.checked());
+            checked.compute(compiler,
+                    (by, before) -> before != null && before.module() == module ? before : Checked.of(module, source));
+            state.set(current.withChecked(fill(checked, modules, loaders, source, false)));
         }
+    }
+
+    /**
+     * Completes the modules checked, by their loaders: a module whose loader is gone, as the module left the project,
+     * is dropped with its warnings, and a module not checked yet is checked.
+     *
+     * @param checked the modules checked so far, completed in place
+     * @param again   whether the modules checked so far are checked again, as the messages changed
+     * @return the modules checked
+     */
+    private static Map<IDependencyLoader, Checked> fill(Map<IDependencyLoader, Checked> checked,
+                                                        Map<IDependencyLoader, XlsModuleOpenClass> modules,
+                                                        Collection<IDependencyLoader> loaders,
+                                                        OpenLMessageSource source,
+                                                        boolean again) {
+        checked.keySet().retainAll(Set.copyOf(loaders));
+        if (again) {
+            checked.replaceAll((by, before) -> Checked.of(before.module(), source));
+        }
+        modules.forEach((by, module) -> checked.computeIfAbsent(by, any -> Checked.of(module, source)));
+        return checked;
     }
 
     /**
@@ -198,6 +225,7 @@ public final class ProjectLocalization {
     }
 
     /** Forgets what was found, when the model lets go of the project. */
+    @Synchronized
     void clear() {
         replace(null);
     }

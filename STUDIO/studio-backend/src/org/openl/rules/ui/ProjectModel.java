@@ -1672,39 +1672,46 @@ public class ProjectModel {
         if (dependencyManager == null) {
             return;
         }
-        var projects = dependencyManager.getDependencyLoaders()
-                .stream()
+        var loaders = dependencyManager.getDependencyLoaders();
+        var projects = loaders.stream()
                 .filter(IDependencyLoader::isProjectLoader)
                 .map(IDependencyLoader::getProject)
                 .toList();
-        localization.checkFiles(project, projects);
-        checkMessageCalls(null, null);
+        localization.checkFiles(project, projects, modulesCompiledWith(project, dependencyManager), loaders);
     }
 
     /**
-     * Checks the calls of {@code msg} of the modules the compilation of the project has compiled so far, each by the
-     * loader that compiles it.
+     * Checks the calls of {@code msg} of a module compiled a moment ago, with those of the modules the compilation of
+     * the project has compiled before it, each by the loader that compiles it.
      *
-     * @param justLoaded   the loader of the module compiled a moment ago, or {@code null}
+     * @param justLoaded   the loader of the module
      * @param justCompiled what it compiled, which the loader may not hold yet
      */
-    private void checkMessageCalls(@Nullable IDependencyLoader justLoaded, @Nullable CompiledOpenClass justCompiled) {
+    private void checkMessageCalls(IDependencyLoader justLoaded, CompiledOpenClass justCompiled) {
         var module = this.moduleInfo;
         var dependencyManager = this.webStudioWorkspaceDependencyManager;
-        if (module == null || dependencyManager == null) {
+        var compiled = ValidationUtils.moduleOf(justCompiled);
+        if (module == null || dependencyManager == null || compiled == null) {
             return;
         }
+        localization.checkCalls(justLoaded,
+                compiled,
+                modulesCompiledWith(module.getProject(), dependencyManager),
+                dependencyManager.getDependencyLoaders());
+    }
+
+    /** The modules of rules the compilation of a project has compiled so far, by the loaders that compiled them. */
+    private static Map<IDependencyLoader, XlsModuleOpenClass> modulesCompiledWith(
+            ProjectDescriptor project,
+            WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
         var modules = new LinkedHashMap<IDependencyLoader, XlsModuleOpenClass>();
-        dependencyManager.findLoadersCompiledWith(module.getProject())
+        dependencyManager.findLoadersCompiledWith(project)
                 .stream()
                 .filter(loader -> !loader.isProjectLoader() && loader.getRefToCompiledDependency() != null)
                 .forEach(loader -> putModule(modules,
                         loader,
                         loader.getRefToCompiledDependency().getCompiledOpenClass()));
-        if (justLoaded != null) {
-            putModule(modules, justLoaded, justCompiled);
-        }
-        localization.checkCalls(modules, dependencyManager.getDependencyLoaders());
+        return modules;
     }
 
     /** Puts the module of rules a loader compiled, when it compiled one. */
