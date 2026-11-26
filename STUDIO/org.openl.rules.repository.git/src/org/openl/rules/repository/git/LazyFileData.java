@@ -20,7 +20,9 @@ import org.openl.rules.repository.git.FirstCommits.Revision;
  * A file of a Git revision whose size and history are read on first use.
  *
  * <p>The latest commit that changes the file is found by a walk it may share with other files: the folders read from
- * one commit find theirs together, so a project listing walks the history once (see {@link FirstCommits}).
+ * one commit find theirs together, so a project listing walks the history once (see {@link FirstCommits}). A folder,
+ * such as a project, tells who changed it last, but stands on the commit it is read from: the head of the branch is
+ * its version.
  *
  * <p>The same data may be read by several requests at once, as when a revision of a project is listed twice. What is
  * read lazily is published whole, so no request sees it half read. The history is read without holding the data:
@@ -32,6 +34,8 @@ class LazyFileData extends FileData {
     private final String fullPath;
     private final GitRepository gitRepo;
     private @Nullable FirstCommits firstCommits;
+    /** The commit the data stands on whatever its latest change is, as a folder on the head of the branch. */
+    private @Nullable ObjectId standsOn;
     private @Nullable RevCommit fileCommit;
     private @Nullable ObjectId fileId;
 
@@ -40,11 +44,13 @@ class LazyFileData extends FileData {
 
     /**
      * @param firstCommits the walk that finds the latest commit changing the file; the path must have joined it
+     * @param standsOn     the commit that is the version of the data, or {@code null} for its latest change
      */
     LazyFileData(String branch,
                  String fullPath,
                  GitRepository gitRepo,
                  FirstCommits firstCommits,
+                 @Nullable ObjectId standsOn,
                  @Nullable ObjectId fileId) {
         setBranch(branch);
         setName(fullPath);
@@ -55,6 +61,7 @@ class LazyFileData extends FileData {
         this.fullPath = fullPath;
         this.gitRepo = gitRepo;
         this.firstCommits = firstCommits;
+        this.standsOn = standsOn == null ? null : standsOn.copy();
         this.fileId = fileId;
     }
 
@@ -177,12 +184,14 @@ class LazyFileData extends FileData {
     private void verifyLoaded() {
         @Nullable RevCommit known;
         @Nullable FirstCommits commits;
+        @Nullable ObjectId standing;
         synchronized (this) {
             if (loaded) {
                 return;
             }
             known = fileCommit;
             commits = firstCommits;
+            standing = standsOn;
         }
 
         try (var git = gitRepo.getClosableGit()) {
@@ -191,7 +200,7 @@ class LazyFileData extends FileData {
                 throw new IllegalStateException("Cannot find revision for the file " + fullPath);
             }
             var committerIdent = revision.committer();
-            var version = resolveVersionName(git, revision.id());
+            var version = resolveVersionName(git, standing == null ? revision.id() : standing);
             var history = isTechnicalRevision() ? gitRepo.checkHistory(fullPath, version) : null;
             synchronized (this) {
                 if (loaded) {
@@ -208,6 +217,7 @@ class LazyFileData extends FileData {
                 loaded = true;
                 firstCommits = null;
                 fileCommit = null;
+                standsOn = null;
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

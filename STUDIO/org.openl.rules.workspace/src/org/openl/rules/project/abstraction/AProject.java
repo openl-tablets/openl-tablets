@@ -46,6 +46,11 @@ public class AProject extends AProjectFolder implements IProject {
     protected List<FileData> historyFileDatas;
     private String lastHistoryVersion;
     private volatile boolean historyVersionResolved = true;
+    /**
+     * The last answer of {@link #isLastVersion()} for two different revisions. It is immutable, so a reader sees it
+     * whole; a race only makes two readers ask the repository.
+     */
+    private @Nullable Held held;
 
     public AProject(Repository repository, String folderPath) {
         this(repository, folderPath, null);
@@ -182,13 +187,60 @@ public class AProject extends AProjectFolder implements IProject {
         this.lastHistoryVersion = lastHistoryVersion;
     }
 
+    /**
+     * Whether the project stands on its latest revision.
+     *
+     * <p>Another revision counts as the latest one when it holds the project alike, as an older head of a Git branch
+     * that only other projects changed since: the project stays current until a commit changes its folder, the ignored
+     * files of the folder included. The answer is kept for the two revisions it compared until the file data changes.
+     */
     public boolean isLastVersion() {
         var historyVersion = getHistoryVersion();
         if (historyVersion == null) {
             return true;
         }
         var lastVersion = getLastHistoryVersion();
-        return lastVersion == null || historyVersion.equals(lastVersion);
+        return lastVersion == null || historyVersion.equals(lastVersion) || isHeldAsLast(historyVersion, lastVersion);
+    }
+
+    private boolean isHeldAsLast(String version, String lastVersion) {
+        var known = held;
+        if (known != null && known.version().equals(version) && known.lastVersion().equals(lastVersion)) {
+            return known.held();
+        }
+        var answer = holdsLastVersion(version);
+        held = new Held(version, lastVersion, answer);
+        return answer;
+    }
+
+    /** Whether the revision holds the project as the latest revision does, as it was told last. */
+    private record Held(String version, String lastVersion, boolean held) {
+    }
+
+    /**
+     * Whether the revision holds the project as its latest revision does, told by the unique ids the repository gives
+     * the folder of the project; {@code false} when it gives none.
+     */
+    protected boolean holdsLastVersion(String version) {
+        return isRepositoryVersionable() && holdsLastVersion(getRepository(), getFolderPath(), version);
+    }
+
+    protected static boolean holdsLastVersion(Repository repository, @Nullable String folder, String version) {
+        if (folder == null) {
+            return false;
+        }
+        try {
+            var last = repository.check(folder);
+            var lastId = last == null ? null : last.getUniqueId();
+            if (lastId == null) {
+                return false;
+            }
+            var revision = repository.checkHistory(folder, version);
+            return revision != null && lastId.equals(revision.getUniqueId());
+        } catch (IOException e) {
+            log.warn("Cannot compare the revision '{}' of '{}' with the latest one.", version, folder, e);
+            return false;
+        }
     }
 
     @Override
@@ -243,6 +295,7 @@ public class AProject extends AProjectFolder implements IProject {
         historyVersionResolved = true;
         historyFileDatas = null;
         lastHistoryVersion = null;
+        held = null;
     }
 
     @Override

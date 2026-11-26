@@ -239,9 +239,9 @@ class LocalGitRepositoryTest {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project11/file1", "Project11 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
-        assertEquals(1, repo.listHistory("rules/project1").size());
-        assertEquals(1, repo.listHistory("rules/project11").size());
-        assertEquals(1, repo.listHistory("rules/project2").size());
+        assertEquals(1, changesOf(repo, "rules/project1"));
+        assertEquals(1, changesOf(repo, "rules/project11"));
+        assertEquals(1, changesOf(repo, "rules/project2"));
 
         repo.createRepositoryBranch("branch1", repo.getBranch());
 
@@ -253,9 +253,9 @@ class LocalGitRepositoryTest {
         assertTrue(repo.isMergedInto("branch1", repo.getBranch()));
         assertFalse(repo.isMergedInto(repo.getBranch(), "branch1"));
 
-        assertEquals(4, repo.listHistory("rules/project1").size());
-        assertEquals(1, repo.listHistory("rules/project11").size());
-        assertEquals(1, repo.listHistory("rules/project2").size());
+        assertEquals(4, changesOf(repo, "rules/project1"));
+        assertEquals(1, changesOf(repo, "rules/project11"));
+        assertEquals(1, changesOf(repo, "rules/project2"));
 
         assertEquals("Merge branch 'branch1'", repo.check("rules/project1").getComment());
     }
@@ -361,8 +361,8 @@ class LocalGitRepositoryTest {
     void testHistoryWhenMergeDifferentProjectModifications() throws IOException {
         writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
         writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
-        assertEquals(1, repo.listHistory("rules/project1").size());
-        assertEquals(1, repo.listHistory("rules/project2").size());
+        assertEquals(1, changesOf(repo, "rules/project1"));
+        assertEquals(1, changesOf(repo, "rules/project2"));
 
         var branch1 = "branch1";
         repo.createRepositoryBranch(branch1, repo.getBranch());
@@ -371,16 +371,15 @@ class LocalGitRepositoryTest {
         modifyFile(repo, "rules/project2/file1", "Modify project2 in 'master'");
         modifyFile(repoForBranch1, "rules/project1/file1", "Modify project1 in 'branch1'");
 
-        assertEquals(1, repo.listHistory("rules/project1").size());
-        assertEquals(2, repoForBranch1.listHistory("rules/project1").size());
-        assertEquals(2, repo.listHistory("rules/project2").size());
+        assertEquals(1, changesOf(repo, "rules/project1"));
+        assertEquals(2, changesOf(repoForBranch1, "rules/project1"));
+        assertEquals(2, changesOf(repo, "rules/project2"));
 
         repoForBranch1.merge(repo.getBranch(), new UserInfo("user1", "user1@email", "User 1"), null);
         repo.merge(repoForBranch1.getBranch(), new UserInfo("user1", "user1@email", "User 1"), null);
 
-        var historyForProject2 = repo.listHistory("rules/project2");
         // See EPBDS-10480 for details.
-        assertEquals(2, historyForProject2.size());
+        assertEquals(2, changesOf(repo, "rules/project2"));
     }
 
     @Test
@@ -503,5 +502,10 @@ class LocalGitRepositoryTest {
         newRepo.initialize(TestGitUtils.mockGitRootFactory(REPO_ID, uri, local, repositoriesFolder, false, true));
 
         return newRepo;
+    }
+
+    /** The revisions that change the project, the head of the branch it stands on aside when it changes nothing. */
+    private static long changesOf(GitRepository repository, String project) throws IOException {
+        return TestGitUtils.changes(repository.listHistory(project)).size();
     }
 }

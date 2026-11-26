@@ -7,6 +7,18 @@ Content-Type: application/json
       "revisionNo": "*",
       "shortRevisionNo": "*",
       "createdAt": "*",
+      "fullComment": "Merge branch 'EPBDS-15439_MergeWithoutConflicts_two' into EPBDS-15439_MergeWithoutConflicts_one",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": true
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
       "fullComment": "EPBDS-15439 Save changes in branch two",
       "author": {
         "email": "admin@email",
@@ -30,5 +42,5 @@ Content-Type: application/json
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 2
+  "numberOfElements": 3
 }

@@ -100,14 +100,21 @@ flowchart LR
   `ignoredPaths`, `projectFiles` and `zipFilter`, in Java configuration.
 - **A Git repository** (`GitRepository`) is given the setting too. A full save of a folder keeps its ignored files
   (`removeAbsentFiles`), and the walk that tells whether a commit changes a path leaves them out (`createTreeWalk`,
-  `TechnicalFilesTreeFilter`, after the cheaper comparison of the object ids). The walk leaves out the protected
-  files of the project too, which `RepositoryInstatiator` gives the repository as its `protected-files` parameter. A
-  commit that changes only the ignored and the protected files of a project is a technical revision of it, and the
-  project stands on its latest commit that changes anything else (`findFirstCommits`): the history marks it as current, and a save based on it is not taken for a save
-  of an old version. A merge conflict in an ignored file keeps the version of the branch merged into: no one resolves
-  it in OpenL Studio, as no one sees the file. `validateMergeConflict` leaves such files out of the conflict a user
-  is asked to resolve, and `resolveConflict` writes the version the tip of the branch holds, or deletes the file when
-  the branch holds none, whoever resolves the rest: a resolution given for an ignored file is left out.
+  `TechnicalFilesTreeFilter`, after the cheaper comparison of the object ids). The walk of the history leaves out the
+  protected files of the project too, which `RepositoryInstatiator` gives the repository as its `protected-files`
+  parameter: a commit that changes only the ignored and the protected files of a project is a technical revision of it,
+  which the history hides unless asked for. A project stands on the head of its branch, whatever the head changes
+  (`LazyFileData`), while it tells the author, the date and the comment of its latest change that is not technical
+  (`findFirstCommits`, one walk for a whole listing in `FirstCommits`): it is read and opened with the files the branch
+  holds, such as the `pom.xml` of the last version bump, and its history always ends with the head and marks it as
+  current, as a technical revision when it leaves the project unchanged (`iterateHistory`). The history of a single file
+  lists only its changes, and a deleted project ends with the commit that deleted it. A folder carries the id of its
+  tree as its unique id, so a working copy opened at an older head stays at the latest version while the folder is the
+  same tree at both (`AProject.isLastVersion`): a commit of another project leaves it current. A merge conflict in an
+  ignored file keeps the version of the branch merged into: no one resolves it in OpenL Studio, as no one sees the file.
+  `validateMergeConflict` leaves such files out of the conflict a user is asked to resolve, and `resolveConflict` writes
+  the version the tip of the branch holds, or deletes the file when the branch holds none, whoever resolves the rest: a
+  resolution given for an ignored file is left out.
 - **A repository on the file system** (`FileSystemRepository`) is given the setting too (`ignored-paths`, which
   `RepositoryInstatiator` answers from the system setting) and keeps the same paths out of reach by itself:
   - a path a request names is matched as the file system resolves it too, so neither a link nor a short name of
@@ -142,9 +149,11 @@ the operations that move a project from one place to another leave it out:
   `ZipProjectSaveStrategy` and the `REPLACE` policy of the Files API give it the protected files as they are. A write
   of one file, such as `PUT /projects/:id/files/pom.xml`, is an edit, not an import: it writes a protected file.
 - **The history.** A commit that changes only protected and ignored files of a project is a technical revision of it,
-  as described above. A save does write the protected files, so the check of a stale save counts such a commit
-  (`isCheckoutOldVersion`, `findLatestChange`): a save based on the revision the project stands on is merged with a
-  later version bump of `pom.xml` instead of writing the copy the user read over it.
+  as described above. A save writes the protected files, so the check of a stale save counts such a commit
+  (`isCheckoutOldVersion`, `findLatestChange`): a save based on a head that lacks the latest change of the project,
+  such as a version bump of `pom.xml`, is merged with it instead of writing the copy the user read over it. A save
+  based on an older head that holds the latest change of the project, as when only other projects changed since, is
+  committed on the head without a merge.
 - **Concurrent writes.** A replace of a closed project reads the protected files it gives back under the edit lock it
   commits under (`writeEntries`), so a change committed in between is not undone.
 

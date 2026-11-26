@@ -169,6 +169,7 @@ The following related properties have no field in the UI:
   deployment leave it out, and an import of a project, such as a ZIP archive uploaded over it, neither writes it nor
   deletes the one the project holds. A deployment writes a manifest of its own, so it never carries the one of a
   project. In a Git repository, a revision that changes only protected and ignored files is a technical revision.
+  The **Revisions** list hides it unless it is the latest revision of the branch, which every project stands on.
   The screens of OpenL Studio hide a protected file unless **Show Hidden Files** is on in **My Settings**.
 - **`project.hidden-files`** — the files of every project hidden from business users,
   `rules.xml, rules-deploy.xml, tags.properties` by default: patterns relative to the project root, as above. The

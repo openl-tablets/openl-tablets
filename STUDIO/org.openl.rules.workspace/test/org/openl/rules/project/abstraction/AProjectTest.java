@@ -1,7 +1,13 @@
 package org.openl.rules.project.abstraction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -17,8 +23,10 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Repository;
 
 class AProjectTest {
 
@@ -52,6 +60,64 @@ class AProjectTest {
 
         assertEquals("<project><name>Copy</name></project>", Files.readString(targetRoot.resolve("Copy/rules.xml")));
         assertEquals("workbook", Files.readString(targetRoot.resolve("Copy/rules/Main.xlsx")));
+    }
+
+    /**
+     * A project opened at an older revision stays at its latest version while that revision holds the project as the
+     * latest one does, as an older head of a Git branch that only other projects changed since.
+     */
+    @Test
+    void anOlderRevisionThatHoldsTheProjectAlikeIsTheLatestVersion() throws Exception {
+        var repository = versioned(folder("head", "tree-1"), folder("opened", "tree-1"));
+
+        assertTrue(new AProject(repository, "Project", "opened").isLastVersion());
+    }
+
+    /** The answer is kept for the two revisions it compared: the repository is asked once. */
+    @Test
+    void theAnswerIsKeptForTheRevisionsItCompared() throws Exception {
+        var repository = versioned(folder("head", "tree-1"), folder("opened", "tree-1"));
+        var project = new AProject(repository, "Project", "opened");
+
+        assertTrue(project.isLastVersion());
+        assertTrue(project.isLastVersion());
+
+        verify(repository, times(1)).checkHistory("Project", "opened");
+    }
+
+    /** A commit that changes the project makes the revision it was opened at an older one. */
+    @Test
+    void anOlderRevisionThatHoldsTheProjectOtherwiseIsNotTheLatestVersion() throws Exception {
+        var repository = versioned(folder("head", "tree-2"), folder("opened", "tree-1"));
+
+        assertFalse(new AProject(repository, "Project", "opened").isLastVersion());
+    }
+
+    /** A repository that gives a folder no unique id tells the latest version by the revision alone. */
+    @Test
+    void aFolderWithoutAUniqueIdIsTheLatestVersionAtTheLatestRevisionOnly() throws Exception {
+        var repository = versioned(folder("head", null), folder("opened", null));
+
+        assertFalse(new AProject(repository, "Project", "opened").isLastVersion());
+        assertTrue(new AProject(repository, "Project", "head").isLastVersion());
+    }
+
+    /** A versioned repository whose project folder is at the given revisions: the latest, and the one opened. */
+    private static Repository versioned(FileData latest, FileData opened) throws IOException {
+        var repository = mock(Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setVersions(true).build());
+        when(repository.check("Project")).thenReturn(latest);
+        when(repository.checkHistory("Project", opened.getVersion())).thenReturn(opened);
+        when(repository.checkHistory("Project", latest.getVersion())).thenReturn(latest);
+        return repository;
+    }
+
+    private static FileData folder(String version, String uniqueId) {
+        var data = new FileData();
+        data.setName("Project");
+        data.setVersion(version);
+        data.setUniqueId(uniqueId);
+        return data;
     }
 
     /** A user workspace: a folder repository with file ids, which has none for a file it never saved. */

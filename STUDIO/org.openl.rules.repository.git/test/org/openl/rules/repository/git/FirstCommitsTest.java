@@ -126,13 +126,18 @@ class FirstCommitsTest {
         verify(failing, times(1)).findFirstCommits(any(), any(), argThat(FirstCommitsTest::several));
     }
 
+    /**
+     * A folder stands on the head of the branch it is read from, and tells its latest change: a folder read after the
+     * walk finds its own.
+     */
     @Test
-    void aFolderReadAfterTheWalkFindsItsOwnRevision() throws Exception {
+    void aFolderReadAfterTheWalkFindsItsOwnLatestChange() throws Exception {
         var a = repo.check("a");
         var b = repo.check("b");
         assertNotNull(a);
         assertNotNull(b);
-        assertEquals(changedA.getName(), a.getVersion());
+        assertEquals(changedA.getFullMessage(), a.getComment());
+        assertEquals(head.getName(), a.getVersion());
 
         var changedAgain = commit("changed a again", "a/file");
         var again = repo.check("a");
@@ -140,24 +145,28 @@ class FirstCommitsTest {
 
         assertNotNull(again);
         assertNotNull(c);
+        assertEquals(changedAgain.getFullMessage(), again.getComment());
         assertEquals(changedAgain.getName(), again.getVersion());
-        assertEquals(created.getName(), c.getVersion());
-        assertEquals(changedB.getName(), b.getVersion());
-        assertEquals(changedA.getName(), a.getVersion());
+        assertEquals(created.getFullMessage(), c.getComment());
+        assertEquals(changedAgain.getName(), c.getVersion());
+        assertEquals(changedB.getFullMessage(), b.getComment());
+        assertEquals(changedA.getFullMessage(), a.getComment());
+        assertEquals(head.getName(), a.getVersion());
     }
 
+    /** Every folder of a listing stands on the head of the branch and tells its own latest change. */
     @Test
-    void foldersOfAListingFindTheirRevisions() throws Exception {
-        var versions = repo.listFolders("")
+    void foldersOfAListingTellTheirLatestChanges() throws Exception {
+        var folders = repo.listFolders("")
                 .stream()
-                .map(folder -> folder.getName() + " " + folder.getVersion())
+                .map(folder -> folder.getName() + " " + folder.getComment() + " " + folder.getVersion())
                 .sorted()
                 .toList();
 
-        assertEquals(List.of("a " + changedA.getName(),
-                "b " + changedB.getName(),
-                "c " + created.getName(),
-                "d " + changedD.getName()), versions);
+        assertEquals(List.of("a " + changedA.getFullMessage() + " " + head.getName(),
+                "b " + changedB.getFullMessage() + " " + head.getName(),
+                "c " + created.getFullMessage() + " " + head.getName(),
+                "d " + changedD.getFullMessage() + " " + head.getName()), folders);
     }
 
     private static boolean several(Collection<String> paths) {
