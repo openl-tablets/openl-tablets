@@ -63,12 +63,14 @@ class HistoryForRevertedCommitTest {
         // 1) project2 was modified in branch "project2".
         // 2) branch "project1" was merged into branch "project2".
         //
-        // Branch "project1" doesn't contain commits related to project2, merge commit shouldn't appear in history.
+        // Branch "project1" doesn't contain commits related to project2, so the merge commit is no change of it: it is
+        // listed only as the head of the branch the project stands on, a technical revision.
         repo = repo.forBranch("project2");
         var history = repo.listHistory("project2");
-        assertEquals(2, history.size());
+        assertEquals(3, history.size());
         assertEquals("Add project2\n", history.getFirst().getComment());
         assertEquals("Modify project2\n", history.get(1).getComment());
+        assertTrue(history.get(2).isTechnicalRevision());
     }
 
     @Test

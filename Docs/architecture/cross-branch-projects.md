@@ -335,7 +335,9 @@ lookup walks the history once for every folder read from that commit so far, rat
 unchanged for thousands of commits would otherwise walk them again for each project. A folder read after that walk
 joins a walk of its own. When the walk fails, each of its folders walks the history alone, so a failure is told for the
 folder it belongs to and the walk is not repeated for every folder. A found revision keeps the commit id, the
-committer and the message, not the commit, whose parents would retain the history walked.
+committer and the message, not the commit, whose parents would retain the history walked. The audit version tells who
+changed a folder last; the version a folder stands on is the commit it is read from, the head of the branch, whatever
+the head changes (`LazyFileData`).
 
 ## Authorization
 

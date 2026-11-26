@@ -1,6 +1,7 @@
 package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +50,12 @@ class MergeLfsRepoTest {
 
         repo.forBranch("br7").merge("main", author, null);
 
-        assertEquals("50fa760a58f5cb4cbf025537f119ff37001d02cd",
-                repo.forBranch("br7").check("DESIGN/rules/Example 3 - Auto Policy Calculation").getVersion());
+        // The project stands on the merge, the head of the branch, after its latest change
+        var branch = repo.forBranch("br7");
+        var project = "DESIGN/rules/Example 3 - Auto Policy Calculation";
+        var history = branch.listHistory(project);
+        assertEquals(history.getLast().getVersion(), branch.check(project).getVersion());
+        assertTrue(history.stream().anyMatch(data -> "50fa760a58f5cb4cbf025537f119ff37001d02cd".equals(data.getVersion())));
     }
 
     private GitRepository createRepository(File gitRepo) throws IOException {

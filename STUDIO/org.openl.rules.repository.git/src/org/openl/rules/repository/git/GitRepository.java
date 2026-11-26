@@ -216,7 +216,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     @Setter
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
-    /** The paths whose changes make no revision of a project: a commit that changes only them is technical. */
+    /** The paths whose changes are no change of a project: a commit that changes only them is technical. */
     private IgnoredPaths ignoredPaths = IgnoredPaths.of(null);
     private PathPatterns protectedFiles = PathPatterns.NONE;
 
@@ -226,7 +226,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private final AtomicReference<Git> git = new AtomicReference<>();
     /** Shared by every branch of the repository, as they share its commits. */
     private MergeBases mergeBases = new MergeBases();
-    /** The folders read last, whose revisions are not asked for yet. */
+    /** The folders read last, whose latest changes are not asked for yet. */
     private @Nullable FirstCommits folderCommits;
 
     private Git git() {
@@ -1008,19 +1008,32 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * The file or folder of the commit, its revision read on first use. The folders read from the same commit find
-     * their revisions together: a project listing reads the revision of every project it lists.
+     * The file or folder of the commit, read on first use: a file stands on the latest commit that changes it, and a
+     * folder, such as a project, on the commit it is read from, the head of the branch, while it tells who changed it
+     * last. The folders read from the same commit find their latest changes together: a project listing walks the
+     * history once.
      */
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         var fullPath = baseFolder + dirWalk.getPathString();
-        var commits = FileMode.TREE.equals(dirWalk.getFileMode())
-                ? folderCommits(start, fullPath)
-                : new FirstCommits(this, start, fullPath);
-        return new LazyFileData(branch,
+        var folder = FileMode.TREE.equals(dirWalk.getFileMode());
+        var commits = folder ? folderCommits(start, fullPath) : new FirstCommits(this, start, fullPath);
+        return withFolderId(new LazyFileData(branch,
                 fullPath,
                 this,
                 commits,
-                getFileId(dirWalk));
+                folder ? start : null,
+                getFileId(dirWalk)), dirWalk);
+    }
+
+    /**
+     * Gives a folder the id of its tree as its unique id: two revisions of a project hold it alike when the ids are
+     * equal, as an older head of the branch that only other projects changed since.
+     */
+    private static FileData withFolderId(FileData data, TreeWalk dirWalk) {
+        if (FileMode.TREE.equals(dirWalk.getFileMode(0))) {
+            data.setUniqueId(dirWalk.getObjectId(0).getName());
+        }
+        return data;
     }
 
     @Synchronized
@@ -1049,11 +1062,11 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
         var fullPath = dirWalk.getPathString();
 
-        return new LazyFileData(branch,
+        return withFolderId(new LazyFileData(branch,
                 fullPath,
                 this,
                 fileCommit,
-                getFileId(dirWalk));
+                getFileId(dirWalk)), dirWalk);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -1935,6 +1948,12 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
     }
 
+    /**
+     * Visits the revisions of the path, newest first: those that change it, and the technical ones when asked for.
+     *
+     * <p>A folder, such as a project, stands on the head of the branch, so its history always visits the head, as a
+     * technical revision when it leaves the folder unchanged. The history of a file visits only its changes.
+     */
     private <T> T iterateHistory(String name,
                                  HistoryVisitor<T> historyVisitor,
                                  String globalFilter,
@@ -1952,8 +1971,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
             // We cannot use git().log().addPath(path) because jgit has some issues for some scenarios when merging commits
             // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
+            var branchId = resolveBranchId();
             Iterator<RevCommit> iterator = new DescendantsFirstCommits(git().log()
-                    .add(resolveBranchId())
+                    .add(branchId)
                     .setRevFilter(buildGlobalRevisionFilter(globalFilter))
                     .call()
                     .iterator());
@@ -1972,12 +1992,13 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             }
             try (var or = repository.newObjectReader(); var walk = headersWalk(or)) {
                 var tw = createTreeWalk(or, name, protectedFiles);
+                var head = !techRevs && isFolder(walk, name, branchId) ? branchId : null;
 
                 var stop = false;
                 while (!stop && processed < maxCount && iterator.hasNext()) {
                     var commit = iterator.next();
                     var hasChanges = hasChangesInPath(tw, walk, commit);
-                    var listed = techRevs || hasChanges;
+                    var listed = techRevs || hasChanges || commit.equals(head);
                     if (listed) {
                         totalProcessed++;
                     }
@@ -1999,6 +2020,23 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             readLock.unlock();
             log.debug("iterateHistory(): unlock");
         }
+    }
+
+    /** Whether the commit holds the path as a folder, such as a project; a deleted project is none. */
+    private static boolean isFolder(RevWalk walk, String path, ObjectId commit) throws IOException {
+        var spelled = spelled(path);
+        if (spelled.isEmpty()) {
+            return true;
+        }
+        var tree = walk.parseCommit(commit).getTree();
+        try (var tw = TreeWalk.forPath(walk.getObjectReader(), spelled, tree)) {
+            return tw != null && tw.getFileMode(0) == FileMode.TREE;
+        }
+    }
+
+    /** The path as a path filter spells it: without a slash at the end. */
+    private static String spelled(String path) {
+        return PathFilter.create(path).getPath();
     }
 
     private RevFilter buildGlobalRevisionFilter(String globalFilter) {
@@ -2242,8 +2280,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * The latest commit, from the given one back, that changes the path: a commit that changes only technical files of
-     * a folder, its ignored files and the protected files of its project, does not count.
+     * The latest commit, from the given one back, that changes the path: the revision a file stands on, and the one
+     * that tells who changed a project last. A technical revision, a commit that changes only the ignored files of a
+     * folder and the protected files of its project, does not count.
      */
     @Nullable RevCommit findFirstCommit(Git git,
                                         ObjectId startCommit,
@@ -2253,10 +2292,10 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
     /**
      * The latest commit, from the given one back, that changes each of the paths, found in one walk over the history.
-     * A commit that changes only technical files of a folder, its ignored files and the protected files of its
-     * project, does not count.
+     * A technical revision does not count.
      *
      * @return the commits by path; a path that no commit changes is left out
+     * @see #findFirstCommit(Git, ObjectId, String)
      */
     Map<String, RevCommit> findFirstCommits(Git git,
                                             ObjectId startCommit,
@@ -2266,9 +2305,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
     /**
      * The latest commit, from the given one back, that changes any file of the path but the ignored ones, the
-     * protected files included. A save based on an older commit than this one is merged, so that the protected files
-     * a save writes as the user read them do not replace a later change of them, such as a version bump in
-     * {@code pom.xml}.
+     * protected files included. A save based on a commit that lacks it is merged, so that the protected files a save
+     * writes as the user read them do not replace a later change of them, such as a version bump in {@code pom.xml}.
      */
     private @Nullable RevCommit findLatestChange(Git git,
                                                  ObjectId startCommit,
@@ -2324,10 +2362,6 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             }
             touched = new TreeWalk(reader);
             touched.setRecursive(false);
-        }
-
-        private static String spelled(String path) {
-            return PathFilter.create(path).getPath();
         }
 
         private boolean isPending() {
@@ -2535,13 +2569,15 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     /**
      * A walk over the changes of the path, the technical files of a folder left out: the ignored files and the given
      * protected files of the project the folder is. A commit that changes only them changes nothing of the folder.
+     *
+     * @param technical the protected files whose changes do not count, besides the ignored files
      */
-    private TreeWalk createTreeWalk(ObjectReader or, String path, PathPatterns protectedFiles) {
+    private TreeWalk createTreeWalk(ObjectReader or, String path, PathPatterns technical) {
         var filter = PathFilter.create(path);
         // The cheap comparison of the object ids comes first: the patterns are matched only against what differs.
         var t = AndTreeFilter.create(new TreeFilter[]{PathFilterGroup.create(Set.of(filter)),
                 TreeFilter.ANY_DIFF,
-                new TechnicalFilesTreeFilter(ignoredPaths, protectedFiles, filter.getPath() + "/")});
+                new TechnicalFilesTreeFilter(ignoredPaths, technical, filter.getPath() + "/")});
         var tw = new TreeWalk(or);
         tw.setFilter(t);
         tw.setRecursive(t.shouldBeRecursive());
@@ -3796,24 +3832,21 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * Tells whether the data is saved over a version older than the latest one of the path.
+     * Tells whether the data is saved over a version that lacks the latest change of the path, which the save must then
+     * be merged with.
      *
-     * <p>A branch without a commit, as in a repository just created, has no version to be older than.
+     * <p>A project stands on the head of the branch, so a save based on an older head that holds the latest change of
+     * the project, as when only other projects changed since, is not taken for a save of an old version. A branch
+     * without a commit, as in a repository just created, has no version to be older than.
      */
     boolean isCheckoutOldVersion(String path, String baseVersion) throws GitAPIException, IOException {
         var branchId = baseVersion == null ? null : resolveBranchId();
-        if (branchId != null) {
-            List<Ref> tags = git().tagList().call();
-
-            // A commit that changes only protected files counts: the save writes them too.
-            var commit = findLatestChange(git(), branchId, path);
-            if (commit != null) {
-                String lastVersion = getVersionName(git().getRepository(), tags, commit);
-                return !baseVersion.equals(lastVersion);
-            }
+        if (branchId == null) {
+            return false;
         }
-
-        return false;
+        var commit = findLatestChange(git(), branchId, path);
+        var base = namesRevision(baseVersion) ? getCommitByVersion(baseVersion) : null;
+        return commit != null && !isMergedInto(commit, base, false);
     }
 
     private void requireValidBranchName(String branch) throws IOException {

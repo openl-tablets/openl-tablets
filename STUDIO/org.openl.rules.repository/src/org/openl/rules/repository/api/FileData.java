@@ -140,6 +140,15 @@ public class FileData {
         this.branch = branch;
     }
 
+    /**
+     * The id of the content of the file, such as a hash: two revisions with one id hold the same content.
+     *
+     * <p>A file has one when the repository supports unique file ids. A folder of a Git repository has the id of its
+     * tree, so two revisions of a project hold it alike when their ids are equal; a folder of another repository has
+     * none.
+     *
+     * @return the id, or {@code null} when the repository gives none
+     */
     public String getUniqueId() {
         return uniqueId;
     }

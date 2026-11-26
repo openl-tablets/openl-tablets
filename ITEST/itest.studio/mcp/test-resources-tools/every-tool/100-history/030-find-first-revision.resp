@@ -6,6 +6,17 @@ HTTP/1.1 200 OK
       "revisionNo": "@",
       "shortRevisionNo": "@",
       "createdAt": "#-#-#T#:#:#-#:#",
+      "author": {
+        "email": "admin@example.com",
+        "displayName": "Ada Admin"
+      },
+      "deleted": false,
+      "technicalRevision": true
+    },
+    {
+      "revisionNo": "@",
+      "shortRevisionNo": "@",
+      "createdAt": "#-#-#T#:#:#-#:#",
       "fullComment": "Build the rules",
       "author": {
         "email": "admin@example.com",
@@ -29,5 +40,5 @@ HTTP/1.1 200 OK
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 2
+  "numberOfElements": 3
 }

@@ -31,6 +31,8 @@ class SameSecondHistoryOrderTest {
     private static final String PROJECT = "rules/project1";
     private static final String CREATED = "Project project1 is created.";
     private static final String SAVED_IN_TWO = "Save changes in branch two";
+    /** The merge changes nothing the branch two did not, so it is listed only as the head the project stands on. */
+    private static final String MERGED = "Merge branch two into one";
     private static final Instant SECOND = Instant.parse("2026-08-13T10:00:00Z");
 
     @TempDir
@@ -41,18 +43,20 @@ class SameSecondHistoryOrderTest {
     private @Nullable GitRepository repo;
 
     @Test
-    void mergedRevisionIsCurrentWhenParentsShareASecond() throws Exception {
+    void mergedRevisionFollowsTheCreationWhenParentsShareASecond() throws Exception {
         repo = createRepository(buildMergedProject(SECOND.plusSeconds(1)), "one");
 
-        assertEquals(List.of(CREATED, SAVED_IN_TWO), comments(repo.listHistory(PROJECT)));
+        assertEquals(List.of(CREATED, SAVED_IN_TWO, MERGED + " (technical)"), comments(repo.listHistory(PROJECT)));
+        // The project stands on the merge and tells its latest change
         assertEquals(SAVED_IN_TWO, repo.check(PROJECT).getComment());
     }
 
     @Test
-    void mergedRevisionIsCurrentWhenTheWholeMergeSharesASecond() throws Exception {
+    void mergedRevisionFollowsTheCreationWhenTheWholeMergeSharesASecond() throws Exception {
         repo = createRepository(buildMergedProject(SECOND), "one");
 
-        assertEquals(List.of(CREATED, SAVED_IN_TWO), comments(repo.listHistory(PROJECT)));
+        assertEquals(List.of(CREATED, SAVED_IN_TWO, MERGED + " (technical)"), comments(repo.listHistory(PROJECT)));
+        // The project stands on the merge and tells its latest change
         assertEquals(SAVED_IN_TWO, repo.check(PROJECT).getComment());
     }
 
@@ -83,13 +87,13 @@ class SameSecondHistoryOrderTest {
                     .setCommit(false)
                     .call();
             var merger = new PersonIdent("Admin", "admin@email", mergedAt, ZoneOffset.UTC);
-            git.commit().setMessage("Merge branch two into one").setAuthor(merger).setCommitter(merger).call();
+            git.commit().setMessage(MERGED).setAuthor(merger).setCommitter(merger).call();
         }
         return local;
     }
 
     private static List<String> comments(List<FileData> history) {
-        return history.stream().map(FileData::getComment).toList();
+        return TestGitUtils.labelled(history);
     }
 
     private static void write(File local, String path, String text) throws IOException {

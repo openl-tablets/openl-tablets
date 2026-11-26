@@ -34,6 +34,18 @@ final class TestGitUtils {
         return fileData;
     }
 
+    /** The revisions of a history that change what it is of: the technical ones, such as a head left alone, aside. */
+    static List<FileData> changes(List<FileData> history) {
+        return history.stream().filter(data -> !data.isTechnicalRevision()).toList();
+    }
+
+    /** The comments of a history, a technical revision marked so. */
+    static List<String> labelled(List<FileData> history) {
+        return history.stream()
+                .map(data -> data.getComment() + (data.isTechnicalRevision() ? " (technical)" : ""))
+                .toList();
+    }
+
     static File createNewFile(File parent, String fileName, String text) throws IOException {
         if (!parent.mkdirs() && !parent.exists()) {
             throw new IOException("Could not create folder " + parent);

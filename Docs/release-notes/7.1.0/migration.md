@@ -129,8 +129,9 @@ own project only, as listed for the developers.
   project is a protected file instead, by the new `project.protected-files` property: a developer opens, edits and
   merges it in OpenL Studio, while the export of the project, its deployment and an import of an archive leave it out,
   and an archive uploaded over the project keeps the `pom.xml` the project holds. A revision that changes only it
-  stays a technical revision. `META-INF/MANIFEST.MF` is protected too, so a deployment archive uploaded as a project
-  no longer brings the manifest of that deployment with it. The new `project.hidden-files` property hides `rules.xml`, `rules-deploy.xml` and
+  is a technical revision, which the **Revisions** list hides unless it is the latest revision of the branch.
+  `META-INF/MANIFEST.MF` is protected too, so a deployment archive uploaded as a project no longer brings the manifest
+  of that deployment with it. The new `project.hidden-files` property hides `rules.xml`, `rules-deploy.xml` and
   `tags.properties` in the project tree unless **Show Hidden Files** is on in **My Settings**.
 
   ```properties
@@ -142,6 +143,12 @@ own project only, as listed for the developers.
   keeps ignoring what it lists: remove `**/pom.xml` from it to let a developer edit `pom.xml`, and add the temporary
   files above to hide them. A `pom.xml` deeper in a project, such as `rules/pom.xml`, is an ordinary file now; add a
   pattern such as `**/pom.xml` to `project.protected-files` to protect it as well.
+
+* **A project in a Git repository stands on the latest revision of its branch.** A project is opened with the files
+  the branch holds, such as the `pom.xml` of the last version bump of a CI pipeline, while it shows the author and the
+  date of the latest revision that changed it, a technical revision aside. The **Revisions** list starts with it, as a technical revision when it changes no file of the
+  project. An opened project stays current until a revision changes it, and a save is merged only with a later change
+  of the project itself, so a revision saved in another project of the branch changes neither.
 
 * **All secrets are stored encrypted.** With `secret.key` set, the client secret of OAuth2, the access and secret keys
   of an AWS S3 repository, the account key of an Azure Blob Storage repository and the private key OpenL Studio

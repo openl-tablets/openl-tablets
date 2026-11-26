@@ -13,10 +13,22 @@ Content-Type: application/json
         "displayName": "Admin"
       },
       "deleted": false,
+      "technicalRevision": true
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Save rules.xml",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
       "technicalRevision": false
     }
   ],
   "pageNumber": 0,
   "pageSize": 50,
-  "numberOfElements": 1
+  "numberOfElements": 2
 }

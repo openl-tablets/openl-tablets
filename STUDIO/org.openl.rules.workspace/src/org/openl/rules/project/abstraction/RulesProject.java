@@ -642,6 +642,12 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
+    /** Whether the revision holds the project as the latest revision of the design repository does. */
+    @Override
+    protected boolean holdsLastVersion(String version) {
+        return designRepository.supports().versions() && holdsLastVersion(designRepository, designFolderName, version);
+    }
+
     @Override
     protected String findLastHistoryVersion() {
         if (designFolderName != null) {
