@@ -4,6 +4,7 @@ Content-Type: application/json
 
 {
   "moduleName": "Formulas",
+  "sheetName": "CalcProduct",
   "name": "CalcProduct",
   "properties": [
     {

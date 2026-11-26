@@ -3422,8 +3422,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         TableCopyService.requireCopyable(source, request);
         // A copy left without a name, such as a Test table, is shown under the name its header gives it.
         var shownName = TableHeaderNames.shownName(source, request.name());
-        var requestedSheet = request.sheetName();
-        var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet) ? requestedSheet : shownName;
+        var sheetName = sheetOfCopy(resolved, request, shownName);
         var modulePath = request.modulePath();
         if (modulePath != null && !modulePath.isBlank()) {
             if (FileTypeHelper.isExcelFile(modulePath)) {
@@ -3436,6 +3435,25 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         return new WrittenTable(writing(() -> writeCopy(projectModel, source, request, sheetName, shownName)),
                 shownName);
+    }
+
+    /**
+     * The sheet of a workbook a copy lands on: the one the request names; else, for a copy into the module that holds
+     * the source table, the sheet of the source table, as the Copy dialog offers; else a sheet named after the copy.
+     * A table of a dependency project is held by no module of this project, so its copy lands on a sheet named after it.
+     */
+    private static String sheetOfCopy(OpenLTableContext resolved, CopyTableRequest request, String shownName) {
+        var requested = request.sheetName();
+        if (requested != null && StringUtils.isNotBlank(requested)) {
+            return requested;
+        }
+        var node = resolved.table().getSyntaxNode();
+        var sourceSheet = node == null ? null : node.getXlsSheetSourceCodeModule();
+        // A table of a dependency project is resolved through a module of this project that does not hold it
+        var module = resolved.module().getModuleInfo();
+        var intoItsModule = module.containsTable(resolved.table().getUri())
+                && request.moduleName().equals(module.getName());
+        return intoItsModule && sourceSheet != null ? sourceSheet.getSheetName() : shownName;
     }
 
     /**

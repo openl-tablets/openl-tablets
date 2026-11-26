@@ -40,8 +40,8 @@ Allowed property names, types and enum values for a table: `openl_list_table_pro
     - make the period's changes in the new module only; the old one stays unchanged;
     - add no table-level version properties inside it.
 3. **Table versioning** (no file pattern, task confirmed to one named table — the default):
-    - never edit the existing version in place; copy it with `openl_copy_table` into the same module, passing the
-      same `name` and the source table's `sheetName`;
+    - never edit the existing version in place; copy it with `openl_copy_table` into the same module under the same
+      `name`, without `sheetName`: the copy lands beside the source, on its sheet;
     - set the new `effectiveDate` (and other dimensions) through `properties` on the copy;
     - change only the copy's data; keep table name, signature and parameter names identical.
 4. **Category or module scope** — writing a property to a module/category Properties table or changing the file
@@ -77,7 +77,8 @@ The `testing` skill owns writing and running tests; for versioned tables add:
 
 - `openl_copy_table` `properties` **replaces** the whole property set: list every property to keep (e.g. `state`)
   next to the changed `effectiveDate`. Omitting it keeps the source properties — a duplicate version.
-- `openl_copy_table` puts the copy on a sheet named after the table unless `sheetName` is given.
+- `openl_copy_table` puts a copy into the source's own module on the source's sheet, and a copy into another module
+  on a sheet named after the table, unless `sheetName` is given.
 - Change a property of an existing table — ending a version, adding a dimension — with `openl_set_table_properties`,
   never as cells: a row written without the `properties` keyword becomes part of the table and still compiles.
 - An original without dates still matches the new period, and the compiler warns of an ambiguous definition of
