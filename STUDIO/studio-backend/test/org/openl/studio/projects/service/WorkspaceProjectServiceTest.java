@@ -81,6 +81,7 @@ import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLFileMessage;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -3062,6 +3063,72 @@ class WorkspaceProjectServiceTest {
         assertEquals("copy-id", copyId);
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any(), any());
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void copy_table_into_the_module_of_its_source_lands_on_the_sheet_of_the_source() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var sourceModel = stubResolvedSource(service, project, source);
+        when(sourceModel.getModuleInfo().getName()).thenReturn("Rating");
+        var node = mock(TableSyntaxNode.class);
+        var sheet = mock(XlsSheetSourceCodeModule.class);
+        when(source.getSyntaxNode()).thenReturn(node);
+        when(node.getXlsSheetSourceCodeModule()).thenReturn(sheet);
+        when(sheet.getSheetName()).thenReturn("Rates");
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "Rating");
+        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        var sourceSheet = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "Rates")).thenReturn(sourceSheet);
+        when(tableCopyService.copyInto(eq(source), eq("CopyName"), isNull(), eq(sourceSheet), any(), any()))
+                .thenReturn("copy-id");
+
+        var copyId = service.copyTable(project, "src-id", new CopyTableRequest("Rating", null, null, "CopyName", null))
+                .id();
+
+        // A new version stands beside the version it was copied from, as the Copy dialog offers, not on a new sheet
+        assertEquals("copy-id", copyId);
+        verify(tableCreatorService, never()).sheetGridModel(destModel, "CopyName");
+    }
+
+    @Test
+    void copy_table_into_the_module_of_its_source_keeps_the_sheet_the_request_names() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var sourceModel = stubResolvedSource(service, project, source);
+        when(sourceModel.getModuleInfo().getName()).thenReturn("Rating");
+        var destModel = mock(ProjectModel.class);
+        var destHandle = mock(ProjectHandle.class);
+        when(destHandle.awaitCompiled()).thenReturn(destModel);
+        doReturn(destHandle).when(service).openProject(project, "Rating");
+        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        var named = mock(XlsSheetGridModel.class);
+        when(tableCreatorService.sheetGridModel(destModel, "Archive")).thenReturn(named);
+        when(tableCopyService.copyInto(eq(source), eq("CopyName"), isNull(), eq(named), any(), any()))
+                .thenReturn("copy-id");
+
+        var copyId = service.copyTable(project, "src-id",
+                new CopyTableRequest("Rating", "Archive", null, "CopyName", null)).id();
+
+        assertEquals("copy-id", copyId);
+        verify(source, never()).getSyntaxNode();
     }
 
     @Test

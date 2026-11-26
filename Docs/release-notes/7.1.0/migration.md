@@ -194,6 +194,12 @@ own project only, as listed for the developers.
   listing of a project with a `rules.xml`, expects the field. `pom.xml` is listed, read and written now, while
   `GET /rest/projects/{id}/files/?download=true` and an upload of an archive or of several files leave it out.
 
+* **A table copied into its own module stands on its sheet.** `POST /rest/projects/{id}/tables/{tableId}/copy`
+  without `sheetName` writes a copy into the module that holds the source table on the sheet of the source table, as
+  the Copy dialog of OpenL Studio does, so a new version stands beside the one it was copied from. Before, it created
+  a sheet named after the copy. A copy into another module still lands on a sheet named after the copy. Pass
+  `sheetName` to choose the sheet.
+
 * **The OpenAPI schema lists the children of a datatype where no type property tells them.** In a service whose
   `rules-deploy.xml` sets `jackson.defaultTypingMode` to `DISABLED` or `jackson.jsonTypeInfoId` to `DEDUCTION`, a
   place that may hold a value of a child datatype refers to the datatype and its children through `anyOf` instead

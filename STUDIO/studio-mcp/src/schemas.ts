@@ -316,6 +316,7 @@ export const copyTableSchema = z.strictObject({
     tableId: tableIdSchema,
     module: nonBlankString.describe('The destination module, an existing one unless modulePath is given.'),
     ...newModuleParams,
+    sheetName: z.string().optional().describe("The sheet; the source table's in its own module, else the copy's name."),
     name: nonBlankString.describe('The name of the copy.'),
     properties: z.record(nonBlankString, z.string()).optional().describe("Replace all of the source's properties: name every one the copy keeps. Omit to keep them."),
 })
