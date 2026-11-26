@@ -85,7 +85,8 @@ interface WorkspaceHeaderProps {
     /** The trail to what is open: where it sits, a step each, linking back to it. A slash follows every step. */
     crumbs: ReactNode[]
     /**
-     * What the screen is about — the name of the project, or of the module opened from it — which ends the trail.
+     * What the screen is about — the name of the project, or of the module opened from it — the step of the trail
+     * that names the page, at its end unless a step under it follows.
      *
      * <p>A screen that offers to open another of the same kind puts the switcher itself here, so the name
      * stays where the reader reads it rather than moving aside for a control.
@@ -95,6 +96,8 @@ interface WorkspaceHeaderProps {
     titleBefore?: ReactNode
     /** Shown after the name, as what is happening to it: a compile indicator. */
     titleAfter?: ReactNode
+    /** The step under what the name names, after it in the trail: the branch the project is read on. */
+    trailAfter?: ReactNode
     /** Struck through and greyed, for a name that no longer stands. */
     muted?: boolean
     /** The actions offered on what the name names, in the row under the trail. */
@@ -103,10 +106,10 @@ interface WorkspaceHeaderProps {
 }
 
 /**
- * The head of a workspace screen: the trail ending in the name of what is open, and the actions on it.
+ * The head of a workspace screen: the trail to the name of what is open, and the actions on it.
  *
- * <p>The name and the marks of its state stand in the trail as its last step, which wraps onto the next line as a
- * whole. The actions take the row under it.
+ * <p>The name and the marks of its state stand in the trail as a step of their own, which wraps onto the next line
+ * as a whole: the last one, or the one before the step under what it names. The actions take the row under it.
  *
  * <p>A project and a module opened from it wear the same head, so opening a module reads as going a step deeper
  * into the project rather than as arriving somewhere else.
@@ -116,6 +119,7 @@ export const WorkspaceHeader = ({
     title,
     titleBefore,
     titleAfter,
+    trailAfter,
     muted = false,
     actions,
     testId,
@@ -142,7 +146,9 @@ export const WorkspaceHeader = ({
                         {title}
                     </Typography.Title>
                     {titleAfter}
+                    {trailAfter && <span aria-hidden>/</span>}
                 </span>
+                {trailAfter && <span className={styles.step}>{trailAfter}</span>}
             </div>
             {actions && <div className={styles.actions}>{actions}</div>}
         </div>

@@ -6,7 +6,7 @@ describe('WorkspaceHeader', () => {
     it('follows every step of the trail with a slash, and ends it with the name of what is open', () => {
         render(
             <WorkspaceHeader
-                crumbs={[<a key="projects" href="/projects">Projects</a>, false, <span key="repository">Design</span>]}
+                crumbs={[<a key="projects" href="/projects">Projects</a>, false, <span key="folder">Design</span>]}
                 testId="header"
                 title="Bank Rating"
                 titleAfter={<span>compiled</span>}
@@ -25,6 +25,30 @@ describe('WorkspaceHeader', () => {
         expect(name.parentElement?.textContent).toBe('openedBank Ratingcompiled')
         // A step left out leaves no slash behind.
         expect(steps[0]?.parentElement?.children).toHaveLength(3)
+    })
+
+    it('parts the name from the step under what it names by a slash, ending the trail in that step', () => {
+        render(
+            <WorkspaceHeader
+                crumbs={[<a key="projects" href="/projects">Projects</a>]}
+                testId="header"
+                title="Bank Rating"
+                titleAfter={<span>compiled</span>}
+                trailAfter={<span>main</span>}
+            />
+        )
+
+        const name = screen.getByRole('heading', { name: 'Bank Rating' })
+        // The marks of its state stay beside the name, the slash after them.
+        expect(name.parentElement?.textContent).toBe('Bank Ratingcompiled/')
+        expect(screen.getByText('main').parentElement?.textContent).toBe('main')
+        expect(name.parentElement?.parentElement?.children).toHaveLength(3)
+    })
+
+    it('leaves no slash after the name when no step follows it', () => {
+        render(<WorkspaceHeader crumbs={[]} testId="header" title="Bank Rating" trailAfter={false} />)
+
+        expect(screen.getByRole('heading', { name: 'Bank Rating' }).parentElement?.textContent).toBe('Bank Rating')
     })
 
     it('gives the actions the row under the trail', () => {
