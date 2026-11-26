@@ -237,6 +237,22 @@ describe('a table named by its name', () => {
         expect(result.content).toHaveLength(1)
     })
 
+    it('is read by openl_get_table from its name argument, as from its tableId', async () => {
+        harness.mockHttp.onGet(tablesPath, { params: { name: 'AgeFactor', size: 50 } })
+            .reply(200, pageOf([{ id: 'T1', name: 'AgeFactor' }], { total: 1 }))
+        harness.mockHttp.onGet(`${tablesPath}/T1`).reply(200, { id: 'T1', name: 'AgeFactor', tableType: 'RawSource', source: [[{ value: 'x' }]] })
+
+        const result = await executeTool('get_table', { projectId: 'p1', name: 'AgeFactor' }, harness.client)
+
+        expect(JSON.parse(result.content[0].text).data.rows).toEqual([['x']])
+    })
+
+    it('is refused at once when it holds a slash, as the sheet and header of a project status do', async () => {
+        await expect(executeTool('get_table', { projectId: 'p1', tableId: 'Premium/SimpleRules Double Rate ()' }, harness.client))
+            .rejects.toThrow("'Premium/SimpleRules Double Rate ()' is no table id or name: openl_list_tables with name finds the id of a table by its name.")
+        expect(harness.mockHttp.history.get).toHaveLength(0)
+    })
+
     it('is refused with the ids of the tables of that name when there are several', async () => {
         harness.mockHttp.onGet(`${tablesPath}/Rate`).reply(404, { message: 'The table is not found.' })
         harness.mockHttp.onGet(tablesPath).reply(200, pageOf([

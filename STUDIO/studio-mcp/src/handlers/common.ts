@@ -364,12 +364,20 @@ const TABLE_ID = /^[0-9A-HJKMNP-TV-Z]{16}$/
  * The arguments with a tableId that is not an id taken for the name of a table, and replaced by its id when one table
  * of the project has that name: openl_list_tables names a table by its name alone when no other table of its page has
  * it. A name of several tables, such as the versions of a table, is refused with their ids: the agent must choose one.
- * A value no table is named is passed on as it is, for Studio to refuse.
+ * A value no table is named is passed on as it is, for Studio to refuse; one with a slash is refused at once.
  */
 async function withTableId<T>(client: OpenLClient, args: T): Promise<T> {
     const { projectId, tableId } = args as { projectId?: unknown, tableId?: unknown }
     if (typeof projectId !== 'string' || typeof tableId !== 'string' || TABLE_ID.test(tableId)) {
         return args
+    }
+    // No name holds a slash: the value is the sheet and header openl_project_status names a changed table by, which
+    // Studio refuses as a path
+    if (tableId.includes('/')) {
+        throw new ProtocolError(
+            ProtocolErrorCode.InvalidParams,
+            `'${tableId}' is no table id or name: openl_list_tables with name finds the id of a table by its name.`
+        )
     }
     // A closed project is opened before the lookup is made again; any other failure leaves the call to refuse the name
     const page = await client.listTablesPage(projectId, { name: tableId, limit: 50 }).catch((error: unknown) => {
