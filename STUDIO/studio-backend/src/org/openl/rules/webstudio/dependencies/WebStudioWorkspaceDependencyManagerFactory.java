@@ -1,7 +1,9 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -67,28 +69,6 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         return new Workspace(walk.projects(), walk.conflicts);
     }
 
-    private @Nullable ProjectDescriptor findDependency(ProjectDependencyDescriptor dependency,
-                                                       Map<String, ProjectDescriptor> allProjects,
-                                                       Map<String, String> pomProjects) {
-        var name = dependency.getName();
-        if (name == null) {
-            // A library, not a project
-            return null;
-        }
-        var found = allProjects.get(name);
-        if (found != null) {
-            return found;
-        }
-        var resolver = studio.getMavenDependencyResolver();
-        var downloaded = resolver == null
-                ? null
-                : resolver.projectOf(MavenDependencyResolver.withPomCoordinates(dependency, pomProjects)).project();
-        if (downloaded == null) {
-            log.warn("Dependency '{}' is not found.", name);
-        }
-        return downloaded;
-    }
-
     /**
      * Whether both are one project: of the same name, in the same folder. Two projects of one name, such as two
      * versions of a project downloaded from the Maven repository, are different projects.
@@ -125,6 +105,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         private final Map<String, Taken> taken = new LinkedHashMap<>();
         /** The coordinates of the projects the {@code pom.xml} files the walk went through depend on, by name. */
         private final Map<String, String> pomProjects = new HashMap<>();
+        /** The projects followed whose {@code pom.xml} is not read yet, in the order the walk followed them. */
+        private final Deque<ProjectDescriptor> unreadPoms = new ArrayDeque<>();
         private final List<DependencyConflict> conflicts = new ArrayList<>();
 
         private Walk(ProjectDescriptor root, List<ProjectDescriptor> allProjects) {
@@ -143,16 +125,51 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             if (project.getDependencies() == null) {
                 return;
             }
-            var resolver = studio.getMavenDependencyResolver();
-            if (resolver != null) {
-                resolver.projectsOfPom(studio.pomOf(project)).coordinatesByName().forEach(pomProjects::putIfAbsent);
-            }
+            unreadPoms.add(project);
             for (ProjectDependencyDescriptor dependency : project.getDependencies()) {
-                var found = findDependency(dependency, allProjects, pomProjects);
+                var found = findDependency(dependency);
                 if (found != null) {
                     take(project, dependency, found);
                 }
             }
+        }
+
+        /**
+         * The project of the session the dependency names, else the one downloaded from the Maven repository. A
+         * library is none.
+         */
+        private @Nullable ProjectDescriptor findDependency(ProjectDependencyDescriptor dependency) {
+            var name = dependency.getName();
+            if (name == null) {
+                // A library, not a project
+                return null;
+            }
+            var found = allProjects.get(name);
+            if (found != null) {
+                return found;
+            }
+            var resolver = studio.getMavenDependencyResolver();
+            ProjectDescriptor downloaded = null;
+            if (resolver != null) {
+                var named = MavenDependencyResolver.withPomCoordinates(dependency, pomProjects(resolver));
+                downloaded = resolver.projectOf(named).project();
+            }
+            if (downloaded == null) {
+                log.warn("Dependency '{}' is not found.", name);
+            }
+            return downloaded;
+        }
+
+        /**
+         * The coordinates of the projects the {@code pom.xml} files of the followed projects depend on, by name; the
+         * one read first wins. A {@code pom.xml} is read only once a dependency is missing from the session: reading
+         * it asks the Maven repository, which a project the session has needs nothing from.
+         */
+        private Map<String, String> pomProjects(MavenDependencyResolver resolver) {
+            for (var project = unreadPoms.poll(); project != null; project = unreadPoms.poll()) {
+                resolver.projectsOfPom(studio.pomOf(project)).coordinatesByName().forEach(pomProjects::putIfAbsent);
+            }
+            return pomProjects;
         }
 
         /**
