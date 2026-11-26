@@ -1,0 +1,145 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "${SPREADSHEET}",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "SpreadsheetTable",
+  "pos": "B6:D9",
+  "source": [
+    [
+      {
+        "cell": "B6",
+        "value": "Spreadsheet testDatatype SpreadsheetTable(testDatatype a_byte)",
+        "colspan": 3,
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 12,
+              "end": 24,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 42,
+              "end": 54,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Steps"
+      },
+      {
+        "cell": "C7",
+        "value": "Decsription"
+      },
+      {
+        "cell": "D7",
+        "value": "RETURN"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Step1: testDatatype",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 7,
+              "end": 19,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C8",
+        "value": "Step1",
+        "metaInfo": {
+          "type": "testDatatype",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D8"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Step2"
+      },
+      {
+        "cell": "C9",
+        "value": "Step2",
+        "metaInfo": {
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D9",
+        "value": "= (testDatatype) a_byte",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 1,
+              "description": "Cell type: testDatatype",
+              "kind": "other"
+            },
+            {
+              "start": 3,
+              "end": 15,
+              "description": "Datatype testDatatype",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "datatype"
+            },
+            {
+              "start": 17,
+              "end": 23,
+              "description": "testDatatype a_byte",
+              "tableId": "${TEST_DATATYPE}",
+              "module": "Rules",
+              "projectId": "${PROJECT_ID}",
+              "kind": "field"
+            }
+          ],
+          "type": "String",
+          "returnCell": true,
+          "editor": "text"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
