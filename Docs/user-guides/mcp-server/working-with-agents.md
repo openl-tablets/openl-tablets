@@ -169,7 +169,8 @@ release.
 - **planning** — the entry point for building, changing, or fixing anything in a project: what to open, the branch,
   the ordered changes, one approval, and a verified summary.
 - **branching** — task branches, syncing with the base branch, conflicts, merging, hotfixes, and cleanup.
-- **testing** — adding test rows, running the tests on the saved revision, and diagnosing failures.
+- **testing** — adding test rows, running the tests on the saved revision, or on your unsaved changes when you ask to
+  verify them, and diagnosing failures.
 - **versioning** — versions of a table by effective date, line of business, state, or currency, and their tests.
 - **trace-investigation** — finding the cause of an unexpected result, as described in
   [Investigating a Wrong Result](#investigating-a-wrong-result).

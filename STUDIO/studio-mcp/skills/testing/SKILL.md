@@ -7,7 +7,7 @@ description: >
   added or an existing row changed, or on "run tests", "did the tests pass",
   "verify my changes", "is it safe to sync or deploy".
 metadata:
-  summary: "Adding test rows, running the tests on the saved revision and diagnosing failures."
+  summary: "Run tests, \"verify my changes\", \"is it safe to deploy\": test rows, test runs and diagnosis of failures."
 ---
 
 # OpenL Testing
@@ -23,7 +23,10 @@ Data tables) fetch the Reference Guide's Test table chapter with `openl_get_guid
 - **Existing test rows and tables are never changed or removed** without an approval naming exactly what changes —
   or a plan item naming the table, the row key, and the old and new expected value. "Fix the failing tests" means fix
   the cause, never adjust an expected value to match wrong output.
-- **Tests run on the latest saved revision**, never on unsaved or previously reported state.
+- **Tests run on the latest saved revision**, never on previously reported state. The one exception: the user asks
+  to verify their own unsaved changes — run on the working copy, report the results as those of the unsaved working
+  copy, not of a saved revision, and save, close or discard nothing. Its compile errors and failures are reported,
+  never fixed: a fix is a change of its own, which the user approves first.
 - **Full suite, once per task**, after all changes and their test rows are saved — not between edits. A narrower scope
   only when the user names it.
 - If the tools cannot do an operation, say so and name the manual OpenL Studio step.
@@ -37,23 +40,26 @@ Data tables) fetch the Reference Guide's Test table chapter with `openl_get_guid
    user's save, the user's edit in Studio):
    - Compare the opened revision (`openl_project_status`) with the branch's latest one
      (`openl_repository_project_revisions`).
-   - A pending change this task did not write: stop and ask. Never save, close or discard it — closing discards it.
+   - A pending change this task did not write: stop and ask, unless the user asked to verify it — then run on the
+     working copy, as the rules say. Never save, close or discard it — closing discards it.
    - The branch has a newer revision: with nothing pending, reopen on it; with something pending, stop and ask. Report
      each newer revision (author, time, comment); if it touches a table this task changed or tests, re-read that
      table. A manual edit is kept, never overwritten.
    - Repository `local` has no revisions and cannot be opened: skip this step.
 3. **Compile check** — `openl_project_status` must reach `ok`, `warnings` or `errors`. Count error messages, including
-   those in test tables; with errors, fix, save and recheck. Without a terminal state the compile state is
+   those in test tables; with errors, fix, save and recheck — on the working copy of a user's unsaved changes, report
+   them instead. Without a terminal state the compile state is
    "unverified" — never infer it from test results. Between a fix and its re-run, repeat step 2 only if someone else
    may have changed the project; step 3 always runs.
 4. **Run** `openl_run_project_tests`, which answers the results. Read per-row detail (`openl_get_test_results` with its
    `tableId`) for every table with rows added in this task and every table reported failing.
-5. **On a failure**, classify before changing anything:
+5. **On a failure**, classify before changing anything — on the working copy of a user's unsaved changes, classify
+   and report only:
    - rule logic → fix the rule, save, re-run;
    - reference or lookup data the rule reads → report what is missing or wrong;
    - the test's own inputs → report the mismatch and ask for the named approval;
    - stale state → redo steps 2–3 and re-run.
-6. **Report**: total / passed / failed confirmed by per-row detail; the tested revision (or "local workspace");
+6. **Report**: total / passed / failed confirmed by per-row detail; the tested revision (or "local workspace", or "unsaved working copy");
    compile errors and warnings after the final save (counts or "unverified"), even when all passed; for each failure
    the row (quote `_id_` / `_description_` when present), expected vs. actual, the cause and its action.
 

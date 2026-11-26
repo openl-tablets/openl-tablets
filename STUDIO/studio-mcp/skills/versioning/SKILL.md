@@ -48,7 +48,8 @@ Allowed property names, types and enum values for a table: `openl_list_table_pro
    name pattern affects every table in scope: get the user's explicit approval first (a plan question under the
    `planning` skill). Reading inherited properties needs no approval.
 5. **Compile** with `openl_project_status`; an ambiguous-dispatch error means two versions match the same context.
-6. **Test** both periods (see Tests).
+6. **Test** both periods (see Tests): read `skill/testing` with `openl_get_guides` first. Test them even when the
+   user only asked to make and save the change: the version is not done without them.
 
 ## Shared modules and files
 
@@ -79,6 +80,9 @@ The `testing` skill owns writing and running tests; for versioned tables add:
 - `openl_copy_table` puts the copy on a sheet named after the table unless `sheetName` is given.
 - Change a property of an existing table — ending a version, adding a dimension — with `openl_set_table_properties`,
   never as cells: a row written without the `properties` keyword becomes part of the table and still compiles.
+- An original without dates still matches the new period, and the compiler warns of an ambiguous definition of
+  properties values: end the original with `expirationDate` the day before the new `effectiveDate`, or leave the
+  warning and report it. Never give the original an `effectiveDate` the user did not name.
 - A module or category Properties table holds its values as cells: change them with `openl_edit_table`;
   `openl_set_table_properties` refuses that kind of table.
 - Never version the same property at module (file name) and table level at once; never declare one property in both

@@ -5,9 +5,9 @@ description: >
   cause and proposes the minimal fix. Use when the user asks why OpenL produced a wrong
   premium or amount, a null or blank value, a rejected claim, a rule that fired or was skipped
   incorrectly, pastes a rule input payload for explanation, or asks to fix a dispatch table or
-  a rule row.
+  a rule row — also for a question alone that asks for no change.
 metadata:
-  summary: "Why a rule gives a wrong, missing or unexpected result: the root cause, before any fix is planned."
+  summary: "Why a rule gives a wrong, missing or unexpected result, even a question alone: the root cause first."
 ---
 
 # Investigate an OpenL rule result
@@ -43,7 +43,9 @@ values, and an offer to apply the fix.
    signature's parameter types with the top-level keys of the user's JSON. The exposed methods
    may be filtered in `rules.xml` (spec `rules.xml` in `openl_get_guides`). Ask only if two
    candidates still fit.
-3. **Run the trace.** Add `runtimeContext` only when the rules dispatch on it (`lob`,
+3. **Reproduce, then run the trace.** Run the entry table with the user's input
+   (`openl_run_table`) first; trace whenever the cause is not visible in the table that
+   produced the value. Add `runtimeContext` only when the rules dispatch on it (`lob`,
    `usState`, dates). Default sequence: profiling
    overview → `openl_watch_trace_cells` on the suspect factors → replay with a `<ref>@<instance>`
    breakpoint at the outlier → `openl_inspect_trace_frame` → `openl_stop_trace`.
@@ -51,9 +53,17 @@ values, and an offer to apply the fix.
    section for the issue type — then classify. Read the real table (`openl_get_table`) before
    concluding; for decision tables, dispatching and runtime context look the semantics up in
    the Reference Guide (`openl_list_guides` search `decision table`, `rule versioning`,
-   `runtime context`) instead of guessing.
-5. **Propose the fix** and stop. Apply it only after the user agrees, through the `planning`
-   skill (edit, validate, test, save). Suggest a ticket title when a bug or data gap was found.
+   `runtime context`) instead of guessing. Then read the history of the culprit table: list
+   the revisions (`openl_repository_project_revisions`) and compare its workbook with the one
+   before a recent revision (`openl_repository_project_revision_changes` with its `path`). A
+   value a recent revision changed is the first candidate: propose the value before it when
+   the expected outcome and the rule evidence support it, else derive the fix from that
+   evidence or ask for the business rule — never infer it from a neighbouring row. Name that
+   revision in the evidence.
+5. **Propose the fix** and stop. Apply it only after the user agrees, or when the task asked
+   for the fix: read `skill/planning` and `skill/testing` with `openl_get_guides` then, and
+   apply it through them (edit, validate, test, save). Suggest a ticket title when a bug or
+   data gap was found.
 
 ## Gotchas
 
