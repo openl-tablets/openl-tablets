@@ -58,6 +58,14 @@ export const roleColoursOf = (token: Pick<GlobalToken, 'colorText' | 'colorTextS
  */
 export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
     const roles = roleColoursOf(token)
+    /** A piece of a cell in the colour of what it names, kept under the pointer and the focus. */
+    const inked = (ink: string) => css`
+        &,
+        &:hover,
+        &:focus-visible {
+            color: ${ink};
+        }
+    `
     return {
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
@@ -308,6 +316,15 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
             color: ${paper.linkHover};
         }
     `,
+        /*
+         * A piece that names a rule, a datatype or a field, in the colour of what it names, whether it leads somewhere
+         * or not: a formula reads at a glance as rules called on fields of datatypes. A link among them keeps its colour
+         * under the pointer and only takes the underline, so its kind still shows. Written after the links, so the
+         * colour of the kind wins over theirs.
+         */
+        ruleUsage: inked(paper.usages.rule),
+        datatypeUsage: inked(paper.usages.datatype),
+        fieldUsage: inked(paper.usages.field),
     }
 })
 

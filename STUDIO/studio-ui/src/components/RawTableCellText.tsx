@@ -5,6 +5,8 @@ import type { RawTableGridStyles } from './RawTableGrid.styles'
 import { runStyle, type RunPlace } from './rawTableStyle'
 import { withPathBreaks } from './pathBreaks'
 import { onActivate } from '../utils/keyboardActivate'
+import { joinClasses } from '../utils/joinClasses'
+import { isColouredUsage } from '../styles/usageInks'
 
 /** Where a usage leads — a table, or the key of a message — when the screen showing the table can follow it. */
 export type OpenUsage = (usage: RawTableCellUsage) => void
@@ -71,7 +73,8 @@ const styledSlice = (text: string, start: number, end: number, placed: PlacedRun
 /**
  * The text of a cell, with the pieces the compiler resolved marked as the Editor marks them.
  *
- * Each piece says what it stands for in a tooltip, and one that names a table is a way into that table.
+ * Each piece says what it stands for in a tooltip, and one that names a table is a way into that table. A piece
+ * naming a rule, a datatype or a field is drawn in the colour of its kind, which the paper of the table gives.
  * The cell a decision table returns carries the star the Editor drew for it.
  */
 export const RawTableCellText: React.FC<RawTableCellTextProps> = ({
@@ -103,18 +106,20 @@ export const RawTableCellText: React.FC<RawTableCellTextProps> = ({
         const leads = Boolean(((usage.tableId && usage.module) || usage.messageKey) && onOpenUsage)
         // A piece that only may stand for something keeps its colour and gets a dotted line: it is a guess.
         const possible = usage.soft === true
-        // A piece that leads somewhere is drawn as a link, whatever colour the workbook gives its text.
-        const covered = slice(start, end, leads && !possible)
+        // A piece that names a rule, a datatype or a field is drawn in the colour of its kind, whatever colour the
+        // workbook gives its text; any other piece that leads somewhere is drawn as a link.
+        const kindClass = isColouredUsage(usage.kind) ? styles[`${usage.kind}Usage`] : undefined
+        const covered = slice(start, end, (leads && !possible) || kindClass !== undefined)
         // A link is a piece of the text acting as a button rather than a <button>: a browser lays a button out as a
         // box of its own, which drops whole to the next line and keeps the text after it off its last line.
         const open = () => onOpenUsage?.(usage)
         const link = leads ? {
-            className: possible ? styles.possibleLink : styles.usageLink,
+            className: joinClasses(possible ? styles.possibleLink : styles.usageLink, kindClass),
             onClick: open,
             onKeyDown: onActivate(open),
             role: 'button',
             tabIndex: 0,
-        } : {}
+        } : { className: kindClass }
         pieces.push(
             <Tooltip key={`${usage.start}-${index}`} title={usage.description}>
                 <span data-testid={`cell-usage-${index}`} {...link}>{covered}</span>

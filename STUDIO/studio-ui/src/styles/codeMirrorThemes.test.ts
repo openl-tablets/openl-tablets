@@ -2,11 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { defaultHighlightStyle } from '@codemirror/language'
 import { oneDarkHighlightStyle } from '@codemirror/theme-one-dark'
 import { EditorState, EditorView } from '@uiw/react-codemirror'
+import { type Tag, tagHighlighter, tags } from '@lezer/highlight'
 import { codeHighlightStyle, editorTheme, SCHEMES } from './codeMirrorThemes'
 import { THEME_ORDER, variantOf } from './themes'
 import { hex } from '../testing/theme'
 
 const CODE_THEMES = THEME_ORDER.filter(name => name !== 'standard')
+
+/** The colour a highlight style writes a tag in: that of the last of its rules the tag matches. */
+const colourOf = (style: ReturnType<typeof codeHighlightStyle>, tag: Tag): string | undefined => style.specs
+    .filter(rule => tagHighlighter([{ tag: rule.tag, class: 'matched' }]).style([tag]) !== null)
+    .map(rule => rule['color'])
+    .findLast((colour): colour is string => typeof colour === 'string')
 
 describe('codeMirrorThemes', () => {
     it.each(CODE_THEMES)('keeps the copies of the editor colours of %s in step with its scheme', name => {
@@ -19,6 +26,19 @@ describe('codeMirrorThemes', () => {
             expect(hex(editor?.foreground)).toBe(hex(settings.foreground))
         })
     })
+
+    it.each(THEME_ORDER)('keeps the copies of the hues %s gives a call, a type and a member in step with its scheme',
+        name => {
+            // A table draws the name of a rule, a datatype and a field in them before the schemes load.
+            [false, true].forEach(isDarkMode => {
+                const style = codeHighlightStyle(name, isDarkMode)
+                const { syntax } = variantOf(name, isDarkMode)
+
+                expect(hex(colourOf(style, tags.function(tags.variableName)))).toBe(syntax.call)
+                expect(hex(colourOf(style, tags.typeName))).toBe(syntax.type)
+                expect(hex(colourOf(style, tags.propertyName))).toBe(syntax.field)
+            })
+        })
 
     it.each(CODE_THEMES)('draws the dark variant of %s as a dark editor and the light one as a light editor', name => {
         // The editor picks its own panels, tooltips and cursor by this flag.

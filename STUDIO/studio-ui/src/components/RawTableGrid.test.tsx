@@ -971,6 +971,46 @@ describe('RawTableGrid', () => {
         expect(screen.getByTestId('grid').querySelectorAll('td')[0]).toHaveTextContent('=B1&C1')
     })
 
+    describe('a name of a rule, a datatype or a field', () => {
+        const formula: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Spreadsheet Double Plan(Driver driver)' }],
+            [{
+                cell: 'A2',
+                value: '= Rate(driver.age)',
+                type: 'code',
+                metaInfo: {
+                    usages: [
+                        { start: 2, end: 6, description: 'Rules Double Rate(int age)', tableId: 't-1', module: 'M', kind: 'rule' },
+                        { start: 7, end: 13, description: 'Driver driver', kind: 'datatype' },
+                        { start: 14, end: 17, description: 'Field age', kind: 'field' },
+                    ],
+                },
+            }],
+        ]
+        const roles = rolesOf({
+            pos: 'A1:A2',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 0 },
+                { role: 'value', type: 'string', top: 1, left: 0, bottom: 1, right: 0 },
+            ],
+        })
+        const colours = () => [0, 1, 2].map(index => hex(getComputedStyle(screen.getByTestId(`cell-usage-${index}`)).color))
+
+        it('is drawn in the hues the code editor of the theme gives a method called, a type and a member', () => {
+            renderInTheme(<RawTableGrid onOpenUsage={vi.fn()} roles={roles} rows={formula} testId="grid" />,
+                { theme: 'vscode', mode: 'dark' })
+
+            expect(colours()).toEqual(['#dcdcaa', '#4ec9b0', '#9cdcfe'])
+        })
+
+        it('is drawn in the blue, the dark green and the dark grey of Excel in the formatting of the workbook', () => {
+            renderInTheme(<RawTableGrid onOpenUsage={vi.fn()} roles={roles} rows={formula} testId="grid" />,
+                { theme: 'vscode', mode: 'dark', excelFormatting: true })
+
+            expect(colours()).toEqual(['#0070c0', '#006100', '#595959'])
+        })
+    })
+
     // A table of thousands of rows and two hundred columns hung the page for seconds while every cell was drawn.
     // See EPBDS-17096.
     describe('drawn as it scrolls', () => {

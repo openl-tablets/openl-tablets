@@ -19,7 +19,13 @@ const metaInfo = (over: Partial<NonNullable<RawTableCell['metaInfo']>> = {}): Ra
 })
 
 // The table reads its styles once and hands them to every cell it draws.
-const styles = { usageLink: 'usage-link' } as RawTableGridStyles
+const styles = {
+    usageLink: 'usage-link',
+    possibleLink: 'possible-link',
+    ruleUsage: 'rule-usage',
+    datatypeUsage: 'datatype-usage',
+    fieldUsage: 'field-usage',
+} as RawTableGridStyles
 
 /** The ink of the paper the table lies on, which the table hands to every cell it draws. */
 const INK = '#262626'
@@ -34,7 +40,8 @@ describe('RawTableCellText', () => {
     })
 
     it('formats the pieces of the text in their fonts, a piece the compiler resolved included', () => {
-        const parent = metaInfo({ usages: [{ start: 23, end: 29, description: 'Datatype Parent', kind: 'datatype' }] })
+        // A piece the compiler knows of no kind of its own keeps the fonts of the workbook.
+        const parent = metaInfo({ usages: [{ start: 23, end: 29, description: 'Parent', kind: 'other' }] })
         render(
             <RawTableCellText
                 ink={INK}
@@ -225,5 +232,37 @@ describe('RawTableCellText', () => {
 
         expect(container).toHaveTextContent('plain')
         expect(screen.queryByTestId('cell-usage-0')).toBeNull()
+    })
+    it('draws a piece naming a rule, a datatype or a field in the colour of its kind, a link or not', () => {
+        const usages: NonNullable<NonNullable<RawTableCell['metaInfo']>['usages']> = [
+            { start: 2, end: 12, description: 'Rules Double DriverRisk(Driver d)', tableId: 't-9', module: 'M', kind: 'rule' },
+            { start: 13, end: 19, description: 'Datatype Driver', kind: 'datatype' },
+            { start: 20, end: 23, description: 'Field age', tableId: 't-2', module: 'M', kind: 'field' },
+            { start: 24, end: 29, description: 'Data rates', tableId: 't-3', module: 'M', kind: 'data' },
+        ]
+        render(
+            <RawTableCellText
+                ink={INK}
+                metaInfo={{ usages }}
+                onOpenUsage={vi.fn()}
+                runs={[{ text: '= DriverRisk(Driver.age rates)', style: { color: '#808080' } }]}
+                styles={styles}
+                text="= DriverRisk(Driver.age rates)"
+            />
+        )
+
+        expect(screen.getByTestId('cell-usage-0')).toHaveClass('usage-link', 'rule-usage')
+        // A piece leading nowhere is drawn in its kind all the same, and not as a link.
+        expect(screen.getByTestId('cell-usage-1')).toHaveClass('datatype-usage')
+        expect(screen.getByTestId('cell-usage-1')).not.toHaveAttribute('role')
+        expect(screen.getByTestId('cell-usage-2')).toHaveClass('usage-link', 'field-usage')
+        // A data table is a link in the colour of a link.
+        expect(screen.getByTestId('cell-usage-3')).toHaveClass('usage-link')
+        expect(screen.getByTestId('cell-usage-3')).not.toHaveClass('rule-usage', 'datatype-usage', 'field-usage')
+        // The colour of the workbook gives way to the colour of the kind.
+        for (const index of [0, 1, 2]) {
+            const run = screen.getByTestId(`cell-usage-${index}`).querySelector('span') as HTMLElement
+            expect(run.style.color).toBe('')
+        }
     })
 })

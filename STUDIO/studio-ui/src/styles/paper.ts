@@ -1,4 +1,5 @@
 import { theme as antdTheme } from 'antd'
+import { type UsageInks, WORKBOOK_USAGE_INKS } from './usageInks'
 
 /** The token Ant Design gives its own light appearance. */
 type PaperToken = ReturnType<typeof antdTheme.getDesignToken>
@@ -34,6 +35,8 @@ export interface TablePaper {
     linkHover: string
     /** The mark of a note in the corner of a cell. */
     note: string
+    /** A piece of a cell that names a rule, a datatype or a field, each in a colour of its own. */
+    usages: UsageInks
 }
 
 /** The colours of a theme a table drawn in the Studio look is laid on. */
@@ -48,10 +51,10 @@ interface PaperColours {
 }
 
 /**
- * The paper a table is drawn on in the Studio look: the surface and the ink of the theme in force, and grid lines
- * fainter than the lines the look draws between the parts of a table.
+ * The paper a table is drawn on in the Studio look: the surface and the ink of the theme in force, grid lines
+ * fainter than the lines the look draws between the parts of a table, and the colours of what a cell names.
  */
-export const themePaper = (token: PaperColours): TablePaper => ({
+export const themePaper = (token: PaperColours, usages: UsageInks): TablePaper => ({
     background: token.colorBgContainer,
     text: token.colorText,
     grid: token.colorFillTertiary,
@@ -59,6 +62,7 @@ export const themePaper = (token: PaperColours): TablePaper => ({
     link: token.colorLink,
     linkHover: token.colorLinkHover,
     note: token.colorError,
+    usages,
 })
 
 let workbookPaperColours: TablePaper | undefined
@@ -72,4 +76,5 @@ export const workbookPaper = (): TablePaper => (workbookPaperColours ??= {
     link: paperToken().colorLink,
     linkHover: paperToken().colorLinkHover,
     note: paperToken().colorError,
+    usages: WORKBOOK_USAGE_INKS,
 })
