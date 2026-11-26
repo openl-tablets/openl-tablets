@@ -4,5 +4,6 @@ Content-Type: application/json
 
 {
   "moduleName": "StyleBroken",
+  "sheetName": "CorporateRatingCopy",
   "name": "CorporateRatingCopy"
 }
