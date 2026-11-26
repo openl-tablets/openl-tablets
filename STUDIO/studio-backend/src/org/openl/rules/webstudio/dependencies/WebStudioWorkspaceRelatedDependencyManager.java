@@ -40,6 +40,7 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.studio.common.utils.WorkbookThreadLocals;
@@ -151,6 +152,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
      *
      * <p>A dependency left out because another project of its name is compiled is a warning of the project the
      * compilation is of.
+     *
+     * <p>The projects the {@code pom.xml} depends on are asked of the Maven repository only while a project the
+     * {@code rules.xml} names is not loaded: a {@code pom.xml} that cannot be read is told once, with the libraries.
      */
     @Override
     public Collection<OpenLMessage> getDependencyMessages(ProjectDescriptor project) {
@@ -164,10 +168,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         var used = libraries.get(project);
         var messages = new ArrayList<>(
                 (used == null ? mavenDependencyResolver.librariesOf(project, pomOf(project)) : used).messages());
-        var pomProjects = mavenDependencyResolver.projectsOfPom(pomOf(project));
+        var loadedProjects = loadedProjects().map(ProjectDescriptor::getName).collect(Collectors.toSet());
+        var pomProjects = lacksAProjectOf(project, loadedProjects)
+                ? mavenDependencyResolver.projectsOfPom(pomOf(project))
+                : MavenDependencyResolver.PomProjects.NONE;
         messages.addAll(pomProjects.messages());
         messages.addAll(told);
-        var loadedProjects = loadedProjects().map(ProjectDescriptor::getName).collect(Collectors.toSet());
         MavenDependencyResolver.namedMavenDependenciesOf(project.getDependencies(), pomProjects.coordinatesByName())
                 .stream()
                 .filter(dependency -> !loadedProjects.contains(dependency.getName()))
@@ -175,6 +181,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 .filter(Objects::nonNull)
                 .forEach(messages::add);
         return messages;
+    }
+
+    /** Whether a project the {@code rules.xml} of the project names is not loaded. */
+    private static boolean lacksAProjectOf(ProjectDescriptor project, Set<String> loadedProjects) {
+        var dependencies = project.getDependencies();
+        return dependencies != null && dependencies.stream()
+                .map(ProjectDependencyDescriptor::getName)
+                .anyMatch(name -> name != null && !loadedProjects.contains(name));
     }
 
     private DependencyType resolveDependencyType(ResolvedDependency dependency) {
