@@ -1,0 +1,4 @@
+ERROR: The width of the Lookup table(5) is not a multiple of the RET width(2).
+ERROR: Vertical condition is mandatory for Lookup table.
+ERROR: Vertical condition is mandatory for Lookup table.
+ERROR: Vertical condition is mandatory for Lookup table.

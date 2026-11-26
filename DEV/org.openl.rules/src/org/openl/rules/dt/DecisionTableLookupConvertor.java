@@ -33,10 +33,13 @@ import org.openl.util.StringUtils;
  * The values on the left will be called <b>"vertical"</b> and values on top will be called <b>"horizontal"</b>.<br>
  * <br>
  * <p>
- * The table should have at least one vertical condition column, it can have the Rule column, it (in theory) might have
- * vertical Actions which will be processed the same way as vertical conditions, it must have one or more Horizontal
- * Conditions, and exactly one (optional in the future release) <b>RET</b> or <b>CRET</b> column<br>
- * . <br>
+ * The table can have vertical condition columns and the Rule column, it (in theory) might have vertical Actions which
+ * will be processed the same way as vertical conditions, it must have one or more Horizontal Conditions, and exactly
+ * one (optional in the future release) <b>RET</b> or <b>CRET</b> column.
+ * <p>
+ * A table without vertical conditions takes the rows of its keys from the first key: one row for each horizontal
+ * condition, each row a condition of its own. Its keys may be merged down within these rows only.
+ * <p>
  * <b>RET</b> or <b>CRET</b> section can be placed in any place of lookup headers row, after vertical conditions (for
  * users convenience).
  * <p>
@@ -79,22 +82,19 @@ public class DecisionTableLookupConvertor {
         var headerRow = table.getRow(HEADER_ROW);
 
         var firstLookupColumn = findFirstLookupColumn(headerRow);
-        if (explicitHeaders && firstLookupColumn == 0) {
-            // The title of the first column tells the rows of the horizontal keys
-            throw new OpenLCompilationException("Vertical condition is mandatory for Lookup table.");
-        }
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
         validateLookupSection();
         var retTableWidth = retTable.getCell(0, 0).getWidth();
 
         var keys = processHorizConditionsHeaders(table, firstLookupColumn);
-        var hConditionRows = findHConditionRows(keys, hcHeaders.size());
-
         var lookupValuesTable = getLookupValuesTable(table, firstLookupColumn).getSource();
+        // Without a vertical condition, the first key tells the rows of the keys
+        var firstKeySetsRows = explicitHeaders && firstLookupColumn == 0;
+        var hConditionRows = findHConditionRows(keys, lookupValuesTable, hcHeaders.size(), firstKeySetsRows);
 
         var lookupValuesTableHeight = getLookupValuesTableHeight(table);
 
-        isMultiplier(lookupValuesTable, retTableWidth);
+        isMultiplier(lookupValuesTable, keys, retTableWidth);
 
         var transformer = getTransformer(table,
                 headerRow,
@@ -339,44 +339,47 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    /** The width of the lookup values without the columns at their end that are empty in every row. */
-    private static int getWidthWithIgnoredEmptyCells(IGridTable table) {
-        var width = table.getWidth();
-        while (width > 0) {
-            for (var i = 0; i < table.getHeight(); i++) {
-                if (table.getCell(width - 1, i).getStringValue() != null) {
-                    return width;
-                }
-            }
-            width--;
-        }
-
-        return 0;
-    }
-
     /**
      * Checks that the lookup values fill whole groups as wide as the return header.
      *
-     * <p>Columns at the end of the values that are empty in every row are left out.
+     * <p>A column after the last whole group is left out when it holds no values or has no key above it, such as a
+     * note written beside the values.
      *
      * @throws OpenLCompilationException when the last group is narrower than the return header
      */
-    private static void isMultiplier(@NonNull IGridTable lookupValuesTable, int retTableWidth)
-            throws OpenLCompilationException {
+    private static void isMultiplier(@NonNull IGridTable lookupValuesTable,
+                                     @NonNull IGridTable keys,
+                                     int retTableWidth) throws OpenLCompilationException {
         var lookupTableWidth = lookupValuesTable.getWidth();
+        var wholeGroupsWidth = lookupTableWidth - lookupTableWidth % retTableWidth;
 
-        var isMultiplier = lookupTableWidth % retTableWidth == 0;
-
+        var isMultiplier = IntStream.range(wholeGroupsWidth, lookupTableWidth)
+                .allMatch(column -> isEmptyColumn(lookupValuesTable, column) || hasNoKey(keys, column));
         if (!isMultiplier) {
-            var w = getWidthWithIgnoredEmptyCells(lookupValuesTable);
-            isMultiplier = w % retTableWidth == 0;
-            if (!isMultiplier) {
-                var message = "The width of the Lookup table(%d) is not a multiple of the RET width(%d).".formatted(
-                        lookupTableWidth,
-                        retTableWidth);
-                throw new OpenLCompilationException(message);
-            }
+            var message = "The width of the Lookup table(%d) is not a multiple of the RET width(%d).".formatted(
+                    lookupTableWidth,
+                    retTableWidth);
+            throw new OpenLCompilationException(message);
         }
+    }
+
+    /**
+     * Whether no key stands above the column.
+     *
+     * <p>A blank cell of a merged key counts as a key.
+     */
+    private static boolean hasNoKey(@NonNull IGridTable keys, int column) {
+        return IntStream.range(0, keys.getHeight()).noneMatch(row -> {
+            var cell = keys.getCell(column, row);
+            return cell.getRegion() != null || StringUtils.isNotBlank(cell.getStringValue());
+        });
+    }
+
+    /** Whether a key is merged down into the first row of the values. */
+    private static boolean isMergedIntoValues(@NonNull IGridTable keys, @NonNull IGridTable values) {
+        var lastRow = keys.getHeight() - 1;
+        return values.getHeight() > 0 && IntStream.range(0, keys.getWidth())
+                .anyMatch(column -> isSameMergedCell(keys.getCell(column, lastRow), values.getCell(column, 0)));
     }
 
     /**
@@ -389,20 +392,36 @@ public class DecisionTableLookupConvertor {
      * <p>Keys that take as many rows as there are horizontal conditions give each row to a condition of its own,
      * whatever is merged down, as they did before merged keys took several rows.
      *
+     * <p>When the first key sets the rows of the keys, each row must be a condition of its own, and no key may be
+     * merged down into the values.
+     *
      * @return the row each horizontal condition starts at
      * @throws OpenLCompilationException when the keys make more or fewer rows than there are horizontal conditions
      */
-    private static int @NonNull [] findHConditionRows(@NonNull IGridTable keys, int hConditions)
-            throws OpenLCompilationException {
-        var rows = IntStream.range(0, keys.getHeight())
-                .filter(row -> row == 0 || !continuesRowAbove(keys, row))
-                .toArray();
+    private static int @NonNull [] findHConditionRows(@NonNull IGridTable keys,
+                                                      @NonNull IGridTable values,
+                                                      int hConditions,
+                                                      boolean firstKeySetsRows) throws OpenLCompilationException {
+        var rows = conditionStarts(keys);
+        if (firstKeySetsRows) {
+            if (rows.length != hConditions || keys.getHeight() != hConditions || isMergedIntoValues(keys, values)) {
+                throw new OpenLCompilationException("Vertical condition is mandatory for Lookup table.");
+            }
+            return rows;
+        }
         if (rows.length == hConditions) {
             return rows;
         } else if (keys.getHeight() == hConditions) {
             return IntStream.range(0, hConditions).toArray();
         }
         throw keysHeightError();
+    }
+
+    /** The rows of the keys that start a horizontal condition, as the keys are merged down. */
+    private static int @NonNull [] conditionStarts(@NonNull IGridTable keys) {
+        return IntStream.range(0, keys.getHeight())
+                .filter(row -> row == 0 || !continuesRowAbove(keys, row))
+                .toArray();
     }
 
     /**
@@ -415,9 +434,9 @@ public class DecisionTableLookupConvertor {
                         || isEmptyColumn(keys, column));
     }
 
-    private static boolean isEmptyColumn(@NonNull IGridTable keys, int column) {
-        return IntStream.range(0, keys.getHeight())
-                .allMatch(row -> StringUtils.isBlank(keys.getCell(column, row).getStringValue()));
+    private static boolean isEmptyColumn(@NonNull IGridTable table, int column) {
+        return IntStream.range(0, table.getHeight())
+                .allMatch(row -> StringUtils.isBlank(table.getCell(column, row).getStringValue()));
     }
 
     private static @NonNull OpenLCompilationException keysHeightError() {

@@ -12,7 +12,7 @@ This section introduces lookup tables and includes the following topics:
 
 A **lookup table** is a special modification of the decision table which simultaneously contains vertical and horizontal conditions and returns value on crossroads of matching condition values.
 
-That means condition values can appear either on the left of the lookup table or on the top of it. The values on the left are called **vertical** and values on the top are called **horizontal**. Any lookup table must have at least one vertical and at least one horizontal value.
+That means condition values can appear either on the left of the lookup table or on the top of it. The values on the left are called **vertical** and values on the top are called **horizontal**. A Simple or Smart lookup table must have at least one vertical and at least one horizontal value. A Rules table can have horizontal conditions without vertical ones, as described in [Rules Tables](13-rules-tables.md#rules-tables).
 
 ![A lookup table example](../../../ref-guide-images/lookupTableExample_1.jpeg)
 

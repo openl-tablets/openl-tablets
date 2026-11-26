@@ -108,8 +108,17 @@ own project only, as listed for the developers.
   the last group is narrower, the table stops with
   `The width of the Lookup table(3) is not a multiple of the RET width(2).` Before, the table compiled and the columns
   of that last group were dropped: their values were never returned and the horizontal values above them were never
-  checked. Columns empty in every row at the end of the values are still left out. Make the values fill whole groups,
-  or remove the columns no group takes.
+  checked. A column after the last whole group is still left out when it holds no values, and now also when it has no
+  horizontal value above it, such as a note beside the values. Make the values fill whole groups, or remove the
+  columns no group takes.
+
+* **A Rules table with its lookup part in the first column does not compile when its horizontal values hide their
+  rows.** With no vertical condition or Rule column before the lookup part, the first horizontal value sets how many
+  rows the horizontal values take, one for each horizontal condition. A value merged down within these rows applies
+  to each condition, as before. When a value is merged down into the rule values, or the rows of the horizontal values
+  are not one for each horizontal condition, the table stops with `Vertical condition is mandatory for Lookup table.`
+  Before, such a table either failed with another error or compiled and read rule values from the rows of the keys,
+  so it could return wrong results. Add a vertical condition, which tells the rows of the keys.
 
 ## Administrators
 
