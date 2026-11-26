@@ -1,5 +1,4 @@
 import { ProjectStatus } from '../../constants/project'
-import { mavenArtifactOf } from '../../services/projectId'
 import type { FacetCount, Project, ProjectStatusSummary, TagFacetSummary } from '../../types/projects'
 import { cached } from '../../utils/cached'
 import { inTagTypeThenNameOrder } from '../tags/tagOrder'
@@ -155,19 +154,6 @@ const matchesTags = (project: Project, wanted: Map<string, Set<string>>): boolea
  */
 const repositoryFacetOf = (project: Project): string =>
     project.status === ProjectStatus.Local ? LOCAL_REPO_KEY : project.repository
-
-/**
- * The address of the Projects list narrowed to the repository facet of the project, or undefined for a project
- * downloaded from the Maven repository, which the list does not hold.
- */
-export const repositoryListPath = (project: Project): string | undefined => {
-    if (mavenArtifactOf(project.id) !== undefined) {
-        return undefined
-    }
-    const params = new URLSearchParams()
-    writePicked(params, 'repo', [repositoryFacetOf(project)])
-    return `/projects?${params}`
-}
 
 const matchesRepositories = (project: Project, repositories: Set<string>): boolean =>
     repositories.size === 0 || repositories.has(repositoryFacetOf(project))

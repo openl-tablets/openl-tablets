@@ -13,7 +13,6 @@ import { BranchSwitcher } from './BranchSwitcher'
 import { CrumbSwitcher } from './CrumbSwitcher'
 import { switchedRoute, switcherItems } from './moduleSwitcher'
 import { ProjectSwitcher } from './ProjectSwitcher'
-import { repositoryListPath } from './projectListing'
 
 interface ProjectScreenHeaderProps {
     project: Project
@@ -46,9 +45,9 @@ interface ProjectScreenHeaderProps {
 /**
  * The header of a screen of an opened project: the module page and the screen of the messages wear the same one.
  *
- * <p>The trail leads to the projects of the repository, to another branch and to another project, in the order of the
- * page of the project. It ends in the name of what is on screen, which opens another module of the project, or its
- * messages; the mark after it tells what was compiled and compiles it again. A project that can only be read, such as
+ * <p>The trail leads to the projects, to another project and to another branch of this one, as a project holds what
+ * it shows. It ends in the name of what is on screen, which opens another module of the project, or its messages; the
+ * mark after it tells what was compiled and compiles it again. A project that can only be read, such as
  * one downloaded from the Maven repository, is marked so after that name. The actions of the screen take the row under
  * the trail.
  */
@@ -74,15 +73,19 @@ export const ProjectScreenHeader = ({
     // The modules of the project, and after them its messages, which they all share.
     const localizationLabel = t('localization:title')
     const items = useMemo(() => switcherItems(modules, localizationLabel), [modules, localizationLabel])
-    const repositoryPath = repositoryListPath(project)
-    const repositoryLabel = project.repositoryInfo?.name ?? project.repository
-
+    // The trail goes down from the projects as a project holds what it shows: the project, the branch it is read on,
+    // then the module of that branch on screen.
     const crumbs = [
         <Link key="projects" to="/projects">{t('home.title')}</Link>,
-        repositoryPath
-            ? <Link key="repository" to={repositoryPath}>{repositoryLabel}</Link>
-            : <span key="repository">{repositoryLabel}</span>,
-        // The branch comes right after the repository, as on the project's own page.
+        // Which of its modules to read is the reader's to say, on the project's own screen.
+        <ProjectSwitcher
+            key="project"
+            currentName={project.name}
+            currentProjectId={project.id}
+            disabled={opening}
+            onSelect={picked => void navigate(`/projects/${picked}`)}
+            testId="crumb-project"
+        />,
         hasBranches && (
             <BranchSwitcher
                 key="branch"
@@ -97,15 +100,6 @@ export const ProjectScreenHeader = ({
                 tone="secondary"
             />
         ),
-        // Which of its modules to read is the reader's to say, on the project's own screen.
-        <ProjectSwitcher
-            key="project"
-            currentName={project.name}
-            currentProjectId={project.id}
-            disabled={opening}
-            onSelect={picked => void navigate(`/projects/${picked}`)}
-            testId="crumb-project"
-        />,
     ]
 
     return (

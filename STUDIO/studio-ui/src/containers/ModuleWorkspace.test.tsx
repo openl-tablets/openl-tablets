@@ -1368,22 +1368,26 @@ describe('ModuleWorkspace', () => {
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
     })
 
-    it('names the branch before the project in the trail, as the page of the project does', async () => {
+    it('names the project, then its branch, then the module in the trail, as a project holds them', async () => {
         workspace.opened = true
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('crumb-project')).toBeInTheDocument())
 
+        const follows = (first: HTMLElement, second: HTMLElement) =>
+            Boolean(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING)
         const branch = screen.getByTestId('branch-switched')
-        expect(branch.compareDocumentPosition(screen.getByTestId('crumb-project')) & Node.DOCUMENT_POSITION_FOLLOWING)
-            .toBeTruthy()
+        expect(follows(screen.getByTestId('crumb-project'), branch)).toBe(true)
+        expect(follows(branch, screen.getByTestId('module-switcher-trigger'))).toBe(true)
     })
 
-    it('leads from the trail to the projects of the repository', async () => {
+    it('leads from the trail to the projects, naming no repository', async () => {
         workspace.opened = true
         render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('crumb-project')).toBeInTheDocument())
 
-        expect(screen.getByRole('link', { name: 'Design' })).toHaveAttribute('href', '/projects?repo=design')
+        expect(screen.getByRole('link', { name: 'home.title' })).toHaveAttribute('href', '/projects')
+        expect(screen.queryByRole('link', { name: 'Design' })).toBeNull()
+        expect(screen.getByTestId('module-header')).not.toHaveTextContent('Design')
     })
 
     it('shows nothing of the project it left while the next project is read, nor reads the module for it', async () => {

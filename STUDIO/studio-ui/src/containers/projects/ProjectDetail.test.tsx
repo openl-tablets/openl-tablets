@@ -319,10 +319,13 @@ describe('ProjectDetail', () => {
         })
     })
 
-    it('links the repository of the trail to the projects of the repository', () => {
+    it('names no repository in the trail, and the branch after the name of the project', () => {
         renderProjectDetail()
 
-        expect(screen.getByRole('link', { name: 'Design' })).toHaveAttribute('href', '/projects?repo=design')
+        expect(screen.queryByRole('link', { name: 'Design' })).toBeNull()
+        const name = screen.getByRole('heading', { name: 'Alpha' })
+        expect(name.compareDocumentPosition(screen.getByTestId('crumb-branch-switcher')) & Node.DOCUMENT_POSITION_FOLLOWING)
+            .toBeTruthy()
     })
 
     it('offers no Files tab: the files are reached from the projects tree', () => {

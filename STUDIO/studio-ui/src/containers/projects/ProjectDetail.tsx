@@ -7,7 +7,7 @@ import {
     type ReactNode,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { Empty, Skeleton, Tabs, type TabsProps } from 'antd'
 import {
     HistoryOutlined,
@@ -37,7 +37,6 @@ import { RevisionsPanel } from './RevisionsPanel'
 import { OverviewPanel } from './OverviewPanel'
 import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
-import { repositoryListPath } from './projectListing'
 import { BranchSwitcher } from './BranchSwitcher'
 import { ReadOnlyTag } from '../maven/mavenProject'
 import { SystemContext } from '../../contexts'
@@ -392,8 +391,8 @@ export const ProjectDetail = ({
             label: <><HistoryOutlined /> {t('browser.tab_history')}</>,
             children: activeTab === 'history' && (
                 <RevisionsPanel
-                    branch={project.branch}
                     headerSearch
+                    branch={project.branch}
                     currentRevision={project.revision}
                     onOpened={() => onChanged?.()}
                     projectId={project.id}
@@ -435,11 +434,10 @@ export const ProjectDetail = ({
         params.delete('line')
     })
 
-    const repositoryPath = repositoryListPath(project)
-
     return (
         <div className={styles.root} data-testid="project-detail">
             <WorkspaceHeader
+                crumbs={[headerPrefix]}
                 muted={muted}
                 title={project.name}
                 // A project that can only be read is told by the mark after its name, not by a status of the workspace
@@ -455,26 +453,6 @@ export const ProjectDetail = ({
                         }}
                     />
                 )}
-                crumbs={[
-                    headerPrefix,
-                    repositoryPath
-                        ? <Link key="repository" to={repositoryPath}>{repoLabel}</Link>
-                        : <span key="repository">{repoLabel}</span>,
-                    hasBranches && (
-                        <BranchSwitcher
-                            key="branch"
-                            currentBranch={project.branch}
-                            currentBranchDefault={project.branchDefault}
-                            currentBranchProtected={project.branchProtected}
-                            data-testid="crumb-branch"
-                            disabled={pendingId !== null}
-                            onBusyChange={onBranchSwitching}
-                            onSwitched={() => onChanged?.()}
-                            projectId={project.id}
-                            tone="secondary"
-                        />
-                    ),
-                ]}
                 titleAfter={(
                     <>
                         {project.readOnly && <ReadOnlyTag projectId={project.id} />}
@@ -486,6 +464,20 @@ export const ProjectDetail = ({
                             statusReadAt={statusReadAt}
                         />
                     </>
+                )}
+                // The branch the project is read on stands under its name, as on the screen of one of its modules.
+                trailAfter={hasBranches && (
+                    <BranchSwitcher
+                        currentBranch={project.branch}
+                        currentBranchDefault={project.branchDefault}
+                        currentBranchProtected={project.branchProtected}
+                        data-testid="crumb-branch"
+                        disabled={pendingId !== null}
+                        onBusyChange={onBranchSwitching}
+                        onSwitched={() => onChanged?.()}
+                        projectId={project.id}
+                        tone="secondary"
+                    />
                 )}
             />
             {selectedFile ? (

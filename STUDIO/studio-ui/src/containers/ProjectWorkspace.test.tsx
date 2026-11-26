@@ -130,9 +130,10 @@ vi.mock('./projects/DeployConfigPanel', () => ({ DeployConfigPanel: () => null }
 // test stays focused on the header, the action bar and the file pane.
 vi.mock('./projects/OverviewPanel', () => ({
     // Records the project each render shows: the tab reads data of its own for it.
-    OverviewPanel: ({ project: shown }: { project: { id: string } }) => {
+    // The repository the project comes from is named there rather than in the trail.
+    OverviewPanel: ({ project: shown, repoLabel }: { project: { id: string }, repoLabel: string }) => {
         overviewMock(shown.id)
-        return null
+        return <span data-testid="overview-repository">{repoLabel}</span>
     },
 }))
 vi.mock('./projects/PublishPanel', () => ({ PublishPanel: () => null }))
@@ -493,7 +494,7 @@ describe('ProjectWorkspace', () => {
     })
 
     it('names the repository from the project when the repository list is unreadable', async () => {
-        // Granted the project alone, the user reads no repositories — the breadcrumb still names one.
+        // Granted the project alone, the user reads no repositories — the overview still names one.
         vi.mocked(getDesignRepositories).mockRejectedValue(new Error('forbidden'))
         vi.mocked(getProject).mockResolvedValue(project({
             repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: false, searchable: false, mappedFolders: false } },
@@ -501,7 +502,7 @@ describe('ProjectWorkspace', () => {
 
         await renderWorkspace()
 
-        expect(screen.getAllByText('Design').length).toBeGreaterThan(0)
+        expect(screen.getByTestId('overview-repository')).toHaveTextContent('Design')
     })
 
     it('hides the history tab when history cannot be viewed', async () => {
@@ -1096,7 +1097,7 @@ describe('ProjectWorkspace', () => {
         expect(getProject).toHaveBeenCalledWith(maven, { includes: ['status', 'descriptor'] }, expect.anything())
         expect(lastRail()).toMatchObject({ address: maven, currentProjectId: maven })
         // The usual screen of a project: the repository it comes from, its version and the mark that it is read-only.
-        expect(screen.getByText('Maven')).toBeInTheDocument()
+        expect(screen.getByTestId('overview-repository')).toHaveTextContent('Maven')
         expect(screen.getByText('1.0.0')).toBeInTheDocument()
         expect(screen.getByText('view.read_only')).toBeInTheDocument()
         expect(screen.queryByTestId(`status-${maven}`)).toBeNull()

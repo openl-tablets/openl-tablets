@@ -23,9 +23,10 @@ The following topics are included in this chapter:
 
 ### Switching to Another Project or Module
 
-The breadcrumb shows the repository, the branch and the project the module belongs to, in the order of the page of the project, and ends in the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project or module; the actions of the module take the row under it, and the ones the row has no room for move to the **⋮** menu at its end. In a narrow window it continues on the next line after a slash, so no name is broken:
+The breadcrumb reads **Projects / Example 1 - Bank Rating / master / Bank Rating**: the **Projects** link, the project, the branch the project is on, and the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project, branch or module; the actions of the module take the row under it, and the ones the row has no room for move to the **⋮** menu at its end. In a narrow window it continues on the next line after a slash, so no name is broken:
 
--   To see the other projects of the repository, click the repository name. The **Projects** list opens, filtered by the repository.
+-   To see the other projects, click **Projects**. The **Projects** list opens.
+-   To switch to another branch, click the arrow next to the branch name, as described in [Working with Project Branches](project-branches.md#working-with-branches).
 -   To switch to another project, click the arrow next to the project name, start typing the project name in the **Find a project** field to narrow the list down, and select the project.
 -   To switch to another module of the current project, click the arrow next to the module name, start typing the module name in the **Find a module** field, and select the module.
 -   To open the localization messages of the project, click the arrow next to the module name and select **Localization** below the modules, as described in [Editing Localization Messages](#editing-localization-messages).

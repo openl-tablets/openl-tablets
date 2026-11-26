@@ -69,9 +69,9 @@ contain the project when it is opened. Proceed as follows:
 
 1.  To display a current project branch, open a project.
 
-    The current project branch is displayed in the path that ends in the project name, in the **Branch** field of the **Overview** tab, and in the **Branch** column of the **Projects** page. The default branch reads in blue with a house icon, and a protected branch reads in orange with a shield icon; the default branch stays blue when it is protected too. Pointing at an icon names what it marks. Other branches read in the usual text color.
+    The current project branch is displayed in the path at the top of the page, after the project name, in the **Branch** field of the **Overview** tab, and in the **Branch** column of the **Projects** page. The default branch reads in blue with a house icon, and a protected branch reads in orange with a shield icon; the default branch stays blue when it is protected too. Pointing at an icon names what it marks. Other branches read in the usual text color.
 
-1.  To switch between branches, click the branch in the path that ends in the project name, in the **Branch** field of the **Overview** tab or in the row of the project on the **Projects** page. The editor offers the same branch menu above the modules. In the list that appears, select the required branch.
+1.  To switch between branches, click the branch in the path at the top of the page, in the **Branch** field of the **Overview** tab or in the row of the project on the **Projects** page. The editor offers the same branch menu above the modules. In the list that appears, select the required branch.
 
     ![Switching a project between its branches](images/switching-project-branch.png "Switching between branches")
 
