@@ -144,6 +144,26 @@ class ProjectHistoryServiceTest {
         assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
     }
 
+    /** A workbook in a folder the repository ignores is no module, so it has no history (EPBDS-17309). */
+    @Test
+    void rejectsModuleOfAnIgnoredFolder() throws Exception {
+        Files.writeString(projectFolder.resolve("rules.xml"), """
+                <project>
+                    <modules>
+                        <module>
+                            <rules-root path="**/*.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        Files.createFile(Files.createDirectories(projectFolder.resolve("target")).resolve("Build.xlsx"));
+        when(repository.ignores(any())).thenAnswer(call -> call.<Path>getArgument(0).endsWith("target"));
+
+        var error = assertThrows(NotFoundException.class, () -> service.getLocalHistory(project, "Build"));
+
+        assertEquals("openl.error.404.project.module.identifier.message", error.getErrorCode());
+    }
+
     @Test
     void rejectsClosedProject() {
         when(project.isOpened()).thenReturn(false);

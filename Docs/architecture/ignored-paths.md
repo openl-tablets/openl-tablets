@@ -88,7 +88,9 @@ flowchart LR
   compare, the ZIP export and the deployment. A copy of a project in the workspace is built from what the
   repository gives, so it holds no ignored file, and its save keeps the ignored files of the repository. The
   workspace takes the same setting (`LocalWorkspaceManagerImpl`), so a file put into a copy by hand, such as the
-  output of a build, is not listed either, and a module path with a wildcard finds no workbook in it.
+  output of a build, is not listed either, and a module path with a wildcard finds no workbook in it, neither for
+  the compilation, the **Overview** of a project (`WorkspaceProjectService`) nor the history of a module
+  (`ProjectHistoryService`).
 - **The Files API.** A working copy of an opened project is written without the repository, so
   `ProjectFilesServiceImpl` refuses a write that names an ignored path with `403` `file.path.ignored.message`: a file
   written there would never reach the repository. An upload of an archive or of several files leaves the ignored

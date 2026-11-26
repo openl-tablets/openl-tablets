@@ -77,9 +77,11 @@ public class ProjectHistoryService {
         return collect;
     }
 
-    private static Module resolveModule(Path projectFolder, @Nullable String moduleName) {
+    /** A module of the project, the first one when no name is given. A workbook the repository ignores is none. */
+    private static Module resolveModule(RulesProject project, @Nullable String moduleName) {
         try {
-            var descriptor = ProjectResolver.getInstance().resolve(projectFolder);
+            var descriptor = ProjectResolver.getInstance()
+                    .resolve(projectFolderOf(project), project.getLocalRepository()::ignores);
             if (descriptor == null) {
                 throw new NotFoundException("project.identifier.message");
             }
@@ -237,7 +239,7 @@ public class ProjectHistoryService {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        var module = resolveModule(projectFolderOf(project), moduleName);
+        var module = resolveModule(project, moduleName);
         return new HistoryLocation(module, historyOf(project).resolve(module.getRulesRootPath()));
     }
 

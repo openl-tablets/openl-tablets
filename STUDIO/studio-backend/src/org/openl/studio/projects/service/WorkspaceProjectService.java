@@ -503,11 +503,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * <p>The resolver matches the legacy Editor behavior: a project may have modules even when they are
      * generated from Excel files instead of being declared directly in {@code rules.xml}.
+     *
+     * <p>No module is found in a file the repository ignores, such as a workbook in the output folder of a build:
+     * such a workbook is not compiled as a module either.
      */
     private Optional<ResolvedDescriptor> resolveLocalProjectDescriptor(RulesProject project) {
         try {
-            var folder = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
-            var descriptor = ProjectResolver.getInstance().resolve(folder);
+            var repository = project.getLocalRepository();
+            var folder = repository.getRoot().resolve(project.getFolderPath());
+            var descriptor = ProjectResolver.getInstance().resolve(folder, repository::ignores);
             if (descriptor == null) {
                 return Optional.empty();
             }

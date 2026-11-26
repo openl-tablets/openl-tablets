@@ -98,6 +98,7 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.ExposedMethods;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -774,6 +775,44 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of("Pricing"), result.descriptor.modules().stream().map(ModuleViewModel::name).toList());
         // The workspace copy answers every descriptor field, so the repository is never listed.
         verify(project, never()).getArtefacts();
+    }
+
+    /** The Overview lists no workbook of an ignored folder under a pattern (EPBDS-17309). */
+    @Test
+    void a_pattern_matches_no_workbook_in_an_ignored_folder() throws Exception {
+        var projectFolder = tempDir.resolve("PricingProject");
+        Files.createDirectories(projectFolder.resolve(".mvn"));
+        Files.createDirectories(projectFolder.resolve("target"));
+        Files.createFile(projectFolder.resolve("Pricing.xlsx"));
+        Files.createFile(projectFolder.resolve(".mvn/Hidden.xlsx"));
+        Files.createFile(projectFolder.resolve("target/Build.xlsx"));
+        // Every field is declared, so the workspace copy alone answers the descriptor and the repository is not read.
+        Files.writeString(projectFolder.resolve("rules.xml"), """
+                <project>
+                    <comment>Pricing rules</comment>
+                    <modules>
+                        <module>
+                            <rules-root path="**/*.xlsx"/>
+                        </module>
+                    </modules>
+                    <properties-file-name-pattern>%lob%</properties-file-name-pattern>
+                    <exposed-methods>
+                        <include>*</include>
+                    </exposed-methods>
+                </project>
+                """);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+        var localRepository = new LocalRepository(tempDir, MetainfoRegistry.open(tempDir.resolve(".history")));
+        localRepository.ignore(IgnoredPaths.of("**/.mvn/**, **/target/**"));
+        when(project.getLocalRepository()).thenReturn(localRepository);
+
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
+
+        var pattern = result.descriptor.modules().getFirst();
+        assertEquals("**/*.xlsx", pattern.path());
+        assertEquals(List.of("Pricing.xlsx"), pattern.modules().stream().map(ModuleViewModel::path).toList());
     }
 
     @Test
