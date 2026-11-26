@@ -9,6 +9,7 @@ package org.openl.rules.lang.xls.binding;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -108,6 +109,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     /** The combined types this thread keeps apart from the modules while it binds a table alone. */
     private static final ThreadLocal<Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass>>
             COMBINED_APART = new ThreadLocal<>();
+    /** The order a combined type takes the steps of its types in, the same at every start. */
+    private static final Comparator<CustomSpreadsheetResultOpenClass> COMBINATION_ORDER = Comparator
+            .comparing(CustomSpreadsheetResultOpenClass::getName)
+            .thenComparing(t -> t.getModule().getName());
     private final AtomicLong combinedSpreadsheetResultOpenClassesCounter = new AtomicLong(0);
     private final Set<String> uniqueCombinedSpreadsheetResultClassNames = new HashSet<>();
 
@@ -175,6 +180,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * The type combining several {@code SpreadsheetResult} types: the one the module combined them in, or else a new
      * one, which the module keeps unless this thread keeps it apart ({@link #keepCombinedTypesApart()}).
      *
+     * <p>A new type takes the steps of the types in the order of their names, so its steps, and the properties of its
+     * bean, come in the same order at every start.
+     *
      * @param customSpreadsheetResultOpenClasses the types to combine
      * @return the single type when they are one, or the type combining them
      */
@@ -201,7 +209,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         if (combinedSpreadsheetResultOpenClass == null) {
             combinedSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(this);
-            for (CustomSpreadsheetResultOpenClass t : c) {
+            for (var t : c.stream().sorted(COMBINATION_ORDER).toList()) {
                 combinedSpreadsheetResultOpenClass.updateWithType(t);
             }
             kept.put(key, combinedSpreadsheetResultOpenClass);

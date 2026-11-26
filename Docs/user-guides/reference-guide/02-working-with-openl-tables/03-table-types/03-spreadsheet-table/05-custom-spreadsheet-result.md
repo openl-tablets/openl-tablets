@@ -66,7 +66,9 @@ An example is as follows:
 Rate = coverage.fundingType == "FullyInsured" ? RateCalculation ( rateBasis, $TotalVolume, $NumberOfLives, $MonthlyPremiumPreliminary) : ASORate (calculatedClass.$TotalNetClaimCost, TLR, $NumberOfLives, coverage)
 ```
 
-If passing results of the Rate step to another rule, the type of the spreadsheet defined in this step is a united spreadsheet SRRateCalculation & SRASORate.
+If passing results of the Rate step to another rule, the type of the spreadsheet defined in this step is a united spreadsheet SRASORate & SRRateCalculation.
+Its steps are those of `ASORate`, then those of `RateCalculation`: the spreadsheets come in the order of their names,
+whatever their order in the ternary operation.
 
 A rule returning a united spreadsheet result can call itself:
 

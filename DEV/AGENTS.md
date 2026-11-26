@@ -60,7 +60,9 @@ Key implementations:
 **The order of the types of a module changes from one start of the JVM to another**: `ModuleOpenClass.getTypes()`
 is a `Set.copyOf`, which the JDK walks in a random order chosen at each start. Code that walks the types must give the
 same result in any order. A module takes the `SpreadsheetResult` types of its dependencies in that order
-(`XlsModuleOpenClass.addDependencyTypes`, EPBDS-17330).
+(`XlsModuleOpenClass.addDependencyTypes`, EPBDS-17330). A type combining several `SpreadsheetResult` types takes
+their steps in the order of their names (`XlsModuleOpenClass.buildOrGetCombinedSpreadsheetResult`), never in the
+order of a hash set.
 
 ### Parser & Grammar (`org.openl.rules/grammar/bexgrammar.jj`)
 
