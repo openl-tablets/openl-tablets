@@ -520,6 +520,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 customSpreadsheetResultOpenClass.simpleRefByRow,
                 customSpreadsheetResultOpenClass.simpleRefByColumn);
 
+        notifyUpdated();
+    }
+
+    /** Tells the types combining this one that it has changed, so that they take its fields as they are now. */
+    private void notifyUpdated() {
         eventsOnUpdateWithType.forEach(e -> e.accept(this));
     }
 
@@ -569,10 +574,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     /**
-     * Convert this type to a type belongs to another module and register it in the provided module.
+     * Converts this type to a type of another module and registers it there.
      *
-     * @param module
-     * @return converted and registered type
+     * <p>The type is registered before its fields are converted, so that the types of its fields may refer to it. A
+     * type combined with it meanwhile takes all its fields once they are converted.
+     *
+     * @param module the module to convert the type to
+     * @return the converted and registered type
      */
     @Override
     public CustomSpreadsheetResultOpenClass convertToModuleTypeAndRegister(ModuleOpenClass module) {
@@ -604,6 +612,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     type.addField(field);
                 }
             }
+            type.notifyUpdated();
             type.setMetaInfo(getMetaInfo());
             return type;
         }
