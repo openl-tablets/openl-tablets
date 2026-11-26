@@ -144,7 +144,11 @@ flowchart TD
   edited in place. A project that is only in a design repository, closed, is not in it, so its Maven archive is used
   until the user opens it. Opening or closing the project changes the choice at the next compilation.
 - **The walk is transitive.** `WebStudioWorkspaceDependencyManagerFactory.workspaceOf` follows the dependencies
-  of each project it finds, the downloaded ones included, with the same precedence at every step.
+  of each project it finds, the downloaded ones included, with the same precedence at every step. It reads the
+  `pom.xml` files it went through (`projectsOfPom`) only once a dependency is missing from the session, in the order
+  it followed them, as reading one asks the Maven repository: a workspace the session has whole asks it nothing, and
+  neither do the messages of a compilation whose projects are all loaded
+  (`WebStudioWorkspaceRelatedDependencyManager.getDependencyMessages`).
 - **A downloaded project must have the name.** The `<name>` of its `rules.xml` is the name the dependency gives;
   another name is an error, since rules address a dependency by name.
 - **A downloaded project is read-only.** It is in no design repository: the projects tree lists it under a `Maven`

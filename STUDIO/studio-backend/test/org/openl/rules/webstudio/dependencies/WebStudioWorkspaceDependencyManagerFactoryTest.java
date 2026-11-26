@@ -56,6 +56,53 @@ class WebStudioWorkspaceDependencyManagerFactoryTest {
         verify(resolver, never()).projectOf(any());
     }
 
+    /**
+     * A workspace the session has whole asks the Maven repository nothing: neither the walk nor the messages read the
+     * {@code pom.xml} of a project whose dependencies are all opened.
+     */
+    @Test
+    void aWorkspaceTheSessionHasWholeAsksTheMavenRepositoryNothing() {
+        var common = project("Common");
+        var domain = project("Domain", dependency("Common", null));
+        sessionProjects.addAll(List.of(common, domain));
+        var rules = project("Rules", dependency("Domain", "com.example:domain:1.0.0"));
+
+        assertEquals(List.of(rules, domain, common), List.copyOf(factory.resolveWorkspace(rules)));
+        var manager = factory.buildDependencyManager(rules);
+        try {
+            assertEquals(List.of(), manager.getDependencyMessages(rules));
+            assertEquals(List.of(), manager.getDependencyMessages(domain));
+        } finally {
+            manager.shutdown();
+        }
+        verify(resolver, never()).projectsOfPom(any());
+        verify(resolver, never()).projectOf(any());
+    }
+
+    /**
+     * A project the session lacks is found by the {@code pom.xml} files the walk went through, read once it is
+     * missing: the one read first, of the project walked first, wins.
+     */
+    @Test
+    void aMissingProjectIsTheOneThePomOfTheFirstProjectWalkedNames() {
+        var domain = project("Domain", dependency("Common", null));
+        sessionProjects.add(domain);
+        var rules = project("Rules", dependency("Domain", null));
+        var rulesPom = ProjectPom.of("<project><artifactId>rules</artifactId></project>");
+        var domainPom = ProjectPom.of("<project><artifactId>domain</artifactId></project>");
+        when(studio.pomOf(rules)).thenReturn(rulesPom);
+        when(studio.pomOf(domain)).thenReturn(domainPom);
+        when(resolver.projectsOfPom(rulesPom)).thenReturn(new MavenDependencyResolver.PomProjects(
+                Map.of("Common", "com.example:common:zip:1.0.0"), List.of()));
+        when(resolver.projectsOfPom(domainPom)).thenReturn(new MavenDependencyResolver.PomProjects(
+                Map.of("Common", "com.example:common:zip:2.0.0"), List.of()));
+        var common = project("Common");
+        when(resolver.projectOf(argThat(named("Common", "com.example:common:zip:1.0.0"))))
+                .thenReturn(new MavenDependencyResolver.DownloadedProject(common, null));
+
+        assertEquals(List.of(rules, domain, common), List.copyOf(factory.resolveWorkspace(rules)));
+    }
+
     @Test
     void aProjectTheSessionLacksIsDownloadedWithWhatItDependsOn() {
         var common = project("Common");
