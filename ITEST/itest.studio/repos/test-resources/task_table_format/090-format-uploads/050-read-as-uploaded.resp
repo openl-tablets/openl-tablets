@@ -72,5 +72,21 @@ Content-Type: application/json
       "to": 15
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Upload' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "0Y7PBH49SP49NSWF",
+        "name": "Upload",
+        "module": "Upload",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "B2"
+      }
+    }
+  ]
 }

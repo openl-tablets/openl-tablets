@@ -105,5 +105,21 @@ Content-Type: application/json
       }
     ]
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Policy' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "J1H1GB0SKYPX0P9E",
+        "name": "Policy",
+        "module": "Model",
+        "projectId": "3E2WBRVQACHHQ",
+        "project": "EPBDS-16904",
+        "cell": "B6"
+      }
+    }
+  ]
 }

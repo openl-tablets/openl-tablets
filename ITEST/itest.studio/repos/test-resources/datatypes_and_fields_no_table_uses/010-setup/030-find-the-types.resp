@@ -1,0 +1,155 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Adult",
+      "properties": {
+        "description": "A driver of full age."
+      },
+      "signature": "Adult extends Driver",
+      "file": "${PROJECT_NAME}/rules/Model/Adult.md",
+      "sheet": "Model",
+      "pos": "A1:C5",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Coverage",
+      "properties": {
+        "description": "A coverage a rule takes, but whose limit no rule reads."
+      },
+      "signature": "Coverage",
+      "file": "${PROJECT_NAME}/rules/Model/Coverage.md",
+      "sheet": "Model",
+      "pos": "A1:C4",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Discount",
+      "properties": {
+        "description": "A discount no table of the project refers to."
+      },
+      "signature": "Discount",
+      "file": "${PROJECT_NAME}/rules/Model/Discount.md",
+      "sheet": "Model",
+      "pos": "A1:C5",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Driver",
+      "properties": {
+        "description": "A driver of a policy."
+      },
+      "signature": "Driver",
+      "file": "${PROJECT_NAME}/rules/Model/Driver.md",
+      "sheet": "Model",
+      "pos": "A1:C8",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Vocabulary",
+      "kind": "Datatype",
+      "name": "Level",
+      "properties": {
+        "description": "The levels of a rate: the type of a field a rule sets."
+      },
+      "signature": "Level <String>",
+      "file": "${PROJECT_NAME}/rules/Model/Level.md",
+      "sheet": "Model",
+      "pos": "A1:C4",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Policy",
+      "properties": {
+        "description": "An auto policy: where it is written, its drivers and its vehicle."
+      },
+      "signature": "Policy",
+      "file": "${PROJECT_NAME}/rules/Model/Policy.md",
+      "sheet": "Model",
+      "pos": "A1:C8",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Rate",
+      "properties": {
+        "description": "The rate of a state."
+      },
+      "signature": "Rate",
+      "file": "${PROJECT_NAME}/rules/Model/Rate.md",
+      "sheet": "Model",
+      "pos": "A1:C5",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Vocabulary",
+      "kind": "Datatype",
+      "name": "Region",
+      "properties": {
+        "description": "A vocabulary no table of the project refers to."
+      },
+      "signature": "Region <String>",
+      "file": "${PROJECT_NAME}/rules/Model/Region.md",
+      "sheet": "Model",
+      "pos": "A1:C4",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    },
+    {
+      "id": "***",
+      "tableType": "Datatype",
+      "kind": "Datatype",
+      "name": "Vehicle",
+      "properties": {
+        "description": "A vehicle of a policy."
+      },
+      "signature": "Vehicle",
+      "file": "${PROJECT_NAME}/rules/Model/Vehicle.md",
+      "sheet": "Model",
+      "pos": "A1:C8",
+      "module": "Model",
+      "project": "${PROJECT_NAME}",
+      "projectId": "${PROJECT}"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 9,
+  "total": 9
+}

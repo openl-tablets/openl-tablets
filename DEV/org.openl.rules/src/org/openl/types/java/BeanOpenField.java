@@ -8,6 +8,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.annotations.ContextProperty;
 import org.openl.types.IMemberMetaInfo;
@@ -26,8 +27,12 @@ import org.openl.vm.IRuntimeEnv;
 public final class BeanOpenField implements IOpenField {
 
     private final PropertyDescriptor descriptor;
-    private final Method readMethod;
-    private final Method writeMethod;
+    /** The getter of the property, or {@code null} if it is written only. */
+    @Getter
+    private final @Nullable Method readMethod;
+    /** The setter of the property, or {@code null} if it is read only. */
+    @Getter
+    private final @Nullable Method writeMethod;
     @Getter
     private final String contextProperty;
 
@@ -135,7 +140,7 @@ public final class BeanOpenField implements IOpenField {
     }
 
     @Override
-    public IMemberMetaInfo getInfo() {
+    public @Nullable IMemberMetaInfo getInfo() {
         return null;
     }
 

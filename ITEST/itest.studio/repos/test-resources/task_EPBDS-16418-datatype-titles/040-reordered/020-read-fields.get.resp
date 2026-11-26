@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'ReorderedType' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "13V8ZNHKKFJKCGJX",
+        "name": "ReorderedType",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16418-Titles",
+        "cell": "B9"
+      }
+    }
+  ],
   "id": "13V8ZNHKKFJKCGJX",
   "tableType": "Datatype",
   "kind": "Datatype",

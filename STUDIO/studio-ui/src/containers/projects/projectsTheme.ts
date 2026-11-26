@@ -6,7 +6,7 @@ export const FONT_MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consol
 
 /**
  * The compilation state — OpenL's core signal — keyed by {@code ProjectCompileState}, in the hues of the four
- * states of the token in force.
+ * states of the token in force, and the hue of the information messages a compilation tells.
  *
  * A state that was never compiled and one whose compilation was cancelled read the same, so they share one muted
  * hue.
@@ -15,6 +15,7 @@ export const compileColorsOf = (token: GlobalToken) => ({
     ok: token.colorSuccess,
     warnings: token.colorWarning,
     errors: token.colorError,
+    infos: token.colorInfo,
     compiling: token.colorInfo,
     cancelled: token.colorTextTertiary,
     idle: token.colorTextTertiary,

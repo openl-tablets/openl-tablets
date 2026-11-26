@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Vocabulary 'Region' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "${REGION}",
+        "name": "Region",
+        "module": "Model",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "A1"
+      }
+    }
+  ]
+}

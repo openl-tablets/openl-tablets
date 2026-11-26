@@ -207,5 +207,55 @@ Content-Type: application/json
       "to": 15
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Field 'code' of datatype 'Person' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "P70JDTTY8GD07PK3",
+        "name": "Person",
+        "module": "Model",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "C4",
+        "start": 0,
+        "end": 4
+      }
+    },
+    {
+      "id": "###",
+      "summary": "Field 'rate' of datatype 'Person' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "P70JDTTY8GD07PK3",
+        "name": "Person",
+        "module": "Model",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "C5",
+        "start": 0,
+        "end": 4
+      }
+    },
+    {
+      "id": "###",
+      "summary": "Field 'age' of datatype 'Person' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "P70JDTTY8GD07PK3",
+        "name": "Person",
+        "module": "Model",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "C6",
+        "start": 0,
+        "end": 3
+      }
+    }
+  ]
 }

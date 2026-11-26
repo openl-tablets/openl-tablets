@@ -162,9 +162,11 @@ Table types: `Datatype`, `Vocabulary`, `Spreadsheet`, `SimpleSpreadsheet`, `Simp
 
 **Read-only fields of every table model:**
 
-- `messages` — the compilation messages of the table. A message has an `id`, a `summary`, a `severity` (`INFO`, `WARN`, or
-  `ERROR`), a `location` (the `type` `module` or `table`, and where it is), and `stacktrace: true` when a stack trace
-  is available, which `GET /rest/projects/{projectId}/messages/{messageId}/stacktrace` reads.
+- `messages` — the compilation messages of the table, with the information messages of the linter about the datatypes
+  and the fields no table uses, the errors first and the information messages last. A message has an `id`, a `summary`,
+  a `severity` (`INFO`, `WARN`, or `ERROR`), a `location` (the `type` `module` or `table`, and where it is), and
+  `stacktrace: true` when a stack trace is available, which
+  `GET /rest/projects/{projectId}/messages/{messageId}/stacktrace` reads.
 - `runState` — with `runState=true`: `can-run`, `can-run-module` (runs against the module that holds the table only), or
   `cannot-run`.
 - `partial` — `true` for a table that is written as several partial tables.

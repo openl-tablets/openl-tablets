@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"offset\":0,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"pos\":\"B2:C5\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"Datatype Driver\"],[\"String\",\"name\"],[\"Integer\",\"age\"],[\"Boolean\",\"married\"]],\"merges\":[[0,0,1,2]]}}"
+        "text": "{\"window\":{\"offset\":0,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"messages\":[{\"id\":#,\"summary\":\"Field 'married' of datatype 'Driver' is not used in the current project.\",\"severity\":\"INFO\",\"location\":{\"type\":\"table\",\"id\":\"*\",\"name\":\"Driver\",\"module\":\"Main\",\"projectId\":\"T19W2T33ZAYMF\",\"project\":\"McpTools\",\"cell\":\"C5\",\"start\":0,\"end\":7}}],\"pos\":\"B2:C5\",\"headerHeight\":1,\"version\":\"@@@\",\"rows\":[[\"Datatype Driver\"],[\"String\",\"name\"],[\"Integer\",\"age\"],[\"Boolean\",\"married\"]],\"merges\":[[0,0,1,2]]}}"
       }
     ],
     "resultType": "complete",

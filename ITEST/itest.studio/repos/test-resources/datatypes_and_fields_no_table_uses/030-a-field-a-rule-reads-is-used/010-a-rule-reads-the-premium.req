@@ -1,0 +1,26 @@
+POST /rest/projects/{PROJECT}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rating",
+  "sheetName": "Premium",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "netPremium",
+    "returnType": "SpreadsheetResult",
+    "args": [
+      {
+        "name": "policy",
+        "type": "Policy"
+      }
+    ],
+    "steps": [
+      {
+        "name": "Net",
+        "value": "= policy.premium * 0.9"
+      }
+    ]
+  }
+}

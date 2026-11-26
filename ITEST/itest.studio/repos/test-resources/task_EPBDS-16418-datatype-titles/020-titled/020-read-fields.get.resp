@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'TitledType' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "NPP14QYTY236WDTH",
+        "name": "TitledType",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16418-Titles",
+        "cell": "B2"
+      }
+    }
+  ],
   "id": "NPP14QYTY236WDTH",
   "tableType": "Datatype",
   "kind": "Datatype",

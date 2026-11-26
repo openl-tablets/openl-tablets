@@ -9,21 +9,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static org.openl.rules.ui.ProjectModelTestProjects.awaitCompiled;
+import static org.openl.rules.ui.ProjectModelTestProjects.module;
+import static org.openl.rules.ui.ProjectModelTestProjects.writeModule;
+
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.dependency.CompiledDependency;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.IDependencyLoader;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
@@ -248,22 +247,6 @@ class ProjectModelDependencyModulesTest {
                 .findDependencyLoader(AbstractDependencyManager.buildResolvedDependency(project));
     }
 
-    private static Module module(ProjectDescriptor project, String name) {
-        return project.getModules()
-                .stream()
-                .filter(module -> module.getName().equals(name))
-                .findFirst()
-                .orElseThrow();
-    }
-
-    private static void awaitCompiled(ProjectModel model) {
-        try {
-            model.getCurrentCompilation().future().join();
-        } catch (CancellationException | CompletionException ended) {
-            // However the compilation ended, what it built is what the model answers with.
-        }
-    }
-
     /** A project of many modules, one of which the other project uses. */
     private Path writeRates() throws IOException {
         var project = Files.createDirectories(dir.resolve("Rates"));
@@ -305,25 +288,5 @@ class ProjectModelDependencyModulesTest {
             writeModule(project, module, new String[][]{{"Environment"}, {"dependency", "All"}}, premium);
         }
         return project;
-    }
-
-    /** Writes a module of one sheet holding the tables one under another, an empty row between them. */
-    private static void writeModule(Path project, String name, String[][]... tables) throws IOException {
-        try (var book = new HSSFWorkbook()) {
-            var sheet = book.createSheet(name);
-            var rowIndex = 0;
-            for (var table : tables) {
-                for (var cells : table) {
-                    var row = sheet.createRow(rowIndex++);
-                    for (var column = 0; column < cells.length; column++) {
-                        row.createCell(column).setCellValue(cells[column]);
-                    }
-                }
-                rowIndex++;
-            }
-            try (OutputStream out = Files.newOutputStream(project.resolve(name + ".xls"))) {
-                book.write(out);
-            }
-        }
     }
 }

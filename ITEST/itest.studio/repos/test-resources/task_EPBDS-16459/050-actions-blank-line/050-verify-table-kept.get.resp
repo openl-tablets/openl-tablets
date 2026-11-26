@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Coverage' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "WGN4Y3TJMV5060DQ",
+        "name": "Coverage",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16459-Blank",
+        "cell": "B2"
+      }
+    }
+  ],
   "id": "WGN4Y3TJMV5060DQ",
   "tableType": "RawSource",
   "kind": "Datatype",

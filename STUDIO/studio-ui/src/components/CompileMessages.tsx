@@ -44,6 +44,9 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
     warning: css`
         border-left-color: ${compileColorsOf(token).warnings};
     `,
+    info: css`
+        border-left-color: ${compileColorsOf(token).infos};
+    `,
     /** The way straight to the cell a message was raised against, beside the message itself. */
     editCell: css`
         width: 22px;
@@ -318,7 +321,7 @@ const MessageStacktrace = ({
 interface CompileMessagesProps {
     messages: ProjectStatusDetailedMessage[]
     /** The severity these messages carry, which decides the colour of the stripe beside them. */
-    severity: 'error' | 'warning'
+    severity: 'error' | 'warning' | 'info'
     /** Prefix of the test id each message row carries, so a screen can find its own. */
     testIdPrefix?: string
     /**

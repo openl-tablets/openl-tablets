@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'LegacyType' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "QQEWAT54RJ40S1X1",
+        "name": "LegacyType",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16418-Titles",
+        "cell": "B6"
+      }
+    }
+  ],
   "id": "QQEWAT54RJ40S1X1",
   "tableType": "Datatype",
   "kind": "Datatype",

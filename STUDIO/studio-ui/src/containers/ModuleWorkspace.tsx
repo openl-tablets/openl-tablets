@@ -52,6 +52,7 @@ import { ProjectScreenPending } from './projects/ProjectScreenPending'
 import {
     keptModuleTables,
     keptProject,
+    keepTableMessages,
     keptTableWindow,
     readModules,
     readModuleTables,
@@ -60,6 +61,7 @@ import {
 } from '../services/keptReads'
 import { useLiveProjectChanges } from '../hooks/useLiveProjectChanges'
 import { useReadAgain } from '../hooks/useReadAgain'
+import { errorHandler } from '../utils/errorHandling'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The table and, beside it, what the table says about itself. */
@@ -795,6 +797,12 @@ export const ModuleWorkspace = () => {
     // A table of a Markdown file is plain text: its cells are written here, but not its look, which the file does not
     // keep. Asked of the file the table comes from, not of the module, which may include a file of the other kind.
     const markdownTable = isMarkdownPath(selected?.file)
+    // The compilations of the project that ended while the editor was open. A table read begun before the last of them
+    // answers with the messages of the compilation before, so its messages are asked again once it arrives.
+    const compilationsEnded = useRef(0)
+    // Asks again for the messages of a table, and only for them: the rows stay as drawn. Set below, for the checkout
+    // on screen.
+    const readMessagesAgain = useRef<(tableId: string) => void>(() => undefined)
     // Laid out before the frame is painted: a table kept from moments ago is drawn in the frame that selects it, with
     // no skeleton between.
     useLayoutEffect(() => {
@@ -810,10 +818,14 @@ export const ModuleWorkspace = () => {
         setTableError(null)
         // Only the first window of a tall table is drawn; the rest is fetched as the reader asks for it. What the band
         // offers to run is what the read says can be run.
+        const endedBefore = compilationsEnded.current
         readTableWindow(projectId, selectedId, moduleName, { fresh })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
                     setTable(loaded)
+                    if (compilationsEnded.current !== endedBefore) {
+                        readMessagesAgain.current(loaded.id)
+                    }
                 }
             })
             .catch((error: unknown) => {
@@ -856,6 +868,52 @@ export const ModuleWorkspace = () => {
             stale = true
         }
     }, [projectCompiled, projectId, selectedId, listed, moduleName, keptInModule])
+
+    // The messages of the linter come with the compilation of the whole project: the one still running when the module
+    // opens, or the one a refresh, a write or a restore starts again. A table read before it ends has none, as the
+    // server leaves out the messages that point at the cells as they were. Once a compilation of the project ends, the
+    // messages of the table on screen are asked again, and those of a table still on its way once it arrives.
+    //
+    // An answer counts for the project, the branch and the module it was asked on, as another branch holds tables of
+    // the same ids, and only while no later read of the same table was asked for: two reads may answer in any order.
+    const checkout = `${projectId} ${branch ?? ''} ${moduleName}`
+    useEffect(() => {
+        let active = true
+        const latest = new Map<string, number>()
+        let reads = 0
+        readMessagesAgain.current = (tableId: string) => {
+            reads += 1
+            const read = reads
+            latest.set(tableId, read)
+            getRawTable(projectId, tableId, { module: moduleName, maxRows: 1, styles: false })
+                .then(loaded => {
+                    if (active && latest.get(tableId) === read) {
+                        const messages = loaded.messages ?? []
+                        setTable(current => (current?.id === loaded.id ? { ...current, messages } : current))
+                        // The table opened next time from what was read of it shows them too
+                        keepTableMessages(projectId, loaded.id, moduleName, messages)
+                    }
+                })
+                .catch((error: unknown) => {
+                    // The block keeps the messages it was read with
+                    errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+                })
+        }
+        return () => {
+            active = false
+        }
+    }, [checkout, projectId, moduleName])
+    const compileState = useRef(compilation.state)
+    useEffect(() => {
+        const ended = compileState.current === 'compiling' && compilation.state !== 'compiling'
+        compileState.current = compilation.state
+        if (ended) {
+            compilationsEnded.current += 1
+            if (projectId && selectedId !== null) {
+                readMessagesAgain.current(selectedId)
+            }
+        }
+    }, [compilation.state, projectId, selectedId])
 
     // The next rows of the same table, appended to what is already drawn: a window of them, or as many as reach a row
     // the screen has to show.

@@ -12,5 +12,21 @@ Content-Type: application/json
       "type": "Color"
     }
   ],
-  "extends": "Pet"
+  "extends": "Pet",
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Cat' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "N7T0PDQJC5MRCTPN",
+        "name": "Cat",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-13931",
+        "cell": "B17"
+      }
+    }
+  ]
 }

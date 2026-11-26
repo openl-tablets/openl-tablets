@@ -20,5 +20,39 @@ Content-Type: application/json
       "type": "Integer",
       "defaultValue": 0
     }
+  ],
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Field 'name' of datatype 'Pet' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "NDR36G4MCRR82P3G",
+        "name": "Pet",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-13931",
+        "cell": "C7",
+        "start": 0,
+        "end": 4
+      }
+    },
+    {
+      "id": "###",
+      "summary": "Field 'age' of datatype 'Pet' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "NDR36G4MCRR82P3G",
+        "name": "Pet",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-13931",
+        "cell": "C8",
+        "start": 0,
+        "end": 3
+      }
+    }
   ]
 }

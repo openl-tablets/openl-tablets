@@ -108,5 +108,21 @@ Content-Type: application/json
       "to": 22
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Vocabulary 'Code' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "J8TR3RXHJ1V02CFR",
+        "name": "Code",
+        "module": "Model",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "B8"
+      }
+    }
+  ]
 }

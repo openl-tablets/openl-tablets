@@ -116,5 +116,21 @@ Content-Type: application/json
       "to": 15
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Second' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "CH7QB4PAYEC6C78X",
+        "name": "Second",
+        "module": "Second",
+        "projectId": "***",
+        "project": "TableTheme",
+        "cell": "B2"
+      }
+    }
+  ]
 }

@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -25,17 +27,18 @@ import org.openl.util.text.TextInfo;
 /**
  * @author snshor
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public final class SourceCodeURLTool {
 
-    private SourceCodeURLTool() {
-    }
-
     private static final Pattern NEW_LINE = Pattern.compile("[\r\n]+");
 
-    public static String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
+    /** The place of a message raised about no module, such as one of the whole project. */
+    public static final String NO_MODULE = "NO_MODULE";
+
+    public static String makeSourceLocationURL(@Nullable ILocation location, @Nullable IOpenSourceCodeModule module) {
         if (module == null) {
-            return "NO_MODULE";
+            return NO_MODULE;
         }
         var uri = module.getUri();
         if (StringUtils.isEmpty(uri)) {
@@ -144,7 +147,7 @@ public final class SourceCodeURLTool {
      * @param src      source code
      * @param pw       writer
      */
-    public static void printCodeAndError(ILocation location, String src, PrintWriter pw) {
+    public static void printCodeAndError(@Nullable ILocation location, String src, PrintWriter pw) {
 
         if (location == null) {
             return;
@@ -170,7 +173,7 @@ public final class SourceCodeURLTool {
 
         var end = Math.min(start + 4, lines.length);
 
-        for (var i = start; i < end; ++i) {
+        for (var i = start; i < end; i++) {
             var line = lines[i].replace('\t', ' ');
             pw.print(line);
             pw.print("\r\n");

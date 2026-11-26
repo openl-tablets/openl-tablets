@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
+import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
 import { booleanText, storedSetting } from '../../utils/localStore'
@@ -61,6 +61,9 @@ const useStyles = createStyles(({ css, token }) => ({
     warningMark: css`
         color: ${compileColorsOf(token).warnings};
     `,
+    infoMark: css`
+        color: ${compileColorsOf(token).infos};
+    `,
     /** The notice on a table nothing here can write — the one the Editor put at the top of its Problems. */
     partial: css`
         display: flex;
@@ -106,7 +109,7 @@ interface TableProblemsProps {
 
 /**
  * What the compiler said about the table on screen, in a section of its own above it — where the old Editor
- * kept its Problems block, and folded away the same way.
+ * kept its Problems block, and folded away the same way: the errors, the warnings, then the information messages.
  *
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
@@ -129,6 +132,7 @@ export const TableProblems = ({
     // back to its first page every time the screen redraws — which a compilation makes it do often.
     const errors = useMemo(() => messages.filter(message => message.severity === 'ERROR'), [messages])
     const warnings = useMemo(() => messages.filter(message => message.severity === 'WARN'), [messages])
+    const infos = useMemo(() => messages.filter(message => message.severity === 'INFO'), [messages])
 
     if (messages.length === 0 && !partial) {
         return null
@@ -154,6 +158,12 @@ export const TableProblems = ({
                     <span className={cx(styles.count, styles.warningMark)} data-testid="table-problems-warnings">
                         <WarningFilled />
                         {warnings.length}
+                    </span>
+                )}
+                {infos.length > 0 && (
+                    <span className={cx(styles.count, styles.infoMark)} data-testid="table-problems-infos">
+                        <InfoCircleFilled />
+                        {infos.length}
                     </span>
                 )}
                 {/* The whole heading folds the panel, so the mark only says which way it goes. */}
@@ -186,6 +196,16 @@ export const TableProblems = ({
                             onOpenFile={onOpenFile}
                             onStacktrace={onStacktrace}
                             severity="warning"
+                            testIdPrefix="table-message"
+                        />
+                        {/* The information messages come last: they only point at something to tidy up. */}
+                        <CompileMessages
+                            cellText={cellText}
+                            messages={infos}
+                            onEditCell={onEditCell}
+                            onOpenFile={onOpenFile}
+                            onStacktrace={onStacktrace}
+                            severity="info"
                             testIdPrefix="table-message"
                         />
                     </div>

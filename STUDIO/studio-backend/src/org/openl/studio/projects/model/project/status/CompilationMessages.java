@@ -10,7 +10,7 @@ import org.openl.studio.common.model.GenericView;
 
 @Builder
 public record CompilationMessages(
-        @Parameter(description = "Compilation messages ordered by id (ascending). Present only on the single-project detail and status responses, not in the projects list.")
+        @Parameter(description = "Compilation messages, the errors first, then the warnings, then the information messages, each by id. Present only on the single-project detail and status responses, not in the projects list.")
         @JsonView(GenericView.Detailed.class)
         List<DetailedMessageDescription> items,
 

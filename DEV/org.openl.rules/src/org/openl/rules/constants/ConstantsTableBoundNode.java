@@ -47,6 +47,12 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private final OpenL openl;
     @Getter
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
+    /**
+     * The formulas the values of the constants are computed with, as compiled, for the checks of OpenL Studio of what
+     * they read. None is kept in the execution mode.
+     */
+    @Getter
+    private final List<CompositeMethod> formulas = new ArrayList<>();
 
     ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
                             XlsModuleOpenClass moduleOpenClass,
@@ -181,6 +187,9 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 syntaxNodeExceptions.forEach(cxt::addError);
             }
             if (noErrors) {
+                if (!cxt.isExecutionMode()) {
+                    formulas.add(compositeMethod);
+                }
                 return compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
             }
         } catch (Exception ex) {

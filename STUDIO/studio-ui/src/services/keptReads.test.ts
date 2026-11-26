@@ -10,6 +10,7 @@ import {
     keptProjectRead,
     keptTableDetails,
     keptTableTests,
+    keepTableMessages,
     keptTableWindow,
     readDesignRepositories,
     readFileText,
@@ -119,6 +120,25 @@ describe('the reads kept for the next screen', () => {
         vi.setSystemTime(start + 1)
         expect(keptTableWindow('p1', 't1', 'Rates')).toBeUndefined()
         expect(keptTableWindow('p1', 't2', 'Rates')).toEqual({ id: 't' })
+    })
+
+    it('gives a kept table the messages read of it since, and keeps none for a table it holds no window of', async () => {
+        vi.mocked(getRawTable).mockResolvedValue({ id: 't1', name: 'Policy', source: [], messages: [] })
+        const window = await readTableWindow('p1', 't1', 'Rates')
+        const unused = {
+            id: 7,
+            summary: "Field 'premium' of datatype 'Policy' is not used in the current project.",
+            severity: 'INFO' as const,
+            stacktrace: false,
+        }
+
+        keepTableMessages('p1', 't1', 'Rates', [unused])
+        keepTableMessages('p1', 't2', 'Rates', [unused])
+
+        expect(keptTableWindow('p1', 't1', 'Rates')).toEqual({ ...window, messages: [unused] })
+        expect(await readTableWindow('p1', 't1', 'Rates')).toEqual({ ...window, messages: [unused] })
+        expect(keptTableWindow('p1', 't2', 'Rates')).toBeUndefined()
+        expect(getRawTable).toHaveBeenCalledTimes(1)
     })
 
     it('shares one request between screens asking at the same moment, and reads again when asked fresh', async () => {

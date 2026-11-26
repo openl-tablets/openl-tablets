@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
+import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import type { Project } from '../../types/projects'
@@ -64,6 +64,9 @@ const useStyles = createStyles(({ css, token }) => ({
     warningIcon: css`
         color: ${compileColorsOf(token).warnings};
     `,
+    infoIcon: css`
+        color: ${compileColorsOf(token).infos};
+    `,
     toggle: css`
         margin-left: auto;
         flex: none;
@@ -91,6 +94,9 @@ const errorMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMess
 
 const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
     (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
+
+const infoMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
+    (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'INFO')
 
 /**
  * Where a message leads, from the place it names: the line of the file it points to, the cell of its table, or else
@@ -122,8 +128,8 @@ const routeOf = (projectId: string, where: ProjectStatusMessageSource | undefine
 
 /**
  * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
- * listed them: a header that always shows how many errors and warnings there are, above the messages
- * themselves, each marked by the colour stripe of its severity.
+ * listed them: a header that always shows how many errors, warnings and information messages there are, above the
+ * messages themselves, each marked by the colour stripe of its severity, the information messages last.
  *
  * The panel folds by its header, is dragged taller or lower by its top edge, and keeps both between
  * visits. It only exists while there is something to show — a clean project has no panel at all.
@@ -153,11 +159,15 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // every compile-status push.
     const errors = useMemo(() => errorMessagesOf(status), [status])
     const warnings = useMemo(() => warningMessagesOf(status), [status])
+    const infos = useMemo(() => infoMessagesOf(status), [status])
     // A running compilation reports how many problems it has raised, not which — resolving each to its table
     // is work it does not do while it runs. The panel stands on those counts, so it does not disappear under
     // a reader the moment a compilation starts and return only when it ends.
     const errorCount = status.compilation?.messages?.errors ?? errors.length
     const warningCount = status.compilation?.messages?.warnings ?? warnings.length
+    // The counts name no information messages: they are what the total leaves
+    const counted = status.compilation?.messages
+    const infoCount = counted ? Math.max(counted.total - counted.errors - counted.warnings, 0) : infos.length
 
     // Every message already says where it came from — the project, the module and the table — so opening one
     // costs no request: a project raising a thousand messages still asks the server nothing to be read.
@@ -174,7 +184,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         status.compileState !== 'compiling' && routeOf(project.id, message.location) !== null,
     [status.compileState, project.id])
 
-    if (errorCount === 0 && warningCount === 0 && errors.length === 0 && warnings.length === 0) {
+    if (errorCount + warningCount + infoCount + errors.length + warnings.length + infos.length === 0) {
         return null
     }
     const ToggleIcon = collapsed ? UpOutlined : DownOutlined
@@ -207,6 +217,15 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
                         {warningCount}
                     </span>
                 )}
+                {infoCount > 0 && (
+                    <span className={styles.count} data-testid="compile-problems-infos">
+                        <InfoCircleFilled
+                            aria-label={t('browser.compile.info_count', { count: infoCount })}
+                            className={styles.infoIcon}
+                        />
+                        {infoCount}
+                    </span>
+                )}
                 <ToggleIcon aria-hidden className={styles.toggle} />
             </button>
             {!collapsed && (
@@ -222,6 +241,12 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
                         messages={warnings}
                         onOpen={open}
                         severity="warning"
+                    />
+                    <CompileMessages
+                        canOpen={canOpen}
+                        messages={infos}
+                        onOpen={open}
+                        severity="info"
                     />
                 </div>
             )}

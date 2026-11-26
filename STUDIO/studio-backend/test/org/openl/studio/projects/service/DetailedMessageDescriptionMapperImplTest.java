@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLFileMessage;
+import org.openl.message.OpenLLintMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
@@ -169,6 +170,23 @@ class DetailedMessageDescriptionMapperImplTest {
         var location = (TableMessageSource) result.getFirst().location();
         assertEquals(0, location.start());
         assertEquals(5, location.end());
+    }
+
+    @Test
+    void listsTheErrorsFirstAndTheInformationMessagesLast() {
+        tableHolding("premium");
+        var name = mock(ISyntaxNode.class);
+        when(name.getModule()).thenReturn(new StringSourceCodeModule("premium", cellC(5)));
+        // Raised first, so a list in the order of the ids would tell it first
+        var info = new OpenLLintMessage("Field 'premium' of datatype 'Policy' is not used in the current project.",
+                name);
+        var warning = new OpenLMessage("Deprecated", Severity.WARN);
+        var error = new OpenLErrorMessage(new OpenLCompilationException("Error"));
+
+        var result = mapper.mapSorted(List.of(info, warning, error), model);
+
+        assertEquals(List.of(error.getId(), warning.getId(), info.getId()),
+                result.stream().map(message -> message.source().id()).toList());
     }
 
     @Test

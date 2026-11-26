@@ -13,7 +13,23 @@ Content-Type: application/json
     },
     "compilation": {
       "messages": {
-        "total": 0,
+        "items": [
+          {
+            "id": "###",
+            "summary": "Datatype 'MetaRows' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "***",
+              "name": "MetaRows",
+              "module": "Main",
+              "projectId": "***",
+              "project": "EPBDS-16514-MetaRows",
+              "cell": "B2"
+            }
+          }
+        ],
+        "total": 1,
         "errors": 0,
         "warnings": 0
       },

@@ -22,7 +22,8 @@ import org.openl.studio.projects.model.project.status.MessagePositions;
 public interface DetailedMessageDescriptionMapper {
 
     /**
-     * Map every input message and return the result sorted by severity then by id.
+     * Map every input message and return the result sorted by severity then by id: the errors first, the information
+     * messages last.
      */
     List<DetailedMessageDescription> mapSorted(Collection<OpenLMessage> messages, ProjectModel model);
 

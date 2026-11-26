@@ -11,5 +11,21 @@ Content-Type: application/json
       "name": "adminField",
       "type": "Integer"
     }
+  ],
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Foo' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "*",
+        "name": "Foo",
+        "module": "Qwerty",
+        "projectId": "***",
+        "project": "EPBDS-15612",
+        "cell": "B7"
+      }
+    }
   ]
 }

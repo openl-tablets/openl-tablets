@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-const message = (id: number, severity: 'ERROR' | 'WARN', summary: string): ProjectStatusDetailedMessage => ({
+const message = (id: number, severity: 'ERROR' | 'WARN' | 'INFO', summary: string): ProjectStatusDetailedMessage => ({
     id,
     severity,
     summary,
@@ -54,6 +54,30 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-problems-warnings')).toHaveTextContent('2')
         expect(screen.getByTestId('table-message-1')).toHaveTextContent('Identifier is not found')
         expect(screen.getByTestId('table-message-3')).toHaveTextContent('Ambiguous field')
+    })
+
+    it('counts the information messages and lists them after the warnings', () => {
+        const raised = [
+            message(1, 'INFO', "Field 'premium' of datatype 'Policy' is not used in the current project."),
+            message(2, 'WARN', 'Ambiguous field'),
+        ]
+
+        render(<TableProblems messages={raised} />)
+
+        expect(screen.getByTestId('table-problems-infos')).toHaveTextContent('1')
+        expect(screen.getByTestId('table-problems-warnings')).toHaveTextContent('1')
+        const listed = screen.getAllByTestId(/^table-message-\d+$/).map(row => row.getAttribute('data-testid'))
+        expect(listed).toEqual(['table-message-2', 'table-message-1'])
+    })
+
+    it('opens on a table with information messages alone', () => {
+        const unused = message(1, 'INFO', "Datatype 'Discount' is not used in the current project.")
+
+        render(<TableProblems messages={[unused]} />)
+
+        expect(screen.queryByTestId('table-problems-errors')).toBeNull()
+        expect(screen.queryByTestId('table-problems-warnings')).toBeNull()
+        expect(screen.getByTestId('table-message-1')).toHaveTextContent("Datatype 'Discount' is not used")
     })
 
     it('offers the way into the cell a message was raised against', async () => {

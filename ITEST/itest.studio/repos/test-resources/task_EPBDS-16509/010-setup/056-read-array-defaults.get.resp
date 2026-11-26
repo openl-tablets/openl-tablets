@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'ArrayDefaults' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "ArrayDefaults",
+        "module": "ArrayDefaults",
+        "projectId": "***",
+        "project": "EPBDS-16509-CellArrays",
+        "cell": "B2"
+      }
+    }
+  ],
   "id": "***",
   "tableType": "RawSource",
   "kind": "Datatype",

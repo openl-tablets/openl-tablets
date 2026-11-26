@@ -5,8 +5,9 @@ alone against the module compiled before and formats it in the roles the compile
 after the first save is the look a compile and **Reformat Excel files** give, with no compile of the module.
 
 The project starts empty, from the **Empty Project** template. Every table compiles with no error or warning once
-created and once edited: no read carries a message. An edit writes several cells at one save (`actions/batch`) where
-one alone would leave the table broken.
+created and once edited. A read after a create carries the information message of the linter about a datatype or a
+vocabulary no table uses yet: `Car`, `Color`, `Result`, `Person` and `Claim`. An edit writes several cells at one save
+(`actions/batch`) where one alone would leave the table broken.
 
 - `020-create-tables` — a table of every kind is created through the API with no regions, in the order of what they
   use: the Datatypes `Car`, `Result`, `Person` and `Claim` and the method `GradeOf` come before the tables using them.
@@ -31,7 +32,10 @@ one alone would leave the table broken.
     - `people`, a Data table, takes keys of its own, `_PK_`, in its first field.
 - `040-reformat` — a Reformat formats every table as its compile reads it and leaves each table as its last save left
   it: each read expects the body of the read after the last create or edit of its table, kept beside that read as a
-  `.json` file both share. A body only one read expects stays in its `.resp`.
+  `.json` file both share. A body only one read expects stays in its `.resp`. `Car`, `Result`, `Person` and `Claim`,
+  which the tables created after them use, read without the message of the linter about the whole datatype their
+  reads after the create carry, each from a `.json` file of its own; `Person` is told about its field `name`,
+  which no table reads or sets.
 
 A save formatting a table in the roles of the compile before it fails every read of `030-edit-tables` and the reads
 of the seven decision tables in `020-create-tables`: laid out from its text alone, a decision table is read upright,

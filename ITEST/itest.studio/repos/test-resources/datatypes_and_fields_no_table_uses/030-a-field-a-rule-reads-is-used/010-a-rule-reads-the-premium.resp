@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "netPremium",
+  "returnType": "SpreadsheetResult",
+  "signature": "netPremium(Policy policy)",
+  "file": "${PROJECT_NAME}/rules/Rating/Premium/netPremium.md",
+  "sheet": "Premium",
+  "pos": "A1:B3"
+}
