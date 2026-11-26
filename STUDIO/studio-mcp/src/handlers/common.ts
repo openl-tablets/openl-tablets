@@ -132,10 +132,64 @@ function takenArguments(name: string, error: z.ZodError): string | undefined {
     return `${name} takes only: ${Object.keys(properties).join(', ')}.`
 }
 
+/** The keywords that describe a value without constraining it. */
+const ANNOTATIONS = new Set(['description', 'title', 'default', 'examples', '$comment', 'deprecated', 'readOnly', 'writeOnly'])
+
+/** Whether a schema takes any value: an object with no keyword that constrains it, as Zod writes `unknown`. */
+function takesAnything(schema: unknown): boolean {
+    return typeof schema === 'object' && schema !== null && !Array.isArray(schema)
+        && Object.keys(schema).every((key) => ANNOTATIONS.has(key))
+}
+
+/** The schemas a schema holds: of its items, properties, branches and definitions. */
+function subschemasOf(schema: Record<string, unknown>): Array<Record<string, unknown>> {
+    const isSchema = (value: unknown): value is Record<string, unknown> =>
+        typeof value === 'object' && value !== null && !Array.isArray(value)
+    const single = ['items', 'not', 'additionalProperties', 'propertyNames', 'contains'].map((key) => schema[key])
+    const lists = ['anyOf', 'allOf', 'oneOf', 'prefixItems'].flatMap((key) => (schema[key] as unknown[] | undefined) ?? [])
+    const maps = ['properties', '$defs', 'definitions'].flatMap((key) =>
+        Object.values((schema[key] as Record<string, unknown> | undefined) ?? {}))
+    return [...single, ...lists, ...maps].filter(isSchema)
+}
+
+/**
+ * Rewrite a schema, and the schemas it holds, in the portable form of the same contract: the form a client mapping
+ * tool schemas onto a narrower dialect, such as the function declarations of Gemini, takes, and which `--strict` of
+ * MCP Inspector checks:
+ * - a `type` of several types becomes `anyOf` branches of one type each, a branch that is such a choice alone being
+ *   branches of its parent;
+ * - a tuple bounds its length by `maxItems` instead of a bare `false` for any further item;
+ * - a schema taking any value is left out as `items`, and is `true` as `additionalProperties`.
+ */
+function makePortable(schema: Record<string, unknown>): void {
+    subschemasOf(schema).forEach(makePortable)
+    if (Array.isArray(schema.type)) {
+        const branches = schema.type.map((type: unknown) => ({ type }))
+        delete schema.type
+        if (schema.anyOf === undefined) {
+            schema.anyOf = branches
+        } else {
+            schema.allOf = [...(schema.allOf as unknown[] | undefined ?? []), { anyOf: branches }]
+        }
+    }
+    if (Array.isArray(schema.anyOf)) {
+        // A branch that is a choice alone is that many branches of its parent
+        schema.anyOf = schema.anyOf.flatMap((branch: Record<string, unknown>) =>
+            Object.keys(branch).length === 1 && Array.isArray(branch.anyOf) ? branch.anyOf : [branch])
+    }
+    if (schema.items === false && Array.isArray(schema.prefixItems)) {
+        delete schema.items
+        schema.maxItems ??= schema.prefixItems.length
+    }
+    if (takesAnything(schema.items)) delete schema.items
+    if (takesAnything(schema.additionalProperties)) schema.additionalProperties = true
+}
+
 /**
  * The JSON Schema a tool publishes. Every agent loads it in every session, so it leaves out what tells the agent
  * nothing: the dialect, the bounds of a safe integer Zod puts on every integer, and the length of 1 a non-empty string
- * must have. `executeTool` still validates the arguments with the Zod schema.
+ * must have. It is written in the portable form of {@link makePortable}. `executeTool` still validates the arguments
+ * with the Zod schema.
  */
 function getInputSchema(schema: ZodType): Record<string, unknown> {
     // The input side: a field with a default may be omitted by the client.
@@ -150,6 +204,8 @@ function getInputSchema(schema: ZodType): Record<string, unknown> {
         },
     }) as Record<string, unknown>
     delete inputSchema.$schema
+    // After the conversion, as Zod merges a union of single types into one `type` once every node is written
+    makePortable(inputSchema)
     // MCP tool input schemas always have an object root. Zod emits object-only
     // unions as a top-level anyOf without repeating that shared root type.
     inputSchema.type ??= 'object'

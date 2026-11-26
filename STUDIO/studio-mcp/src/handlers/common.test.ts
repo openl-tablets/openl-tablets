@@ -52,6 +52,51 @@ describe('tool registry', () => {
         })
     })
 
+    it('publishes schemas MCP Inspector finds portable: one type a schema, no bare boolean, no schema of any value', () => {
+        // The rules of `tools/list --strict` of MCP Inspector, which a client mapping schemas onto a narrower dialect needs
+        const takesBoolean = new Set(['additionalProperties', 'unevaluatedProperties', 'additionalItems', 'unevaluatedItems'])
+        const constraining = /^(type|enum|const|anyOf|allOf|oneOf|not|\$ref|items|prefixItems|properties|required|additionalProperties|pattern|format|minimum|maximum|exclusiveMinimum|exclusiveMaximum|minLength|maxLength|minItems|maxItems|uniqueItems|propertyNames|contains)$/
+        const findings: string[] = []
+        const visit = (node: unknown, path: string, keyword?: string): void => {
+            if (typeof node === 'boolean') {
+                if (!keyword || !takesBoolean.has(keyword)) findings.push(`${path}: bare ${node}`)
+                return
+            }
+            if (node === null || typeof node !== 'object' || Array.isArray(node)) {
+                return
+            }
+            const schema = node as Record<string, unknown>
+            if (Array.isArray(schema.type)) findings.push(`${path}: type ${JSON.stringify(schema.type)}`)
+            if (keyword !== 'not' && !Object.keys(schema).some((key) => constraining.test(key))) findings.push(`${path}: any value`)
+            for (const key of ['items', 'not', 'additionalProperties', 'propertyNames', 'contains']) {
+                if (key in schema) visit(schema[key], `${path}.${key}`, key)
+            }
+            for (const key of ['anyOf', 'allOf', 'oneOf', 'prefixItems']) {
+                (schema[key] as unknown[] | undefined)?.forEach((child, index) => visit(child, `${path}.${key}[${index}]`, key))
+            }
+            for (const key of ['properties', '$defs', 'definitions']) {
+                Object.entries((schema[key] as Record<string, unknown> | undefined) ?? {})
+                    .forEach(([name, child]) => visit(child, `${path}.${key}.${name}`, key))
+            }
+        }
+        getAllTools().forEach((tool) => visit(tool.inputSchema, tool.name))
+
+        expect(findings).toEqual([])
+    })
+
+    it('publishes a cell of any kind as branches of one type, and a pair as a tuple of two', () => {
+        const update = getAllTools().find((tool) => tool.name === 'update_table')?.inputSchema
+        const properties = update?.properties as Record<string, Record<string, unknown>>
+
+        const scalars = [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }, { type: 'null' }]
+        expect(properties.rows.items).toEqual({
+            type: 'array',
+            items: { anyOf: [...scalars, { type: 'array', items: { anyOf: scalars } }] },
+        })
+        expect((properties.merges.items as Record<string, unknown>)).toMatchObject({ type: 'array', maxItems: 4 })
+        expect(properties.merges.items).not.toHaveProperty('items')
+    })
+
     it('advertises as destructive only the tools that replace or remove data', () => {
         // MCP takes a tool that is not read-only for destructive unless it says otherwise
         const destructive = getAllTools()

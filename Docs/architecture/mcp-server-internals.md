@@ -64,7 +64,11 @@ All paths are under `STUDIO/studio-mcp/src`.
 4. The server registers every tool; an unknown one answers with the `InvalidParams` error `Tool <name> not found` of
    the SDK. Each tool is registered with a schema that publishes its JSON Schema and passes the arguments on. The
    published schema leaves out the dialect, the bounds of a safe integer Zod puts on every integer and the length of 1
-   of a non-empty string, which every agent would load in every session and which tell it nothing; `executeTool` validates the arguments against the
+   of a non-empty string, which every agent would load in every session and which tell it nothing. It is written in a
+   portable form that `tools/list --strict` of MCP Inspector passes: `anyOf` branches of one `type` each instead of a
+   `type` of several, `maxItems` instead of a bare `false` closing a tuple, and no schema that takes any value — such
+   an `items` is left out, such an `additionalProperties` is `true`; a client mapping the schemas onto a narrower
+   dialect, such as the function declarations of Gemini, takes them unchanged. `executeTool` validates the arguments against the
    strict schema of the tool, nested keys included, with the hints of the tool, and the handler runs.
 5. `OpenLClient` calls `/rest` of the address in `OpenL-Base-Url`, with a fixed timeout of 30 seconds per call. The
    `Authorization` header of the request, which Studio has checked at `/mcp`, goes to Studio as it is. The client keeps
