@@ -30,7 +30,11 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
   **A case there is never deleted because the behavior it checks changed** — not a workbook, a table, a test case
   or a line of `.msg.txt`. Its expected result is updated instead, and a workbook that now compiles gets a test
   table that shows it works, so the case keeps failing if the old behavior comes back by mistake. Update an expected
-  result only when the change is intended — a fix or a feature that asks for it — never to make a regression pass
+  result only when the change is intended — a fix or a feature that asks for it — never to make a regression pass.
+  **A workbook that compiles with an error runs none of its test tables**, even when its `.msg.txt` expects that
+  error (`RulesInFolderTestRunner`). Put a case that must compile and work in a workbook without errors, and the
+  error cases in a workbook of their own. The log prints `Test Rules - OK <workbook>` either way and nothing for a
+  passed test, so break an expected value once to see that a new test runs
 - **org.openl.rules.demo** — Demo projects OpenL Studio offers as templates, examples and tutorials. The jar ships
   inside the OpenL Studio war only: it is installed into the local repository but never deployed.
   `DemoProjectsTest` compiles every project and runs its test tables during the build, with dispatching validation
