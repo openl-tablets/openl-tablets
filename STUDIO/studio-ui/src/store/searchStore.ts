@@ -8,20 +8,17 @@ export interface SearchChoice {
 }
 
 /**
- * The control a screen adds to the search of the header, as an icon at its right end.
- *
- * It is either pressed, with the text typed so far — the extended search of a module — or opens a list to choose
- * from — the guide to search in. A control with `choices` is a list; any other is pressed.
+ * The control a screen adds to the search of the header, as an icon at its right end: a list of places to look in,
+ * such as the guide to search in.
  */
 export interface SearchAction {
     /** What the control does, shown as its tooltip and read as its name. */
     label: string
     icon: ReactNode
-    onClick?: (text: string) => void
-    choices?: SearchChoice[]
+    choices: SearchChoice[]
     /** The choice in force. The first one is the widest, so any other marks the control as narrowing the search. */
     choice?: string
-    onChoice?: (value: string) => void
+    onChoice: (value: string) => void
 }
 
 /** What a screen lets the search of the header look through: one list, tree or text of its own. */
@@ -36,8 +33,8 @@ export interface SearchScope {
     /** A panel beside the screen, which gives the field to the main part of the screen while that has a search. */
     secondary?: boolean
     /**
-     * Sends the text off on Enter, for a scope that does not filter as it is typed. The field shows the Enter key
-     * while there is a text to send.
+     * Sends the text off on Enter: a search wider than the filter as it is typed, or, for a screen with nothing to
+     * search, the only one. The field shows the Enter key while there is a text to send, and keeps the text.
      */
     onEnter?: (text: string) => void
     action?: SearchAction
@@ -62,8 +59,6 @@ const drawnAlike = (one: SearchScope, other: SearchScope): boolean =>
     && Boolean(one.onEnter) === Boolean(other.onEnter)
     && one.action?.label === other.action?.label
     && one.action?.choice === other.action?.choice
-    && Boolean(one.action?.onClick) === Boolean(other.action?.onClick)
-    && Boolean(one.action?.onChoice) === Boolean(other.action?.onChoice)
     // A screen keeps its list of choices while it is the same list, so the list itself is compared.
     && one.action?.choices === other.action?.choices
 

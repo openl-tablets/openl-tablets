@@ -371,8 +371,14 @@ export const getTableTargets = async (
         LOCAL_LOAD_API_OPTIONS
     ) as TableTarget[] | null)
 
-/** How wide a search reaches, as the Tables API names it. */
+/**
+ * How far a search reaches, as the Tables API names it: the module, the whole project, or the project and the
+ * projects it depends on.
+ */
 export type TableSearchScope = 'module' | 'project' | 'all'
+
+/** How far a search reaches once Enter is pressed again on the same text: the project, then its dependencies. */
+export const WIDER: Readonly<Record<TableSearchScope, TableSearchScope>> = { module: 'project', project: 'all', all: 'all' }
 
 /**
  * The order the tables are answered in: by name, or the order the modules hold them in — workbook by workbook,
@@ -380,25 +386,18 @@ export type TableSearchScope = 'module' | 'project' | 'all'
  */
 export type TableSort = 'name' | 'position'
 
-/** What an extended search asks for. Everything is optional: a search asking nothing lists the tables. */
+/** What a search of the tables of a module asks for. Everything is optional: a search asking nothing lists them. */
 export interface TableSearchCriteria {
     /** The module the search is made through, and the one it covers unless the scope says wider. */
     module?: string | undefined
+    /** How far the search reaches; the module named unless said otherwise. */
     scope?: TableSearchScope | undefined
-    /** Part of the table's name. */
-    name?: string | undefined
-    /** Part of the table's header line — its keyword, what it returns, the arguments it takes. */
-    header?: string | undefined
-    /** Text written in any cell of the table. */
+    /** Text written in any cell of the table, its header included, whatever the case of its letters. */
     text?: string | undefined
-    /** The families of table the search covers; empty means every family. */
-    kinds?: string[]
-    /** Values the table's properties must carry, by property name. */
-    properties?: Record<string, string>
     /**
      * Whether the free-form tables — the ones OpenL does not recognize, which take no part in the rules — are
      * listed with the rest. They are left out unless asked for, as the Editor's tree hid its utility tables
-     * unless told to show them; a search naming their kind asks for them by itself.
+     * unless told to show them.
      */
     includeOther?: boolean | undefined
     /** The order the tables are answered in; by name unless asked otherwise. */
@@ -420,15 +419,7 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
     }
     add('module', criteria.module)
     add('scope', criteria.scope)
-    add('name', criteria.name)
-    add('header', criteria.header)
     add('text', criteria.text)
-    for (const kind of criteria.kinds ?? []) {
-        params.append('kind', kind)
-    }
-    for (const [name, value] of Object.entries(criteria.properties ?? {})) {
-        add(`properties.${name}`, value)
-    }
     if (criteria.includeOther) {
         params.set('includeOther', 'true')
     }

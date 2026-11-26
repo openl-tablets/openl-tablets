@@ -24,11 +24,13 @@ export const searchFor = (text: string, id?: string): void => {
     act(() => searchScope(id).onChange(text))
 }
 
-/** Presses the control the screen added to the search of the header, with the text typed so far. */
-export const pressSearchAction = (id?: string): void => {
+/** Presses Enter in the search of the header, which sends the text typed so far without the spaces around it. */
+export const pressSearchEnter = (id?: string): void => {
     act(() => {
         const scope = searchScope(id)
-        scope.action?.onClick?.(scope.value)
+        if (scope.value.trim() !== '') {
+            scope.onEnter?.(scope.value.trim())
+        }
     })
 }
 

@@ -1,4 +1,5 @@
 import { createStyles } from 'antd-style'
+import { keyCap } from '../../styles/keyCap'
 
 /**
  * The search of the header, drawn as the formula bar of a workbook: a name box saying what is searched, the text,
@@ -92,17 +93,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     /** The key that brings the caret here, or the one that sends the text off. */
     key: css`
-        display: inline-block;
-        min-width: 20px;
-        padding: 0 ${token.paddingXXS}px;
-        font: inherit;
-        font-size: ${token.fontSizeSM}px;
-        line-height: 18px;
-        text-align: center;
-        color: ${token.colorTextTertiary};
-        background: ${token.colorBgContainer};
-        border: 1px solid ${token.colorBorder};
-        border-radius: ${token.borderRadiusSM}px;
+        ${keyCap(token)}
     `,
     /** The control of the screen, parted from the text as the name box is. */
     action: css`

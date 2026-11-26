@@ -28,45 +28,36 @@ const keyBelongsElsewhere = (target: EventTarget | null): boolean =>
 
 interface ActionControlProps {
     action: SearchAction
-    text: string
     /** The class of a control whose choice narrows the search. */
     narrowedClass: string
 }
 
-/** The control a screen adds to the field: pressed with the text, or opened to choose where to look. */
-const ActionControl = ({ action, text, narrowedClass }: ActionControlProps) => {
+/** The control a screen adds to the field: opened to choose where to look. */
+const ActionControl = ({ action, narrowedClass }: ActionControlProps) => {
     const { choices, choice } = action
-    const narrowed = choices !== undefined && choice !== undefined && choice !== choices[0]?.value
-    const button = (
-        <Button
-            aria-label={action.label}
-            className={narrowed ? narrowedClass : ''}
-            data-testid="header-search-action"
-            icon={action.icon}
-            onClick={choices ? undefined : () => action.onClick?.(text)}
-            // The field keeps the caret, and the text just typed, while the control is pressed.
-            onMouseDown={event => event.preventDefault()}
-            size="small"
-            type="text"
-        />
-    )
+    const narrowed = choice !== undefined && choice !== choices[0]?.value
     return (
         <Tooltip title={action.label}>
-            {choices
-                ? (
-                    <Dropdown
-                        trigger={['click']}
-                        menu={{
-                            items: choices.map(({ value, label }) => ({ key: value, label })),
-                            onClick: ({ key }) => action.onChoice?.(key),
-                            selectable: true,
-                            selectedKeys: choice === undefined ? [] : [choice],
-                        }}
-                    >
-                        {button}
-                    </Dropdown>
-                )
-                : button}
+            <Dropdown
+                trigger={['click']}
+                menu={{
+                    items: choices.map(({ value, label }) => ({ key: value, label })),
+                    onClick: ({ key }) => action.onChoice(key),
+                    selectable: true,
+                    selectedKeys: choice === undefined ? [] : [choice],
+                }}
+            >
+                <Button
+                    aria-label={action.label}
+                    className={narrowed ? narrowedClass : ''}
+                    data-testid="header-search-action"
+                    icon={action.icon}
+                    // The field keeps the caret, and the text just typed, while the control is opened.
+                    onMouseDown={event => event.preventDefault()}
+                    size="small"
+                    type="text"
+                />
+            </Dropdown>
         </Tooltip>
     )
 }
@@ -76,9 +67,9 @@ const ActionControl = ({ action, text, narrowedClass }: ActionControlProps) => {
  *
  * It searches what the screen shows: a screen hands it a scope through `useSearchScope` — the projects, the files
  * of a project, the tables of a module, the users — and the field names that scope before the text, filters as
- * the reader types, and shows the control the screen adds: the extended search of a module, the guide to search
- * in. A screen with several things to search lists them under the name. A screen with none searches the projects:
- * Enter opens their list with the text.
+ * the reader types, and shows the control the screen adds: the guide to search in. A screen may also act on Enter:
+ * a module then searches every cell of its tables. A screen with several things to search lists them under the name.
+ * A screen with none searches the projects: Enter opens their list with the text.
  *
  * `/` brings the caret here from anywhere outside a text field, and Escape clears the text, then leaves the field.
  */
@@ -92,26 +83,44 @@ export const HeaderSearch = memo(() => {
     const inputRef = useRef<InputRef>(null)
     const [jump, setJump] = useState('')
     const [focused, setFocused] = useState(false)
-    // What the reader typed, and in which scope. The text of a scope comes back from its screen a render later, so
-    // while the caret is in the field the typed text wins; once it leaves, or in another scope, the screen's does.
-    const [draft, setDraft] = useState<{ id: string, text: string } | null>(null)
+    // What the reader typed, in which scope, every text the field handed the screen since the caret came — the text of
+    // the screen it started from first — and how far the screen has come back with them. The text of a scope comes back
+    // from its screen a render later, in the order it was handed, so while the caret is in the field the typed text
+    // wins over a text on its way back; once the caret leaves, in another scope, or when the screen changes the text
+    // itself — to one it was not handed, or back to one before the last it showed — the screen's does.
+    const [draft, setDraft] = useState<{ id: string, text: string, handed: string[], back: number } | null>(null)
     // Set while an input method composes a text, and for the moment after: Safari ends the composition before it
     // sends the Enter that confirmed it, and that Enter no longer says it was composing.
     const composing = useRef(false)
 
-    // A screen with nothing to search searches the projects: Enter opens their list with the text.
+    // A screen with nothing to search searches the projects: Enter opens their list with the text, which the list
+    // takes over, so the field lets it go.
     const scope: SearchScope = activeScope({ scopes, picked }) ?? {
         id: EVERYWHERE,
         label: t('common:search.scopes.projects'),
         placeholder: t('common:search.projects_jump'),
         value: jump,
         onChange: setJump,
-        onEnter: found => navigate(`/projects?q=${encodeURIComponent(found)}`),
+        onEnter: found => {
+            navigate(`/projects?q=${encodeURIComponent(found)}`)
+            write('')
+        },
     }
-    const text = focused && draft?.id === scope.id ? draft.text : scope.value
+    const drafted = focused && draft?.id === scope.id ? draft : null
+    const returned = drafted === null ? -1 : drafted.handed.lastIndexOf(scope.value)
+    if (drafted !== null && returned < drafted.back) {
+        // The screen changed the text itself, such as a filter it cleared: what was typed before is let go.
+        setDraft(null)
+    } else if (drafted !== null && returned > drafted.back) {
+        setDraft({ ...drafted, back: returned })
+    }
+    const text = drafted !== null && returned >= drafted.back ? drafted.text : scope.value
 
     const write = (value: string) => {
-        setDraft({ id: scope.id, text: value })
+        const { id, value: shown } = scope
+        setDraft(current => (current?.id === id
+            ? { ...current, text: value, handed: [...current.handed, value] }
+            : { id, text: value, handed: [shown, value], back: 0 }))
         scope.onChange(value)
     }
 
@@ -142,7 +151,6 @@ export const HeaderSearch = memo(() => {
             }
         } else if (event.key === 'Enter' && scope.onEnter && text.trim() !== '') {
             scope.onEnter(text.trim())
-            write('')
         }
     }
 
@@ -212,7 +220,7 @@ export const HeaderSearch = memo(() => {
             />
             {scope.action && (
                 <span className={styles.action}>
-                    <ActionControl action={scope.action} narrowedClass={styles.narrowed} text={text} />
+                    <ActionControl action={scope.action} narrowedClass={styles.narrowed} />
                 </span>
             )}
         </div>

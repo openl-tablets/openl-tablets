@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
-import { CheckCircleFilled, FilterOutlined, SlidersOutlined } from '@ant-design/icons'
+import { CheckCircleFilled, SlidersOutlined } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
 import { compileColorsOf } from '../projects/projectsTheme'
@@ -178,8 +178,13 @@ interface ModuleTablesTreeProps {
     /** The table shown beside the tree, so the tree marks where the reader is. */
     selectedTableId?: string | undefined
     onSelectTable: (table: ModuleTable) => void
-    /** Opens the extended search, carrying what the reader has typed so far. */
-    onExtendedSearch: (typed: string) => void
+    /**
+     * How many times the screen cleared the text the tree is filtered by: the tree keeps the text, and clears it once
+     * this changes.
+     */
+    filterResets?: number
+    /** Searches every cell of the module for the text the reader sent with Enter. */
+    onSearchCells: (text: string) => void
     /** Whether the free-form tables — the ones OpenL does not recognize — are listed with the rest. */
     showOther: boolean
     /** Asks for the free-form tables to be listed, or to be left out again. */
@@ -216,7 +221,8 @@ export const ModuleTablesTree = ({
     tables,
     selectedTableId,
     onSelectTable,
-    onExtendedSearch,
+    filterResets = 0,
+    onSearchCells,
     showOther,
     onShowOther,
     onFindAll,
@@ -229,14 +235,20 @@ export const ModuleTablesTree = ({
     const [view, setView] = useStoredSetting(tableViewSetting)
     const [expanded, setExpanded] = useState<string[]>([])
     const [search, setSearch] = useState('')
+    // A filter the screen cleared is cleared here, as the reader would clear it.
+    const [resets, setResets] = useState(filterResets)
+    if (resets !== filterResets) {
+        setResets(filterResets)
+        setSearch('')
+    }
     const fold = useStoredSetting(moduleRailFolded)
     const [folded, setFolded] = fold
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
     const [filterOpen, setFilterOpen] = useState(false)
     const [draftOther, setDraftOther] = useState(showOther)
-    // The header searches what the rail shows, by name: the tables of this module are already in the browser,
-    // so the search costs no request. Everything wider than a name — a header, the text in the cells, another
-    // module — is what the extended search asks the server for, opened from the same field.
+    // The header searches what the rail shows, by name, as the reader types: the tables of this module are already in
+    // the browser, so the filter costs no request. Enter asks the server for every table of the module holding the
+    // text in any cell, which the screen lists where the table is read; the text stays, and the rail filtered by it.
     useSearchScope({
         id: 'tables',
         label: t('common:search.scopes.tables'),
@@ -249,11 +261,7 @@ export const ModuleTablesTree = ({
         },
         placeholder: t('browser.module.search_placeholder'),
         value: search,
-        action: {
-            icon: <FilterOutlined />,
-            label: t('browser.module.search_extended'),
-            onClick: onExtendedSearch,
-        },
+        onEnter: onSearchCells,
     })
     // A version is labelled by the dates it is told by, in the formats of the reader.
     const dateFormats = useDateFormats()
@@ -397,10 +405,10 @@ export const ModuleTablesTree = ({
                     <Space.Compact block className={shared.compactField}>
                         <Select
                             data-testid="module-tables-view"
+                            onChange={setView}
                             options={viewOptions}
                             size="small"
                             value={view}
-                            onChange={setView}
                         />
                         <Tooltip title={t('browser.module.filter')}>
                             <Button

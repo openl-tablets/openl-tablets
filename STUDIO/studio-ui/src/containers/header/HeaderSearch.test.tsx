@@ -124,17 +124,6 @@ describe('HeaderSearch', () => {
         expect(name().tagName).toBe('SPAN')
     })
 
-    it('presses the control of the screen with the text typed so far', async () => {
-        const onClick = vi.fn()
-        render(<HeaderSearch />)
-        mount('tables', { action: { icon: <span>filter</span>, label: 'Extended search', onClick } })
-
-        await userEvent.type(input(), ' greet ')
-        await userEvent.click(screen.getByRole('button', { name: 'Extended search' }))
-
-        expect(onClick).toHaveBeenCalledWith(' greet ')
-    })
-
     it('lets the reader choose where the search looks, and marks a choice that narrows it', async () => {
         const onChoice = vi.fn()
         const choices = [{ value: '', label: 'All Guides' }, { value: 'studio/', label: 'Studio Guide' }]
@@ -293,17 +282,49 @@ describe('HeaderSearch', () => {
         expect(navigate).toHaveBeenCalledWith('/projects?q=%E3%81%B0')
     })
 
-    it('keeps the caret, and the text typed, while the control of the screen is pressed', async () => {
-        const onClick = vi.fn()
+    it('shows the text the screen changed itself while the caret is in the field, and sends that one on Enter', async () => {
+        const onEnter = vi.fn()
         render(<HeaderSearch />)
-        // A screen whose text comes back late: the press must still carry what was typed.
-        mount('tables', { onChange: vi.fn(), action: { icon: <span>filter</span>, label: 'Extended search', onClick } })
+        const tables = mount('tables', { onEnter })
+
+        await userEvent.type(input(), 'premium')
+        expect(input()).toHaveValue('premium')
+
+        // The screen clears its filter itself, the caret still in the field.
+        act(() => useSearchStore.getState().mount({ ...tables, onEnter, value: '' }))
+        expect(input()).toHaveFocus()
+        expect(input()).toHaveValue('')
+
+        await userEvent.keyboard('{Enter}')
+        expect(onEnter).not.toHaveBeenCalled()
+    })
+
+    it('keeps the caret, and the text typed, while the control of the screen is opened', async () => {
+        render(<HeaderSearch />)
+        // A screen whose text comes back late: the field still shows what was typed.
+        mount('guides', {
+            onChange: vi.fn(),
+            action: { choices: [{ value: '', label: 'All Guides' }], icon: <span>where</span>, label: 'Where', onChoice: vi.fn() },
+        })
 
         await userEvent.type(input(), 'greet')
-        await userEvent.click(screen.getByRole('button', { name: 'Extended search' }))
+        await userEvent.click(screen.getByRole('button', { name: 'Where' }))
 
         expect(input()).toHaveFocus()
-        expect(onClick).toHaveBeenCalledWith('greet')
+        expect(input()).toHaveValue('greet')
+    })
+
+    it('sends the text off on Enter for a screen that also filters as it is typed, and keeps it', async () => {
+        const onEnter = vi.fn()
+        render(<HeaderSearch />)
+        mount('tables', { onEnter })
+
+        await userEvent.type(input(), ' premium {Enter}')
+
+        // The text goes off as the field reads it, without the spaces around it, and stays to filter by.
+        expect(onEnter).toHaveBeenCalledWith('premium')
+        expect(input()).toHaveValue(' premium ')
+        expect(field()).toHaveTextContent('↵')
     })
 
     it('shows the text the screen changed itself while the caret is elsewhere', () => {

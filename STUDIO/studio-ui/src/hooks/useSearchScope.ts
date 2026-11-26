@@ -15,8 +15,7 @@ export const useSearchScope = (scope: SearchScope | null): void => {
     // The field calls the handlers of the latest render, whichever render it took its texts from.
     const handlers = useMemo(() => ({
         onChange: (value: string) => latest.current?.onChange(value),
-        onClick: (text: string) => latest.current?.action?.onClick?.(text),
-        onChoice: (value: string) => latest.current?.action?.onChoice?.(value),
+        onChoice: (value: string) => latest.current?.action?.onChoice(value),
         onEnter: (text: string) => latest.current?.onEnter?.(text),
     }), [])
 
@@ -31,11 +30,7 @@ export const useSearchScope = (scope: SearchScope | null): void => {
             onChange: handlers.onChange,
             ...(scope.onEnter && { onEnter: handlers.onEnter }),
             ...(action && {
-                action: {
-                    ...action,
-                    ...(action.onClick && { onClick: handlers.onClick }),
-                    ...(action.onChoice && { onChoice: handlers.onChoice }),
-                },
+                action: { ...action, onChoice: handlers.onChoice },
             }),
         })
     })

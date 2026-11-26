@@ -333,7 +333,7 @@ The build writes two pages (`build.rollupOptions.input`):
       | Deployments | `deployments` | The deployments of the repository |
       | A project, **Revisions** | `revisions` | The history, on the server |
       | A project, its tree of projects | `projects-tree` | The tree, and the files of the projects unfolded in it; a panel, see below |
-      | A module | `tables` | The tables of the module, by name |
+      | A module | `tables` | The tables of the module, by name; Enter searches every cell, wider each time, see below |
       | Localization | `messages` | The keys of the rail |
       | User guides | `guides` | The text of the guides; the results take the place of the contents |
       | Users, Groups | `users`, `groups` | The table |
@@ -344,30 +344,41 @@ The build writes two pages (`build.rollupOptions.input`):
       the tree of the projects page is narrowed by the text of the list (`search` of `ProjectsTree`). Both find a
       project by its name, author, branch and tags (`projectMatches`), and the tree keeps a group whole when its
       own name holds the text.
-    - **The control of the screen** is one icon at the end of the field (`action` of the scope). It is either
-      pressed, with the text typed so far — **Extended search** of a module, which opens `TableSearchModal` on that
-      text — or opens a list of places to look in — the guide to search. The first place of a list is the widest;
-      any other colours the icon, and the scope names it in the name box, so a narrowed search is told at a glance.
+    - **The control of the screen** is one icon at the end of the field (`action` of the scope): a list of places
+      to look in — the guide to search. The first place of the list is the widest; any other colours the icon, and
+      the scope names it in the name box, so a narrowed search is told at a glance.
       What a screen filters by besides the text — the grouping of a tree, the technical revisions — stays on the
       screen, beside what it filters.
+    - **Enter sends the text off** where a scope asks for it (`onEnter`), trimmed; the field shows the Enter key
+      once there is a text to send, and keeps the text. A module filters its tree by name as the reader types, and
+      Enter searches every cell of its tables on the server (the `text` of the Tables API, whatever the case of the
+      letters). Enter pressed again on the same text reaches further, as the `scope` of the API: the whole project,
+      then the projects it depends on too, and another text starts from the module again. The text and the scope go
+      into the address (`find`, `scope`), so Back returns to what it found, and
+      `ModuleSearchResults` lists the tables found in place of the table and its properties, by sheet, a table
+      opened under its line with the cells holding the text marked. Opening a table found, or one of the tree,
+      takes `find` out of the address; a search asks before it puts edits on screen away. The tree keeps the text it
+      is filtered by, so a key typed redraws the tree alone; the screen clears it (`filterResets` of
+      `ModuleTablesTree`) once the results go away by anything but a table picked in the tree — a table opened from
+      them, **Close Results**, Back — so the reader lands on the whole tree; a table picked in the filtered tree keeps
+      the filter that led to it. Following a link in a table clears it too. A table found in another module or project opens on the screen of its own module.
     - **A screen with nothing to search** searches the projects: the field is never missing and never disabled.
-      Nothing happens until Enter, which opens the projects list with the text (`/projects?q=…`); the field shows
-      the Enter key once there is a text to send. Enter belongs to a scope that asks for it (`onEnter`), so the
-      field knows the fallback by what it does, not by its id.
+      Nothing happens until Enter, which opens the projects list with the text (`/projects?q=…`) and lets the text
+      go. The field knows the fallback by what it does, not by its id.
     - **Keys.** `/` brings the caret to the field from anywhere outside a text field and a dialog, and the field
       shows that key while it is empty. A `/` the screen took already (`defaultPrevented`) stays with it: typing on a
-      picked cell of a table opens the cell with that character. Escape clears the text, then leaves the field. Enter acts only on a screen with nothing to
-      search: every scope filters as the reader types, the part debouncing what costs a request.
+      picked cell of a table opens the cell with that character. Escape clears the text, then leaves the field. Every
+      scope filters as the reader types, the part debouncing what costs a request; Enter acts only where a scope asks
+      for it (above).
     - **What is typed wins while the caret is in the field.** The text of a scope comes back from its screen a
       render later, and from an address later still, so the field shows its own draft while it has the caret and
       the text of the screen otherwise — on a blur, on another scope, and when the screen changes the text itself
       (**Clear search**). A caret that comes back goes on from the text of the screen, not from what was typed
-      before it left. Pressing the control of the screen leaves the caret in the field, so the control is handed
-      the text just typed. A key an input method takes to compose a text — Enter that confirms a word, Escape that
+      before it left. Opening the control of the screen leaves the caret in the field, and the text just typed. A key an input method takes to compose a text — Enter that confirms a word, Escape that
       cancels it — is left to the input method.
     - **A search that stays where it is.** The header is out of reach behind a dialog, a dropdown and a popover, and
       a window without the header has none: the filter of a switcher (`CrumbSwitcher`), of a column, of the table
-      graph, the fields of the extended search and the windows of the trace, the comparison and the execution
+      graph, and the windows of the trace, the comparison and the execution
       results keep a field of their own, drawn with `components/SearchInput`. A part shown both ways says which it
       is: `RevisionsPanel` is searched from the header on the tab of a project (`headerSearch`) and by its own box
       in the dialog of the module editor.
@@ -377,8 +388,8 @@ The build writes two pages (`build.rollupOptions.input`):
       tests mock whole. The field takes the texts it draws from the store and calls the handlers of the latest
       render, so a screen may hand it new functions on every render at no cost.
     - **Tests** render a screen without the header and drive the search through `src/testing/search.ts`:
-      `searchFor(text)` types, `searchScope(id)` reads what the screen offered, `pressSearchAction()` and
-      `chooseInSearch(value)` work the control, and `searchScopeOf(id)` builds a scope for a test of the field. `HeaderSearch.test.tsx` covers the field itself.
+      `searchFor(text)` types, `searchScope(id)` reads what the screen offered, `pressSearchEnter()` sends the text
+      off, `chooseInSearch(value)` works the control, and `searchScopeOf(id)` builds a scope for a test of the field. `HeaderSearch.test.tsx` covers the field itself.
 
 ## Development
 
