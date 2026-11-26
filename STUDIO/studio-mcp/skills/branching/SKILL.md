@@ -8,6 +8,8 @@ description: >
   "sync with development", "merge to development", a merge conflict, a bug in
   a released version, or "delete the branch"; `planning` hands branch items to
   it. Only for a repository that supports branches (`features.branches`).
+metadata:
+  summary: "Task branches, syncing with the base branch, merge conflicts, merging, hotfixes and branch deletion."
 ---
 
 # OpenL Branching

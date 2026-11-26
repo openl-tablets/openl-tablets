@@ -7,6 +7,8 @@ description: >
   project — the guidance item of a `planning` plan — or on "create / update /
   refresh the AGENTS.md", "document this project for the agent". Not for
   guidance shared by several projects in a folder above them.
+metadata:
+  summary: "Creating the project's AGENTS.md when it has none and keeping it current before every save."
 ---
 
 # OpenL Project Guidance

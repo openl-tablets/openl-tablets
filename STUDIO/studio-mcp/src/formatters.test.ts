@@ -266,7 +266,7 @@ describe('formatters', () => {
         })
 
         it('returns a short note when there are no files', () => {
-            expect(formatAgentsDocument([])).toBe('No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the `project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.')
+            expect(formatAgentsDocument([])).toBe('No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the skill `skill/project-guidance` (`openl_get_guides`) tells.')
         })
     })
 })

@@ -127,14 +127,17 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   size of each page, and `openl_get_guides` reads the pages it is asked for. The `index.md` page of a folder stays
   out.
 - **Ids** — `spec/…` and `guide/…`: the path in the folder without `.md` and number prefixes. Renaming a page
-  changes its id. The migration notes of a release are `migration/<version>`, such as `migration/7.0.0`.
+  changes its id. The migration notes of a release are `migration/<version>`, such as `migration/7.0.0`. The files
+  of the skills follow, `skill/<skill>` for a `SKILL.md` and `skill/<skill>/<path>` for another file; see
+  [Skills](#skills).
 - **Migration notes** — a guide tool gives the `## Rules Authors` section of the notes, up to the next section of its
   level, under the title `OpenL Tablets <version> Migration Notes`, so an agent migrating a project reads only what
   concerns its rules. The index reads every listed note to give the size of that section, and leaves out a release
   whose notes have none, so `openl_get_guides` takes its id for unknown. The index lists the releases oldest first,
   the order a project is migrated in, while the table of contents shows them newest first.
 - **Paths** — `path` is the address of a document relative to the address of OpenL Studio. Bodies come as Studio
-  serves them, so their links and images are relative to that address too.
+  serves them, so their links and images are relative to that address too. A file of a skill has its resource URI
+  for a path, and a relative link of it names the id under the one of the skill.
 
 ## Skills
 
@@ -151,9 +154,16 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   the name and description of its frontmatter. `skills/list` answers the skills, `skills/get` one by the URI of its
   `SKILL.md`, and `resources/directory/read` the files of a folder of a skill. An entry carries the frontmatter as
   JSON and every file with its SHA-256 digest and size.
-- **Clients without the extension** — the `instructions` of the server, which a client gives its agent when it
-  connects, tell the agent how to work through the tools and list the skills with their URIs and descriptions and
-  the tool that reads them, so an agent reads the skill that matches its task as resources.
+- **Guide tools** — not every client supports the extension or reads MCP resources, while every client calls
+  tools. `openl_list_guides` lists every file of the skills after the documents of Studio, titled by its first
+  heading, and its search finds a skill by the description of its frontmatter too. `openl_get_guides` reads a file
+  verbatim from the bundle: `skill/<skill>` is its `SKILL.md`, `skill/<skill>/<path>` another file. A call for
+  skills alone reads nothing of Studio.
+- **Instructions** — the `instructions` of the server, which a client gives its agent when it connects, tell the
+  agent how to work through the tools and list the skills by their guide ids with the `metadata.summary` of their
+  frontmatter, so an agent reads the skill that matches its task with `openl_get_guides` in any client. They stay
+  within 4,000 bytes, as Claude Code cuts the instructions after about 4 KB; the full descriptions of the skills
+  would not fit.
 
 ## Coupling with OpenL Studio
 

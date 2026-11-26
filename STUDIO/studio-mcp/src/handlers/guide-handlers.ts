@@ -1,13 +1,13 @@
 /**
  * Guidance tool handlers — progressive-disclosure access to the OpenL reference documentation OpenL Studio
- * serves at /docs (openl_list_guides / openl_get_guides, see
+ * serves at /docs and to the OpenL skills (openl_list_guides / openl_get_guides, see
  * {@link file://../guides-registry.ts}), and the per-project AGENTS.md hierarchy
  * resolver (openl_get_project_agent_context).
  */
 import { ProtocolError, ProtocolErrorCode } from '@modelcontextprotocol/server'
 import type { OpenLClient } from '../client.js'
 import * as schemas from '../schemas.js'
-import { formatAgentsDocument } from '../formatters.js'
+import { PROJECT_GUIDANCE_SKILL, formatAgentsDocument } from '../formatters.js'
 import { isNotFoundError } from '../http.js'
 import { formatListOf } from '../markdown-list.js'
 import {
@@ -22,7 +22,7 @@ export function registerGuideHandlers(): void {
         name: 'list_guides',
         title: 'List Guides',
         description:
-            "List the OpenL reference documents Studio serves for its version: id, title and size in bytes, no bodies (openl_get_guides reads them). An id starting 'spec/' is a specification of a config file or the project layout (rules.xml, rules-deploy.xml, table types, openl-maven-plugin), 'guide/' a chapter of the Reference Guide (table types and properties, functions, data types, BEX), 'migration/' what a release since 5.25 asks of Rules Authors: to migrate a project, read each release after its version up to the target.",
+            "List the OpenL reference documents Studio serves for its version and the OpenL skills: id, title and size in bytes, no bodies (openl_get_guides reads them). An id starting 'spec/' is a specification of a config file or the project layout (rules.xml, rules-deploy.xml, table types, openl-maven-plugin), 'guide/' a chapter of the Reference Guide (table types and properties, functions, data types, BEX), 'migration/' what a release since 5.25 asks of Rules Authors: to migrate a project, read each release after its version up to the target; 'skill/' an OpenL skill, a step-by-step workflow, and the files it links under its id.",
         schema: schemas.listGuidesSchema,
         // The ids of the specifications start with 'spec', which agents take for their type
         valueAliases: { spec: 'specification' },
@@ -51,7 +51,7 @@ export function registerGuideHandlers(): void {
         name: 'get_guides',
         title: 'Get Guides',
         description:
-            'Read the full Markdown of documents by their exact ids from openl_list_guides; an unknown id fails. A body is never cut: mind the sizes in the index. Links and images in a body are relative to its path.',
+            'Read the full Markdown of documents by their exact ids from openl_list_guides; an unknown id fails. A body is never cut: mind the sizes in the index. Links and images in a body are relative to its path, those of a skill to its id: skill/planning links skill/planning/references/templates.md.',
         schema: schemas.getGuidesSchema,
         annotations: {
             readOnlyHint: true,
@@ -101,7 +101,7 @@ export function registerGuideHandlers(): void {
             // The files found may all belong to folders above the project, which still needs a file of its own
             if (files.length > 0 && !(await hasOwnGuidance(client, args.projectId, args.branch))) {
                 document += '\nThis project has no AGENTS.md of its own. When you change it, create one before you save, '
-                    + 'as the `project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.\n'
+                    + `as the skill ${PROJECT_GUIDANCE_SKILL} tells.\n`
             }
 
             // Cross-reference the guidance with the documentation: AGENTS.md files

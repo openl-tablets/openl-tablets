@@ -1032,14 +1032,14 @@ export const listGuidesSchema = z.strictObject({
         .enum(GUIDE_TYPES)
         .optional()
         .describe(
-            "The type its id starts with: 'spec/', 'guide/' or 'migration/'."
+            "The type its id starts with: 'spec/', 'guide/', 'migration/' or 'skill/'."
         ),
     search: z
         .string()
         .max(200)
         .optional()
         .describe(
-            'A case-insensitive part of the id or the title.'
+            'A case-insensitive part of the id, the title or the description of a skill.'
         ),
     ...paginationShape,
 })

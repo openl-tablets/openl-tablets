@@ -9,6 +9,8 @@ description: >
   PROJ-1234", "apply this ticket", or continuing or redoing an earlier task.
   Not for read-only questions, a plain test run, or finding why a result is
   wrong, which is `trace-investigation`'s.
+metadata:
+  summary: "The entry point for building, changing or fixing anything in a project: one ordered plan, one approval."
 ---
 
 # OpenL Change Planning

@@ -51,11 +51,12 @@ creates it, which the save step of the instructions and the answer for a project
 skipped the file while the pointer said only "once you change it", and recorded changed values until the
 instructions said a changed value changes nothing. The documentation tools serve the OpenL Tablets docs **OpenL Studio
 serves for its own version** at `/docs`: the specifications of `docs/ref`, the Reference Guide of
-`docs/reference-guide` and the migration notes of the releases since 5.25 of `docs/migration-notes` — progressive
-disclosure: the index is metadata-only, bodies are fetched by id on demand.
+`docs/reference-guide` and the migration notes of the releases since 5.25 of `docs/migration-notes`, and the files of
+the OpenL skills the server carries — progressive disclosure: the index is metadata-only, bodies are fetched by id on
+demand.
 - `openl_get_project_agent_context` - Resolve the **AGENTS.md hierarchy** for a project as a **single aggregated markdown document**: walks UP from the project (or an optional `folder`) to the repository root, collects every applicable `AGENTS.md`, and returns them concatenated in one response — ordered from the root folder (lowest priority) down to the project folder (highest priority), later sections winning on conflict. Ends with the ids of the guides the guidance references, and, for a project without an `AGENTS.md` of its own at its root, which a read of the file's metadata tells even when files above it apply, the `project-guidance` skill that creates one. Guidance of up to 12,000 characters comes whole; longer guidance comes as the opening of each file and the contents of its sections with their sizes, and `sections` reads the sections a task needs, by their headings, each with its subsections: the whole guidance of a large project would be read again on every turn
-- `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification', also 'spec' as the ids start, 'guide' or 'migration') and case-insensitive `search` over id+title, paginated; the id starts with its type, and `openl_get_guides` names the path. The migration notes of a release are listed as `migration/<version>` (e.g. `migration/7.0.0`), oldest release first, with the size of their `## Rules Authors` section; a release whose notes have no such section is left out. To migrate a project, an agent reads every release after the version of the project up to the target
-- `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim — of a `migration/` id the `## Rules Authors` section of the notes, under their title, a heading inside a code block left alone: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
+- `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification', also 'spec' as the ids start, 'guide', 'migration' or 'skill') and case-insensitive `search` over id+title and the frontmatter description of a skill, which finds a skill by its topic while the index leaves the description to the server instructions, paginated; the id starts with its type, and `openl_get_guides` names the path. The migration notes of a release are listed as `migration/<version>` (e.g. `migration/7.0.0`), oldest release first, with the size of their `## Rules Authors` section; a release whose notes have no such section is left out. To migrate a project, an agent reads every release after the version of the project up to the target. Every file of a skill is listed after them, titled by its first heading or else its name: `skill/<skill>` its `SKILL.md`, `skill/<skill>/<path>` another file, a skill before its files; `type: 'skill'` reads no OpenL Studio
+- `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim — of a `migration/` id the `## Rules Authors` section of the notes, under their title, a heading inside a code block left alone: their links and images are relative to the path of the document, those of a skill to its id (`references/templates.md` of `skill/planning` is `skill/planning/references/templates.md`), and its path is its resource URI; ids of skills alone read no OpenL Studio; unknown ids fail with an actionable error — it never falls back to the index
 
 ### Repository Tools (4)
 - `openl_list_repositories` - List the design repositories with the features each supports (branches, comments, search, mapped folders), in JSON and in either Markdown view
@@ -224,7 +225,8 @@ and walk it level by level with `openl_expand_trace_tree`.
 ## Skills
 
 The server serves the OpenL skills of `skills/` through the MCP skills extension (SEP-2640,
-`io.modelcontextprotocol/skills`, declared with `directoryRead`):
+`io.modelcontextprotocol/skills`, declared with `directoryRead`), and through the guide tools as `skill/<skill>`,
+which every client calls:
 
 - `planning` — the entry point for building, changing, or fixing anything in a project
 - `branching` — task branches, sync with the base, conflicts, merge, hotfixes, cleanup
@@ -238,11 +240,16 @@ The server serves the OpenL skills of `skills/` through the MCP skills extension
 Every file of a skill is a resource `skill://<skill>/<path>`: read `skill://<skill>/SKILL.md` with `resources/read`
 and resolve its relative links against the folder of that `SKILL.md`. `skills/list` answers every skill — its
 frontmatter as JSON and every file with its SHA-256 digest and size — and `skills/get` one skill by the URI of its
-`SKILL.md`; an unknown URI is `-32602`. `resources/directory/read` lists the files of a folder of a skill. A client
-without the extension finds the skills in the server instructions. They say the skills are MCP resources, not skills
-of the client, and name the tool that reads them in Claude Code: a client with skills of its own otherwise calls its
-skill tool by the name of an OpenL skill and fails, as 15 of 29 runs of an eval did with a wording that left the tool
-unnamed.
+`SKILL.md`; an unknown URI is `-32602`. `resources/directory/read` lists the files of a folder of a skill.
+
+Not every client supports the extension or reads MCP resources, so `openl_list_guides` and `openl_get_guides` serve
+the same files: `skill/<skill>` is its `SKILL.md`, `skill/<skill>/<path>` another file, which a relative link of the
+skill names under the id of the skill. The server instructions list the skills by these ids with the one-line
+`metadata.summary` of their frontmatter, name `openl_get_guides` as the tool that reads them, and say they are no
+skills of the client: a client with skills of its own otherwise calls its skill tool by the name of an OpenL skill and
+fails, as 15 of 29 runs of an eval did with a wording that left the tool unnamed. The instructions stay within 4,000
+bytes, which a test checks: Claude Code cuts them after about 4 KB, and with the full descriptions of the skills
+(6,188 characters) the agent never saw the last four skills.
 
 ## Local projects (repository: local)
 
@@ -510,6 +517,9 @@ The skills of `skills/` are written for this server and follow the
   another skill, which it names.
 - `SKILL.md` holds what every run needs; a file of `references/` holds what only some runs need, and `SKILL.md`
   says when to read it.
+- Its frontmatter gives, beside the `description` clients of the skills extension match a task against, a
+  `metadata.summary` of one sentence, which the server instructions list: when to use the skill, in up to 120
+  characters.
 - A skill names a tool by its `openl_` name and leaves its arguments to the tool description; a test fails on a
   name the server has no tool for.
 - Evaluate a change of a skill before committing it: run an agent on realistic tasks of the skill against a

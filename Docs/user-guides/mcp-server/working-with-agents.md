@@ -163,7 +163,7 @@ Rules](../openl-studio/editing-testing.md#tracing-rules) in the OpenL Studio Use
 
 The server offers the agent OpenL skills: step-by-step workflows for common tasks, with the reference files they
 need. An agent that supports MCP skills lists them on its own; any other agent learns of them at the start of a
-conversation and reads the one it needs. The skills are part of OpenL Studio, so they describe the tools of the same
+conversation and reads the one it needs with the guide tools, as it reads the reference guides. The skills are part of OpenL Studio, so they describe the tools of the same
 release.
 
 - **planning** — the entry point for building, changing, or fixing anything in a project: what to open, the branch,

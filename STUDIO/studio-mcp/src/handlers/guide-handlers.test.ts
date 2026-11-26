@@ -44,6 +44,24 @@ describe('guidance tools', () => {
         expect(text).toContain('![A table](../ref-guide-images/table.png)')
     })
 
+    it('openl_get_guides reads a skill and the files it links by their ids, without OpenL Studio', async () => {
+        const text = textOf(await executeTool('get_guides', {
+            ids: ['skill/planning', 'skill/planning/references/templates.md'],
+        }, harness.client))
+
+        expect(text).toContain('**Guide `skill/planning`** (path: skill://planning/SKILL.md)\n\n---\nname: planning\n')
+        expect(text).toContain('**Guide `skill/planning/references/templates.md`** (path: skill://planning/references/templates.md)')
+        expect(harness.mockHttp.history.get).toEqual([])
+    })
+
+    it("openl_list_guides takes the 'skill' type for the files of the skills", async () => {
+        const text = textOf(await executeTool('list_guides', { type: 'skill', search: 'planning' }, harness.client))
+
+        expect(text).toContain('| skill/planning | OpenL Change Planning |')
+        expect(text).toContain('| skill/planning/references/templates.md | Plan and Summary Templates |')
+        expect(text).not.toContain('| spec/')
+    })
+
     it("openl_list_guides takes the 'migration' type for the migration notes", async () => {
         const text = textOf(await executeTool('list_guides', { type: 'migration' }, harness.client))
 
@@ -95,7 +113,7 @@ describe('guidance tools', () => {
 
         const text = textOf(result)
         expect(text).toContain('root guidance')
-        expect(text.trimEnd()).toMatch(/no AGENTS\.md of its own\. .*`project-guidance` skill \(`skill:\/\/project-guidance\/SKILL\.md`\) tells\.$/)
+        expect(text.trimEnd()).toMatch(/no AGENTS\.md of its own\. .*skill `skill\/project-guidance` \(`openl_get_guides`\) tells\.$/)
         const [check] = harness.mockHttp.history.get
         expect(check.url).toMatch(/\/files\/AGENTS\.md$/)
         expect(check.params).toMatchObject({ view: 'meta', branch: 'dev' })
@@ -132,6 +150,6 @@ describe('guidance tools', () => {
             projectId: 'design-P2',
         }, harness.client)
 
-        expect(textOf(result)).toBe('No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the `project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.')
+        expect(textOf(result)).toBe('No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the skill `skill/project-guidance` (`openl_get_guides`) tells.')
     })
 })

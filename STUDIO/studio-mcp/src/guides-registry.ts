@@ -1,6 +1,7 @@
 /**
  * The OpenL documentation the guide tools hand to agents: the specifications of the project files, the chapters of the
- * Reference Guide and the migration notes of the releases, which OpenL Studio serves at `/docs` with its user guides.
+ * Reference Guide and the migration notes of the releases, which OpenL Studio serves at `/docs` with its user guides,
+ * and the OpenL skills the server carries.
  *
  * The table of contents of OpenL Studio lists the documents with their titles and sizes: `openl_list_guides` returns
  * that metadata only, and `openl_get_guides` reads the bodies it is asked for, verbatim. Every call reads OpenL Studio,
@@ -15,13 +16,15 @@
  * shows them in.
  */
 
+import skillFiles from 'virtual:skills'
 import type { OpenLClient } from './client.js'
 import { sectionsOf } from './formatters.js'
+import { SKILLS } from './skills.js'
 import type { GUIDE_TYPES, UserGuideEntry } from './types.js'
 
 /**
- * Document kind: 'specification' (the project files, from `docs/ref`), 'guide' (Reference Guide chapters) or
- * 'migration' (the migration notes of a release, from `docs/migration-notes`).
+ * Document kind: 'specification' (the project files, from `docs/ref`), 'guide' (Reference Guide chapters),
+ * 'migration' (the migration notes of a release, from `docs/migration-notes`) or 'skill' (a file of an OpenL skill).
  */
 type GuideType = (typeof GUIDE_TYPES)[number]
 
@@ -29,12 +32,15 @@ type GuideType = (typeof GUIDE_TYPES)[number]
 interface GuideEntry {
     /**
    * Stable id — the contract used by `openl_get_guides` and by AGENTS.md files to reference a document (e.g.
-   * 'spec/rules.xml', 'guide/introduction/basic-concepts', 'migration/7.0.0').
+   * 'spec/rules.xml', 'guide/introduction/basic-concepts', 'migration/7.0.0', 'skill/planning').
    */
     id: string
     type: GuideType
     title: string
-    /** The path of the document from the address of OpenL Studio, such as `docs/ref/rules.xml.md`. */
+    /**
+   * The path of the document from the address of OpenL Studio, such as `docs/ref/rules.xml.md`; of a file of a skill,
+   * its resource URI, such as `skill://planning/SKILL.md`.
+   */
     path: string
     /**
    * The size of the document in bytes — lets an agent budget openl_get_guides calls. For migration notes, the size of
@@ -57,6 +63,35 @@ const SOURCES: ReadonlyArray<{ type: GuideType, folder: string, idPrefix: string
     { type: 'specification', folder: 'ref/', idPrefix: 'spec' },
     { type: 'guide', folder: GUIDE_FOLDER, idPrefix: 'guide' },
 ]
+
+/** The start of the id of every file of a skill. */
+const SKILL_PREFIX = 'skill/'
+
+/** The `SKILL.md` of a skill, by the folder of the skill. */
+const SKILL_MD = /^([^/]+)\/SKILL\.md$/
+
+/** The id of a file of a skill, by its path in `skills/`: the skill for its `SKILL.md`, else the skill and the path. */
+function skillId(path: string): string {
+    return `${SKILL_PREFIX}${SKILL_MD.exec(path)?.[1] ?? path}`
+}
+
+/** The files of the skills, by id, as the server carries them. */
+const SKILL_TEXTS = new Map(Object.entries(skillFiles).map(([path, text]) => [skillId(path), text]))
+
+/** The descriptions of the skills in their frontmatter, by the id of their `SKILL.md`, lower case on one line. */
+const SKILL_DESCRIPTIONS = new Map(SKILLS.entries.map(({ frontmatter: { name, description } }) =>
+    [`skill/${name}`, description.replaceAll(/\s+/g, ' ').trim().toLowerCase()]))
+
+/** The files of the skills, a skill before its other files, titled by their first heading or else their name. */
+const SKILL_GUIDES: readonly GuideEntry[] = Object.entries(skillFiles)
+    .map(([path, text]) => ({
+        id: skillId(path),
+        type: 'skill' as const,
+        title: /^# (.+)$/m.exec(text)?.[1].trim() ?? path.slice(path.lastIndexOf('/') + 1),
+        path: `skill://${path}`,
+        size: Buffer.byteLength(text),
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id, 'en'))
 
 /** Strip a numeric ordering prefix from a path segment: '03-basic-concepts' → 'basic-concepts'. */
 function stripOrderPrefix(segment: string): string {
@@ -116,15 +151,16 @@ function migrationNotesOf(pages: Page[]): GuideEntry[] {
         .sort((a, b) => a.id.localeCompare(b.id, 'en', { numeric: true }))
 }
 
-/** Every document OpenL Studio serves. */
-async function loadGuides(client: OpenLClient): Promise<GuideEntry[]> {
-    return documentsOf(await client.getUserGuideContents())
+/** Every document: those OpenL Studio serves, which a type of skills alone leaves unread, then the skills. */
+async function loadGuides(client: OpenLClient, type?: GuideType): Promise<GuideEntry[]> {
+    const served = type === 'skill' ? [] : documentsOf(await client.getUserGuideContents())
+    return [...served, ...SKILL_GUIDES]
 }
 
 /** Filters accepted by {@link listGuides} (all optional; omitted = match all). */
 interface ListGuidesFilter {
     type?: GuideType
-    /** Case-insensitive substring matched against each entry's id and title. */
+    /** Case-insensitive substring matched against each entry's id and title, and the description of a skill. */
     search?: string
 }
 
@@ -143,6 +179,9 @@ export function rulesAuthorsPart(notes: string): string | undefined {
  * part for Rules Authors under the title of the notes. None for notes that ask nothing of Rules Authors.
  */
 async function readBody(client: OpenLClient, entry: GuideEntry): Promise<string | undefined> {
+    if (entry.type === 'skill') {
+        return SKILL_TEXTS.get(entry.id)
+    }
     const page = await client.readUserGuide(entry.path)
     if (entry.type !== 'migration') {
         return page
@@ -152,15 +191,17 @@ async function readBody(client: OpenLClient, entry: GuideEntry): Promise<string 
 }
 
 /**
- * The metadata of the documents (never bodies), optionally filtered. Migration notes are read to size their part for
+ * The metadata of the documents (never bodies), optionally filtered. A search finds a skill by its description too,
+ * which the index does not show: the server instructions do. Migration notes are read to size their part for
  * Rules Authors, and the notes that ask nothing of Rules Authors are left out.
  */
 export async function listGuides(client: OpenLClient, filter: ListGuidesFilter = {}): Promise<GuideEntry[]> {
     const needle = filter.search?.toLowerCase()
-    const matching = (await loadGuides(client)).filter(
+    const matching = (await loadGuides(client, filter.type)).filter(
         (g) =>
             (!filter.type || g.type === filter.type) &&
-            (!needle || g.id.toLowerCase().includes(needle) || g.title.toLowerCase().includes(needle))
+            (!needle || g.id.toLowerCase().includes(needle) || g.title.toLowerCase().includes(needle)
+                || SKILL_DESCRIPTIONS.get(g.id)?.includes(needle) === true)
     )
     const sized = await Promise.all(
         matching.map(async (g) => {
@@ -186,14 +227,17 @@ interface GuideBody {
  *
  * Ids are de-duplicated preserving first occurrence. Unknown ids do not throw here — they are reported so the caller
  * can compose an actionable error (the tool must never silently return something else instead). Migration notes that
- * ask nothing of Rules Authors are unknown, as the index does not list them.
+ * ask nothing of Rules Authors are unknown, as the index does not list them. Ids of skills alone, known or not, leave
+ * OpenL Studio unread.
  */
 export async function readGuideBodies(
     client: OpenLClient,
     ids: string[]
 ): Promise<{ found: GuideBody[], unknown: string[] }> {
-    const byId = new Map((await loadGuides(client)).map((g) => [g.id, g]))
     const requested = [...new Set(ids)]
+    // OpenL Studio serves no id of the skills, so an unknown one among them is reported without reading it
+    const skillsOnly = requested.every((id) => id.startsWith(SKILL_PREFIX))
+    const byId = new Map((await loadGuides(client, skillsOnly ? 'skill' : undefined)).map((g) => [g.id, g]))
     const read = await Promise.all(
         requested
             .flatMap((id) => byId.get(id) ?? [])

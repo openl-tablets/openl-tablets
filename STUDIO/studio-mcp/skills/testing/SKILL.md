@@ -6,6 +6,8 @@ description: >
   Use when a task's rule changes are complete, a test fails, a test case must be
   added or an existing row changed, or on "run tests", "did the tests pass",
   "verify my changes", "is it safe to sync or deploy".
+metadata:
+  summary: "Adding test rows, running the tests on the saved revision and diagnosing failures."
 ---
 
 # OpenL Testing

@@ -6,6 +6,8 @@ description: >
   premium or amount, a null or blank value, a rejected claim, a rule that fired or was skipped
   incorrectly, pastes a rule input payload for explanation, or asks to fix a dispatch table or
   a rule row.
+metadata:
+  summary: "Why a rule gives a wrong, missing or unexpected result: the root cause, before any fix is planned."
 ---
 
 # Investigate an OpenL rule result
