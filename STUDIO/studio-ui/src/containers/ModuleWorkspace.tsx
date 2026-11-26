@@ -15,6 +15,8 @@ import {
     stopEditingTable,
     TABLE_PAGE_ROWS,
     type ModuleInfo,
+    type TableSearchScope,
+    WIDER,
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
@@ -38,7 +40,7 @@ import { ModuleActionBar } from './modules/ModuleActionBar'
 import { TableDetailsPanel } from './modules/TableDetailsPanel'
 import type { TableEditorHandle, Written } from './modules/TableEditor'
 import { TableProblems } from './modules/TableProblems'
-import { TableSearchModal } from './modules/TableSearchModal'
+import { ModuleSearchResults } from './modules/ModuleSearchResults'
 import { TableEditor } from './modules/TableEditor'
 import { TableToolbar } from './modules/TableToolbar'
 import { CompilationWait, waitsForCompilation } from './modules/ModuleCompilationView'
@@ -107,6 +109,18 @@ const rowsReaching = (table: Pick<RawTableView, 'pos'>, address: string | null):
     return rows > 0 ? rows : undefined
 }
 
+/** How far the search of the address reaches: the module unless it names a wider scope. */
+const scopeOf = (named: string | null): TableSearchScope =>
+    (named === 'project' || named === 'all' ? named : 'module')
+
+/** The parameters of the address without the results of a search: what it looked for and how far. */
+const withoutResults = (params: URLSearchParams): URLSearchParams => {
+    const next = new URLSearchParams(params)
+    next.delete('find')
+    next.delete('scope')
+    return next
+}
+
 /** The project read for the address, or null while what was read belongs to another one. */
 const projectReadFor = (
     read: { address: string, project: Project } | null,
@@ -152,8 +166,16 @@ export const ModuleWorkspace = () => {
     const { moduleName = '' } = route
     const projectId = projectIdOfParams(route) ?? ''
     const [search, setSearch] = useSearchParams()
-    // What the extended search was opened with, and whether it stands open at all.
-    const [searchFor, setSearchFor] = useState<string | null>(null)
+    // The text Enter searched every cell of the module for, in the address so Back returns to what it found: the results
+    // take the place of the table while it is there.
+    const finding = search.get('find')
+    const findingScope = scopeOf(search.get('scope'))
+    // How many times the filter of the tree was cleared: the tree keeps the text it is filtered by, and clears it when
+    // this changes, so a key typed redraws the tree alone.
+    const [filterResets, setFilterResets] = useState(0)
+    const clearTreeFilter = useCallback(() => setFilterResets(count => count + 1), [])
+    // Whether the results of a search were put away by a table picked in the tree, which the filter of the tree led to.
+    const pickedInTree = useRef(false)
 
     // The project as read for an address. The screen stays mounted when it moves on to another project, and what it
     // read for the previous address is none of the new one's: nothing is shown, compiled or read of it there.
@@ -508,10 +530,23 @@ export const ModuleWorkspace = () => {
             }
             return
         }
-        if (tables.length > 0) {
+        // The results of a search stand in place of a table: none is opened under them.
+        if (tables.length > 0 && finding === null) {
             void navigate(moduleRoute(projectId, moduleName, (tables[0] as ModuleTable).id), { replace: true })
         }
-    }, [tables, tablesReloading, showOther, selectedId, here, moduleName, navigate, projectId, tableAddress, reloadToken])
+    }, [
+        tables,
+        tablesReloading,
+        showOther,
+        selectedId,
+        here,
+        moduleName,
+        navigate,
+        projectId,
+        tableAddress,
+        reloadToken,
+        finding
+    ])
 
     // Refresh compiles the module again and re-reads its tables. What the reader was looking at is kept: the
     // address still names it, and it is drawn again as soon as the tables are back. Whether the project has
@@ -630,27 +665,61 @@ export const ModuleWorkspace = () => {
         return selectedId === null ? null : { tableId: selectedId, changed: false }
     }, [selectedId])
 
+    // A table opened puts the results of a search away: Back brings them again.
     const openTableById = useCallback((picked: string) => {
         setSearch(params => {
-            const next = new URLSearchParams(params)
+            const next = withoutResults(params)
             next.set('table', picked)
             return next
         })
     }, [setSearch])
 
-    const openTable = useCallback((picked: ModuleTable) => openTableById(picked.id), [openTableById])
+    // A search of the cells takes the place of the table, so the edits on screen are asked about first. Enter pressed
+    // again on the text searched reaches further: the whole project, then the projects it depends on too.
+    const searchCells = useCallback((text: string) => confirmDiscard(() => setSearch(params => {
+        const next = new URLSearchParams(params)
+        const reach = params.get('find') === text ? WIDER[scopeOf(params.get('scope'))] : 'module'
+        next.set('find', text)
+        if (reach === 'module') {
+            next.delete('scope')
+        } else {
+            next.set('scope', reach)
+        }
+        return next
+    })), [confirmDiscard, setSearch])
 
-    // Editing belongs to the table it started on: opening another one — or another module — leaves it.
+    const closeResults = useCallback(() => setSearch(withoutResults), [setSearch])
+
+    const openTable = useCallback((picked: ModuleTable) => {
+        pickedInTree.current = finding !== null
+        openTableById(picked.id)
+    }, [finding, openTableById])
+
+    // The results of a search put away any other way — a table opened from them, Close Results, Back — leave the search
+    // behind: the tree is filtered by it no more. A table picked in the tree keeps the filter that led to it.
+    const searched = useRef(finding)
+    useEffect(() => {
+        if (searched.current !== null && finding === null && !pickedInTree.current) {
+            clearTreeFilter()
+        }
+        pickedInTree.current = false
+        searched.current = finding
+    }, [clearTreeFilter, finding])
+
+    // Editing belongs to the table it started on: opening another one — or another module — leaves it, and so do the
+    // results of a search, which take its place: the hold on the table is let go with it.
     useEffect(() => {
         setEditing(false)
         setEditCell(null)
-    }, [moduleName, selectedId])
+    }, [moduleName, selectedId, finding])
 
     useTablePutDown(editing, project?.id, selectedId)
 
     // A word in a cell that names another table is a way into it: the same screen when the table is one of
     // this module's, its own module's screen when it lives elsewhere.
     const openUsage = useCallback((usage: RawTableCellUsage) => {
+        // A link leads the reader somewhere the filter of the tree did not: the whole tree is shown again.
+        clearTreeFilter()
         // The key of a message leads to its texts in every language, which the project keeps for all its modules: a
         // key only a project it depends on gives leads to that project.
         if (usage.messageKey) {
@@ -667,7 +736,7 @@ export const ModuleWorkspace = () => {
         // A table this one uses may be written in a project this one depends on, and is read through that
         // project's own screen — the module it names belongs to it, not to the project being read.
         void navigate(moduleRoute(usage.projectId ?? projectId, usage.module, usage.tableId))
-    }, [moduleName, navigate, openTableById, projectId])
+    }, [clearTreeFilter, moduleName, navigate, openTableById, projectId])
 
     // The trace behind a message, read through the module the table was read through — the one whose
     // compilation raised it.
@@ -676,16 +745,18 @@ export const ModuleWorkspace = () => {
         [moduleName, projectId]
     )
 
-    // A table a search found is opened where it is written: this screen when it belongs to the module on it,
-    // its own module's screen — of its own project — when it does not.
+    // A table a search found is opened where it is written: this screen when it belongs to the module on it, its own
+    // module's screen — of its own project — when it does not. A free-form one is listed before it is opened.
     const openFound = useCallback((found: ModuleTable) => {
         showIfOther(found.kind)
-        if (!found.module || found.module === moduleName) {
+        const here = (!found.module || found.module === moduleName)
+            && (!found.projectId || found.projectId === project?.id)
+        if (here) {
             openTableById(found.id)
             return
         }
-        void navigate(moduleRoute(found.projectId ?? projectId, found.module, found.id))
-    }, [moduleName, navigate, openTableById, projectId, showIfOther])
+        void navigate(moduleRoute(found.projectId ?? projectId, found.module ?? moduleName, found.id))
+    }, [moduleName, navigate, openTableById, project?.id, projectId, showIfOther])
 
     // Whatever the address names is what is drawn, however it got there — a click, a link, or the Back button.
     //
@@ -989,33 +1060,36 @@ export const ModuleWorkspace = () => {
         )
     }
 
-    const canvas = () => compilationCanvas() ?? tableCanvas()
+    /** What a search of the cells found, in place of the table. */
+    const resultsCanvas = (text: string) => (
+        <ModuleSearchResults
+            moduleName={moduleName}
+            onClose={closeResults}
+            onOpen={openFound}
+            onShowOther={chooseOther}
+            projectId={projectId}
+            projectName={project.name}
+            scope={findingScope}
+            showOther={showOther}
+            text={text}
+        />
+    )
+
+    const canvas = () => compilationCanvas() ?? (finding === null ? tableCanvas() : resultsCanvas(finding))
 
     return (
         <div className={shared.workspacePage} data-testid="module-workspace">
             <div className={shared.workspaceBody}>
                 <ModuleTablesTree
-                    onExtendedSearch={setSearchFor}
+                    filterResets={filterResets}
                     onFindAll={findAllTables}
+                    onSearchCells={searchCells}
                     onSelectTable={openTable}
                     onShowOther={chooseOther}
                     reloading={tablesReloading}
                     selectedTableId={selected?.id}
                     showOther={showOther}
                     tables={tables}
-                />
-                <TableSearchModal
-                    initialName={searchFor ?? ''}
-                    moduleName={moduleName}
-                    onClose={() => setSearchFor(null)}
-                    onShowOther={chooseOther}
-                    open={searchFor !== null}
-                    projectId={projectId}
-                    showOther={showOther}
-                    onOpen={found => {
-                        setSearchFor(null)
-                        openFound(found)
-                    }}
                 />
                 <div className={shared.workspaceMain}>
                     <ProjectScreenHeader
@@ -1053,7 +1127,7 @@ export const ModuleWorkspace = () => {
                     />
                     <div className={styles.withDetails}>
                         <div className={styles.main}>{canvas()}</div>
-                        {compilation.ready && !closed && (!tableUnlisted || table !== null) && (
+                        {compilation.ready && !closed && finding === null && (!tableUnlisted || table !== null) && (
                             <TableDetailsPanel
                                 beforeSave={writeCellsFirst}
                                 canWrite={canWriteListed}

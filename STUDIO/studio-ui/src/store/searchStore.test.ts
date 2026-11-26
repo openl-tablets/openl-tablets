@@ -34,9 +34,8 @@ describe('searchStore', () => {
         ['its hint', { placeholder: 'Other' }],
         ['its rank', { secondary: true }],
         ['a key to send the text off', { onEnter: vi.fn() }],
-        ['a control added', { action: { icon: null, label: 'Extended search', onClick: vi.fn() } }],
         ['a list to choose from', {
-            action: { choice: 'a', choices: [{ value: 'a', label: 'A' }], icon: null, label: 'Where' },
+            action: { choice: 'a', choices: [{ value: 'a', label: 'A' }], icon: null, label: 'Where', onChoice: vi.fn() },
         }],
     ])('redraws the field for %s', (_what, change) => {
         store().mount(scope('files'))
@@ -47,20 +46,9 @@ describe('searchStore', () => {
         expect(store().scopes).not.toBe(before)
     })
 
-    it('redraws the field once a list to choose from gets the handler of the choice', () => {
-        const action = { choice: '', choices: [{ value: '', label: 'All Guides' }], icon: null, label: 'Where' }
-        store().mount(scope('guides', { action }))
-        const before = store().scopes
-
-        store().mount(scope('guides', { action: { ...action, onChoice: vi.fn() } }))
-
-        expect(store().scopes).not.toBe(before)
-        expect(store().scopes[0]?.action?.onChoice).toBeDefined()
-    })
-
     it('redraws the field when the choice or the choices of a control change', () => {
         const choices = [{ value: '', label: 'All Guides' }, { value: 'studio/', label: 'Studio' }]
-        const action = { choice: '', choices, icon: null, label: 'Where' }
+        const action = { choice: '', choices, icon: null, label: 'Where', onChoice: vi.fn() }
         store().mount(scope('guides', { action }))
         const first = store().scopes
 

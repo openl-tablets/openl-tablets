@@ -7,6 +7,7 @@ import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import { withoutFrontMatter } from './frontMatter'
+import { matchedParts, termsPattern } from '../../utils/matchedParts'
 
 /** A page to read for the index, at its absolute address. */
 export interface PageToIndex {
@@ -120,22 +121,14 @@ export const sectionsOf = (page: GuidePageText): GuideSection[] => {
     return sections
 }
 
-const escaped = (term: string): string => term.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
-
 /** The text around the first word a search matched, every matched word marked. */
 export const snippetOf = (text: string, terms: string[]): SnippetPart[] => {
-    const words = terms.length === 0 ? undefined : new RegExp(terms.map(escaped).sort((a, b) => b.length - a.length).join('|'), 'gi')
+    const words = termsPattern(terms)
     const first = words ? Math.max(0, text.search(words)) : 0
     const start = first < SNIPPET_LENGTH / 2 ? 0 : text.lastIndexOf(' ', first - SNIPPET_LENGTH / 4) + 1
     const end = Math.min(text.length, start + SNIPPET_LENGTH)
     const shown = text.slice(start, end)
-    const parts: Omit<SnippetPart, 'at'>[] = []
-    let from = 0
-    for (const match of words ? shown.matchAll(words) : []) {
-        parts.push({ text: shown.slice(from, match.index), match: false }, { text: match[0], match: true })
-        from = match.index + match[0].length
-    }
-    parts.push({ text: shown.slice(from), match: false })
+    const parts: Omit<SnippetPart, 'at'>[] = matchedParts(shown, words)
     if (start > 0) {
         parts.unshift({ text: '…', match: false })
     }

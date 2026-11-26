@@ -80,10 +80,11 @@ vi.mock('../services/repositories', () => ({
 
 
 vi.mock('../services/modules', async importOriginal => {
-    const { isModuleNotFound, isTableNotFound } = await importOriginal<typeof import('../services/modules')>()
+    const { isModuleNotFound, isTableNotFound, WIDER } = await importOriginal<typeof import('../services/modules')>()
     return {
         isModuleNotFound,
         isTableNotFound,
+        WIDER,
         cancelModuleCompilation: vi.fn(),
         getMessageStacktrace: vi.fn(),
         getModuleTables: vi.fn(),
@@ -120,13 +121,15 @@ vi.mock('./projects/openProjectDialog', () => ({
 }))
 
 // The tree itself is tested elsewhere; here it only has to ask for the utility tables, as its checkbox does,
-// and to open the extended search.
+// and to search the cells, as Enter in the search of the header does.
 vi.mock('./modules/ModuleTablesTree', () => ({
-    ModuleTablesTree: ({ showOther, onShowOther, reloading, onExtendedSearch }: {
+    ModuleTablesTree: ({ showOther, onShowOther, reloading, onSearchCells, filterResets, onSelectTable }: {
         showOther?: boolean
         onShowOther?: (shown: boolean) => void
         reloading?: boolean
-        onExtendedSearch?: (typed: string) => void
+        onSearchCells?: (text: string) => void
+        filterResets?: number
+        onSelectTable?: (table: ModuleTable) => void
     }) => (
         <>
             <button
@@ -137,7 +140,9 @@ vi.mock('./modules/ModuleTablesTree', () => ({
             >
                 {String(showOther)}
             </button>
-            <button data-testid="tables-search" onClick={() => onExtendedSearch?.('')} type="button" />
+            <button data-testid="tables-search" onClick={() => onSearchCells?.('premium')} type="button" />
+            <span data-resets={filterResets} data-testid="tables-filter" />
+            <button data-testid="tables-pick" onClick={() => onSelectTable?.(bankRating)} type="button" />
         </>
     ),
 }))
@@ -160,12 +165,18 @@ vi.mock('./modules/TableProblems', () => ({
         </>
     ),
 }))
-// The search itself is tested elsewhere; here it only hands over the note it found.
-vi.mock('./modules/TableSearchModal', () => ({
-    TableSearchModal: ({ open, onOpen }: { open?: boolean, onOpen?: (found: ModuleTable) => void }) => (
-        open
-            ? <button data-testid="search-found" onClick={() => onOpen?.(handed.found ?? notes)} type="button" />
-            : null
+// The results are tested elsewhere; here they say what they searched for, hand over the note they found, and close.
+vi.mock('./modules/ModuleSearchResults', () => ({
+    ModuleSearchResults: ({ text, scope, onOpen, onClose }: {
+        text: string
+        scope: string
+        onOpen?: (found: ModuleTable) => void
+        onClose?: () => void
+    }) => (
+        <div data-scope={scope} data-testid="search-results" data-text={text}>
+            <button data-testid="search-found" onClick={() => onOpen?.(handed.found ?? notes)} type="button" />
+            <button data-testid="search-close" onClick={() => onClose?.()} type="button" />
+        </div>
     ),
 }))
 // The band shows what it is handed, so a test can read what the screen decided; its Edit is what starts editing.
@@ -290,6 +301,8 @@ describe('ModuleWorkspace', () => {
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
         searchParams.delete('errorCell')
+        searchParams.delete('find')
+        searchParams.delete('scope')
         vi.mocked(getProject).mockImplementation(() =>
             Promise.resolve(project(workspace.opened ? 'OPENED' : 'CLOSED') as never))
         vi.mocked(setProjectStatus).mockImplementation(() => {
@@ -416,6 +429,24 @@ describe('ModuleWorkspace', () => {
         await screen.findByTestId('table-details')
 
         await expect(detailsPanel.beforeSave?.()).resolves.toBeNull()
+    })
+
+    it('puts the table down when the results of a search take its place, and opens it again not editing', async () => {
+        workspace.opened = true
+        const { rerender } = render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+        await userEvent.click(screen.getByTestId('table-edit'))
+        expect(stopEditingTable).not.toHaveBeenCalled()
+
+        searchParams.set('find', 'premium')
+        rerender(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('search-results')).toBeInTheDocument()
+        await waitFor(() => expect(stopEditingTable).toHaveBeenCalledWith('p1', 't-1'))
+
+        searchParams.delete('find')
+        rerender(<ModuleWorkspace />)
+        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-editing', 'false')
     })
 
     it('says the table is put down when the reader stops editing, and not before', async () => {
@@ -668,19 +699,151 @@ describe('ModuleWorkspace', () => {
         expect(navigateMock).toHaveBeenCalledWith(route)
     })
 
-    it.each([
-        ['this project', { module: 'Pricing' }, '/projects/p1/modules/Pricing?table=t-6'],
-        ['another project', { module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-6'],
-    ])('opens a table the search found in another module of %s, on that module', async (_, where, route) => {
+    /** The address the last change of the parameters of the address leads to, from the given one. */
+    const addressAfter = (from: string) => {
+        const update = setSearchParamsMock.mock.lastCall?.[0] as (params: URLSearchParams) => URLSearchParams
+        return update(new URLSearchParams(from)).toString()
+    }
+
+    it('searches every cell of the module on Enter, in the address so Back returns to the table', async () => {
         workspace.opened = true
-        handed.found = { ...bankRating, id: 't-6', ...where }
         render(<ModuleWorkspace />)
-        await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
+        await screen.findByTestId('table-toolbar')
 
         await userEvent.click(screen.getByTestId('tables-search'))
+
+        expect(addressAfter('table=t-1')).toBe('table=t-1&find=premium')
+    })
+
+    it.each([
+        ['the module', 'table=t-1', 'table=t-1&find=premium'],
+        ['the whole project, on Enter again', 'table=t-1&find=premium', 'table=t-1&find=premium&scope=project'],
+        ['the projects it depends on, on Enter a third time', 'find=premium&scope=project', 'find=premium&scope=all'],
+        ['no further than that', 'find=premium&scope=all', 'find=premium&scope=all'],
+        ['the module again, for another text', 'find=bonus&scope=all', 'find=premium'],
+    ])('searches the cells of %s', async (_, from, to) => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('table-toolbar')
+
+        await userEvent.click(screen.getByTestId('tables-search'))
+
+        expect(addressAfter(from)).toBe(to)
+    })
+
+    it('hands the results the scope the address names', async () => {
+        workspace.opened = true
+        searchParams.set('find', 'premium')
+        searchParams.set('scope', 'all')
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('search-results')).toHaveAttribute('data-scope', 'all')
+        searchParams.delete('scope')
+    })
+
+    it.each([
+        ['another module of this project', { module: 'Pricing' }, '/projects/p1/modules/Pricing?table=t-6'],
+        ['another project', { module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-6'],
+    ])('opens a table a wider search found in %s, on that module', async (_, where, route) => {
+        workspace.opened = true
+        searchParams.set('find', 'premium')
+        handed.found = { ...bankRating, id: 't-6', ...where }
+        render(<ModuleWorkspace />)
+
         await userEvent.click(await screen.findByTestId('search-found'))
 
         expect(navigateMock).toHaveBeenCalledWith(route)
+    })
+
+    it('clears the filter of the tree when a link in a table is followed', async () => {
+        workspace.opened = true
+        handed.usage = { tableId: 't-2', module: 'Bank Rating' }
+        render(<ModuleWorkspace />)
+        expect(await screen.findByTestId('tables-filter')).toHaveAttribute('data-resets', '0')
+
+        await userEvent.click(await screen.findByTestId('table-open-usage'))
+
+        expect(screen.getByTestId('tables-filter')).toHaveAttribute('data-resets', '1')
+    })
+
+    it('shows what the search of the address found in place of the table and its properties', async () => {
+        workspace.opened = true
+        searchParams.set('find', 'premium')
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('search-results')).toHaveAttribute('data-text', 'premium')
+        expect(screen.queryByTestId('table-toolbar')).toBeNull()
+        expect(screen.queryByTestId('table-details')).toBeNull()
+    })
+
+    it('opens a table found in place of the results, and puts them away on Close', async () => {
+        workspace.opened = true
+        searchParams.set('find', 'premium')
+        handed.found = { ...bankRating, id: 't-6' }
+        render(<ModuleWorkspace />)
+
+        await userEvent.click(await screen.findByTestId('search-found'))
+        expect(addressAfter('table=t-1&find=premium&scope=project')).toBe('table=t-6')
+
+        await userEvent.click(screen.getByTestId('search-close'))
+        expect(addressAfter('table=t-1&find=premium&scope=all')).toBe('table=t-1')
+        expect(navigateMock).not.toHaveBeenCalled()
+    })
+
+    describe('the filter of the tree', () => {
+        /** Shows the results of a search, then follows the address to where the step led. */
+        const searchedThen = async (step: () => Promise<void>) => {
+            workspace.opened = true
+            searchParams.set('find', 'premium')
+            const { rerender } = render(<ModuleWorkspace />)
+            expect(await screen.findByTestId('tables-filter')).toHaveAttribute('data-resets', '0')
+
+            await step()
+            searchParams.delete('find')
+            searchParams.delete('scope')
+            rerender(<ModuleWorkspace />)
+            return screen.getByTestId('tables-filter')
+        }
+
+        it('is cleared once a table is opened from the results', async () => {
+            const filter = await searchedThen(() => userEvent.click(screen.getByTestId('search-found')))
+
+            await waitFor(() => expect(filter).toHaveAttribute('data-resets', '1'))
+        })
+
+        it('is cleared once the results are closed, or left by Back', async () => {
+            const filter = await searchedThen(() => userEvent.click(screen.getByTestId('search-close')))
+
+            await waitFor(() => expect(filter).toHaveAttribute('data-resets', '1'))
+        })
+
+        it('stays when the table is picked in the tree it filters', async () => {
+            const filter = await searchedThen(() => userEvent.click(screen.getByTestId('tables-pick')))
+
+            expect(filter).toHaveAttribute('data-resets', '0')
+        })
+
+        it('stays while no search was made', async () => {
+            workspace.opened = true
+            const { rerender } = render(<ModuleWorkspace />)
+            await screen.findByTestId('tables-filter')
+
+            await userEvent.click(screen.getByTestId('tables-pick'))
+            rerender(<ModuleWorkspace />)
+
+            expect(screen.getByTestId('tables-filter')).toHaveAttribute('data-resets', '0')
+        })
+    })
+
+    it('opens no table under the results of a search a link carries without one', async () => {
+        workspace.opened = true
+        searchParams.delete('table')
+        searchParams.set('find', 'premium')
+        render(<ModuleWorkspace />)
+
+        await screen.findByTestId('search-results')
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
+        expect(navigateMock).not.toHaveBeenCalled()
     })
 
     it('reads the trace behind a message through the module the table was read through', async () => {
@@ -1043,10 +1206,10 @@ describe('ModuleWorkspace', () => {
 
     it('asks for the utility tables before opening one the search found, so the module is read once more, not twice', async () => {
         workspace.opened = true
+        searchParams.set('find', 'notes')
         render(<ModuleWorkspace />)
         await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
 
-        await userEvent.click(screen.getByTestId('tables-search'))
         await userEvent.click(await screen.findByTestId('search-found'))
 
         // The search says what kind the table is, so the list it belongs in is asked for straight away.

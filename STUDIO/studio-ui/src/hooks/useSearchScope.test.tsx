@@ -68,20 +68,6 @@ describe('useSearchScope', () => {
         expect(mounted().map(scope => scope.id)).toEqual(['revisions'])
     })
 
-    it('presses the control of the latest render with the text typed', () => {
-        const first = vi.fn()
-        const latest = vi.fn()
-        const action = { icon: null, label: 'Extended search' }
-        const { rerender } = render(<Part scope={files({ action: { ...action, onClick: first } })} />)
-        const press = mounted()[0]!.action!.onClick!
-
-        rerender(<Part scope={files({ action: { ...action, onClick: latest } })} />)
-        press('greet')
-
-        expect(first).not.toHaveBeenCalled()
-        expect(latest).toHaveBeenCalledWith('greet')
-    })
-
     it('sends the text off through the handler of the latest render, for a scope that takes Enter', () => {
         const first = vi.fn()
         const latest = vi.fn()
@@ -98,16 +84,19 @@ describe('useSearchScope', () => {
         expect(mounted()[0]!.onEnter).toBeUndefined()
     })
 
-    it('hands a choice to the latest render, and offers no press for a control that only chooses', () => {
-        const onChoice = vi.fn()
+    it('hands a choice to the handler of the latest render', () => {
+        const first = vi.fn()
+        const latest = vi.fn()
         const choices = [{ value: '', label: 'All Guides' }, { value: 'studio/', label: 'Studio' }]
-        render(<Part scope={files({ action: { choice: '', choices, icon: null, label: 'Where', onChoice } })} />)
-        const action = mounted()[0]!.action!
+        const action = { choice: '', choices, icon: null, label: 'Where' }
+        const { rerender } = render(<Part scope={files({ action: { ...action, onChoice: first } })} />)
+        const choose = mounted()[0]!.action!.onChoice
 
-        expect(action.onClick).toBeUndefined()
-        expect(action.choices).toEqual(choices)
-        action.onChoice!('studio/')
+        rerender(<Part scope={files({ action: { ...action, onChoice: latest } })} />)
+        expect(mounted()[0]!.action!.choices).toEqual(choices)
+        choose('studio/')
 
-        expect(onChoice).toHaveBeenCalledWith('studio/')
+        expect(first).not.toHaveBeenCalled()
+        expect(latest).toHaveBeenCalledWith('studio/')
     })
 })

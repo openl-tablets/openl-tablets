@@ -345,7 +345,7 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 
 For more information on table types, see [OpenL Tablets Reference Guide > Table Types](../reference-guide/index.md#table-types). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
 
-The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Properties** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and an extended search of all table types, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
+The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Properties** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and a search of the cells of the module, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
 
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
@@ -908,7 +908,7 @@ the sheet it is written on. Save the project to carry the change to the Design r
 
 ### Searching for Tables
 
-In Rules Editor, the search field of the top bar is named **Tables**. It narrows the module tree down by table name, and **Extended search**, the button at its end, looks for tables by several criteria in the current module, in the current project, or in all compiled projects, dependencies included. For more information on the search field, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
+In Rules Editor, the search field of the top bar is named **Tables**. Typing in it narrows the module tree down by table name, and pressing **Enter** searches the cells of every table of the module; pressing it again searches the whole project, and a third time the projects it depends on too. For more information on the search field, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
 
 #### Searching by Table Name
 
@@ -918,45 +918,34 @@ To find a table in the module tree, start typing its name in the search field of
 
 *Searching by table name*
 
-#### Performing an Extended Search
+#### Searching the Cells of Tables
 
-Extended search allows specifying criteria to narrow the search through tables. To limit the search, specify the table type, text from the table name, header or cells, and table properties as described further in this section.
+To find every table of the module that holds a text in any of its cells, type the text in the search field of the top bar and press **Enter**. The field shows the Enter key once there is a text to search for, and keeps the text, so the module tree stays narrowed down by it while the results are shown. Opening a table from the results, closing them, going back with the browser, or following a link in a table clears the field and shows the whole tree again; selecting a table in the narrowed module tree keeps the text.
 
-1.  To launch an extended search, click **Extended search**, the filter icon at the end of the search field of the top bar. The search starts from the text typed in the field.
+To search wider, press **Enter** again with the same text: the second time searches every module of the project, and the third time the projects the project depends on too. The band of the results tells how far the search reaches and what pressing **Enter** again searches. A search wider than the module waits until the project is compiled.
 
-    ![](images/advanced-search-initiate.png)
+The search looks in every cell of every table of the module, the header included, whatever the case of the letters. A date written as dates are written in tables, such as `3/12/2014` or `2014-03-12`, also finds the cells holding that day.
 
-    *Initiating the extended search*
+The tables found take the place of the table in the middle pane, and the **Table Properties** pane is hidden meanwhile:
 
-1.  In the **Scope** field, select whether search must be performed within the current module, within the current project, or within everything compiled, dependencies included.
+-   The band at the top tells how many tables contain the text, such as **3 tables contain "premium"**.
+-   The tables are listed by the Excel sheet they are written on, in the order the sheet holds them. Each table is
+    named by its header, with the text marked where the header holds it, and followed by its place on the sheet,
+    such as `B3:D8`. A wider search lists the tables of the module first, then the other modules, by module, or by
+    project and module, each with its sheet before its place, such as `Vehicle-Premium!D4:E9`.
+-   To open a table, click it. The results are closed, and the browser **Back** button brings them back. A table of
+    another module or project opens in its own module.
+-   To see the first rows of a table right in the list, click the arrow before it. The cells holding the text are
+    marked. Click the arrow again to hide the rows.
+-   To return to the table shown before the search, click **Close Results**.
 
-    ![](images/advanced-search-area-selection.png)
+While the utility tables are hidden, the results tell how many utility tables the search found, such as **1 table hidden by the type filter**, and **Show them** lists them both in the results and in the module tree. If the table being edited has unsaved changes, OpenL Studio asks to discard them before the results are shown. If the text is too long for the server, a message asks to shorten it.
 
-    *Specifying search area*
+The address of the page carries the text searched for, so the results can be shared as a link.
 
-    A search that is wider than the open module waits until the project is compiled.
+![The tables of a module holding the searched text, listed by sheet, one of them shown with the found cells marked](images/search-results.png "Search results")
 
-1.  In the **Table Type** field, select one or more table types to search in. Leave the field empty to search in all table types. Then the utility tables, of the type **Other**, are listed only while the module tree lists them: otherwise the results tell how many utility tables the search found, such as **1 table hidden by the type filter**, and **Show them** lists them both in the results and in the module tree. Selecting the type **Other** always finds them.
-2.  In the **Name contains**, **Header contains** and **Text in cells** fields, enter the words or phrases to search for. The text is searched for exactly as entered, spaces at its beginning and end included, and an empty field is not a criterion. A date in **Text in cells**, written as dates are written in tables, such as `3/12/2014` or `2014-03-12`, also finds the cells holding that day. A field takes up to 1,000 characters. If the search as a whole is still too long for the server, for example because of a long property value, a message asks to shorten it.
-3.  In **Table Properties**, click **Add a property**, select the required table property and enter its value. A table must match every property added. A property that takes several values, such as **Tags**, takes them separated by commas and matches a table that declares at least one of them.
-4.  In the similar way, add as many table properties as required.
-5.  To remove a property, click the trash icon to the right of the property.
-
-    ![](images/advanced-search-form.png)
-
-    *A filled form for extended search*
-
-1.  Click **Search** to run the search.
-
-As a result, the system displays the tables matching the search criteria with the name of the Excel file they are written in. The **View table** link opens the table in Rules Editor. The **Show body** link shows the first rows of the table right in the list, and **Hide body** folds them back.
-
-![](images/advanced-search-results.png)
-
-*Extended search result*
-
-![](images/search-results.png)
-
-*Search results with the bodies of some tables shown*
+*Search results with the rows of a table shown*
 
 ### Creating Tables
 

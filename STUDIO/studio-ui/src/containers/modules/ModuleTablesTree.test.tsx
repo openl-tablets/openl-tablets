@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable } from 'types/tables'
 import { ModuleTablesTree } from './ModuleTablesTree'
-import { pressSearchAction, searchFor } from '../../testing/search'
+import { pressSearchEnter, searchFor, searchScope } from '../../testing/search'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -18,19 +18,21 @@ const tables: ModuleTable[] = [
 /** The rail over the one table, with whatever a test asks to be different. */
 const rail = (over: Partial<ComponentProps<typeof ModuleTablesTree>> = {}) => {
     const onShowOther = vi.fn()
-    render(
-        <ModuleTablesTree
-            onExtendedSearch={vi.fn()}
-            onSelectTable={vi.fn()}
-            onShowOther={onShowOther}
-            reloading={false}
-            showOther={false}
-            tables={tables}
-            {...over}
-        />
-    )
+    const props = {
+        onSearchCells: vi.fn(),
+        onSelectTable: vi.fn(),
+        onShowOther,
+        reloading: false,
+        showOther: false,
+        tables,
+        ...over,
+    }
+    const { rerender } = render(<ModuleTablesTree {...props} />)
+    rail.rerender = (next: Partial<ComponentProps<typeof ModuleTablesTree>>) =>
+        rerender(<ModuleTablesTree {...props} {...next} />)
     return onShowOther
 }
+rail.rerender = (_next: Partial<ComponentProps<typeof ModuleTablesTree>>): void => undefined
 
 describe('ModuleTablesTree', () => {
     beforeEach(() => localStorage.clear())
@@ -61,34 +63,50 @@ describe('ModuleTablesTree', () => {
         expect(localStorage.getItem('openl.module.rail.collapsed')).toBeNull()
     })
 
-    it('searches the names it shows, and hands the rest to the extended search', async () => {
+    it('filters the names it shows as the reader types, and searches the cells for the text on Enter', async () => {
         const shown: ModuleTable[] = [
             { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
             { id: 'two', name: 'Premium', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
         ]
-        const onExtendedSearch = vi.fn()
-        rail({ onExtendedSearch, selectedTableId: 'two', tables: shown })
+        const onSearchCells = vi.fn()
+        rail({ onSearchCells, selectedTableId: 'two', tables: shown })
         expect(screen.getByText('Premium')).toBeInTheDocument()
 
         searchFor('greet')
 
-        // The tables are already in the browser, so the search costs no request.
+        // The tables are already in the browser, so the filter costs no request.
         expect(screen.queryByText('Premium')).toBeNull()
+        expect(onSearchCells).not.toHaveBeenCalled()
 
-        pressSearchAction()
+        pressSearchEnter()
 
-        // Anything wider than a name is the extended search's to ask the server, and it starts from what was typed.
-        expect(onExtendedSearch).toHaveBeenCalledWith('greet')
+        // The text in the cells is the server's to look for; the rail stays filtered by the text sent.
+        expect(onSearchCells).toHaveBeenCalledWith('greet')
+        expect(screen.queryByText('Premium')).toBeNull()
     })
 
-    it('carries what was typed to the extended search with its spaces', async () => {
-        const onExtendedSearch = vi.fn()
-        rail({ onExtendedSearch })
+    it('clears the text it is filtered by once the screen asks it to', () => {
+        const shown: ModuleTable[] = [
+            { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
+            { id: 'two', name: 'Premium', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
+        ]
+        rail({ filterResets: 0, selectedTableId: 'two', tables: shown })
+        searchFor('greet')
+        expect(screen.queryByText('Premium')).toBeNull()
 
-        searchFor(' greet ')
-        pressSearchAction()
+        rail.rerender({ filterResets: 0, selectedTableId: 'two', tables: shown })
+        expect(searchScope('tables').value).toBe('greet')
 
-        expect(onExtendedSearch).toHaveBeenCalledWith(' greet ')
+        rail.rerender({ filterResets: 1, selectedTableId: 'two', tables: shown })
+        expect(searchScope('tables').value).toBe('')
+        expect(screen.getByText('Premium')).toBeInTheDocument()
+    })
+
+    it('offers no control beside the search: Enter is the way to search the cells', () => {
+        rail()
+
+        expect(searchScope('tables').action).toBeUndefined()
+        expect(searchScope('tables').onEnter).toBeDefined()
     })
 
     it('asks for the utility tables to be listed from the filter dialog, as the Editor\'s filter let a reader ask', async () => {
