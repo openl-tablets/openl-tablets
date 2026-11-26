@@ -11,9 +11,10 @@ import { Client } from '@modelcontextprotocol/client'
 import { SKILLS_EXTENSION_ID, SkillsClient } from '@modelcontextprotocol/client/ext/skills'
 import { OpenLClient } from './client.js'
 import { createConfiguredServer } from './mcp-core.js'
-import { SKILLS, SKILLS_OVERVIEW } from './skills.js'
+import { SKILLS, SKILLS_OVERVIEW, summaryOf } from './skills.js'
 import { mcpToolName } from './constants.js'
 import { getAllTools } from './handlers/index.js'
+import { readGuideBodies } from './guides-registry.js'
 import files from 'virtual:skills'
 
 describe('skills', () => {
@@ -78,15 +79,23 @@ describe('skills', () => {
             .toEqual([])
     })
 
-    it('tells the agent of every skill, its URI and its description on one line', () => {
+    it('tells the agent of every skill, its guide id and the summary of its frontmatter on one line', () => {
         const lines = SKILLS_OVERVIEW.split('\n').filter((line) => line.startsWith('- '))
 
-        expect(lines).toHaveLength(SKILLS.entries.length)
-        for (const { uri, frontmatter: { name, description } } of SKILLS.entries) {
-            const words = description.split(/\s+/).filter(Boolean).join(' ')
-            expect(lines.filter((line) => line.includes(`(\`${uri}\`)`))).toEqual([
-                expect.stringMatching(new RegExp(`^- \`${name}\` .*${RegExp.escape(words)}$`)),
-            ])
+        expect(lines).toEqual(SKILLS.entries.map((entry) => `- \`skill/${entry.frontmatter.name}\` — ${summaryOf(entry)}`))
+        for (const entry of SKILLS.entries) {
+            expect(summaryOf(entry), entry.frontmatter.name).toMatch(/^[A-Z].{20,120}\.$/)
         }
+    })
+
+    it('keeps the server instructions within the 4 KB Claude Code passes to its agent', () => {
+        expect(Buffer.byteLength(client.getInstructions() ?? '')).toBeLessThanOrEqual(4000)
+    })
+
+    it('names in the server instructions only skill ids openl_get_guides reads', async () => {
+        const ids = [...(client.getInstructions() ?? '').matchAll(/`(skill\/[^`]+)`/g)].map(([, id]) => id)
+
+        expect(ids).toContain('skill/planning/references/templates.md')
+        expect((await readGuideBodies(new OpenLClient({ baseUrl: 'http://localhost:8080' }), ids)).unknown).toEqual([])
     })
 })

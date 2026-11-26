@@ -7,6 +7,8 @@ description: >
   change already in the target. Use when a plan starts the change log, or on
   "keep a log of the changes", "reapply the changes", "redo the feature after
   the conflict", "replay the change set", "carry this change to another branch".
+metadata:
+  summary: "A log of the changes of a feature, and reapplying the missing ones after a conflict or on another branch."
 ---
 
 # OpenL Change Log and Reapply

@@ -5,6 +5,8 @@ description: >
   startRequestDate, lob, state, country, currency) and tests both periods. Use when a rule, rate or configuration
   must apply from a date or per LOB/state/country/currency, or on "effective date", "new version of the table",
   "applicable from", "starting from", "replace rates as of".
+metadata:
+  summary: "A new version of a table by date, line of business, state, country or currency, and its tests."
 ---
 
 # Versioning

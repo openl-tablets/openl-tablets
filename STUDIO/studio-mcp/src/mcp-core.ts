@@ -59,8 +59,8 @@ or edit answered. Then check \`compiles\` and \`errors\` in its answer, \`openl_
 with \`openl_run_project_tests\`. A compile error in one table makes the tables that use it fail too: fix the first \
 error of the table you changed. Change properties with \`openl_set_table_properties\`, not as cells.
 5. Before you save a change, create the project's own \`AGENTS.md\` when it has none, or update it when the change \
-adds, removes or renames a rule, step, term or convention, never for a changed value, as the \`project-guidance\` \
-skill tells: the next task starts from it. \`openl_project_status\` with \`changes: true\` names the tables changed \
+adds, removes or renames a rule, step, term or convention, never for a changed value, as the skill \
+\`skill/project-guidance\` tells: the next task starts from it. \`openl_project_status\` with \`changes: true\` names the tables changed \
 in the working copy since the last save. A restore with \`openl_restore_project_local_change\` undoes every later \
 edit of the module: preview it first. Edits, and files written, copied, moved, deleted or uploaded, stay in the \
 working copy until \`openl_save_project\` commits them, or are committed at once in a closed project: say so when \

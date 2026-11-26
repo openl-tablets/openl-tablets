@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
+import skillFiles from 'virtual:skills'
 
 import { OpenLClient } from './client.js'
 import {
@@ -31,9 +32,15 @@ beforeEach(() => {
     mockUserGuides(mockHttp)
 })
 
+/** The paths of the files of the skills, as the ids of the guide tools name them. */
+const SKILL_FILES = Object.keys(skillFiles)
+
 describe('listGuides', () => {
-    it('lists the specifications, the reference guide, then the migration notes, oldest first', async () => {
-        expect(await listGuides(client)).toEqual([
+    it('lists the specifications, the reference guide, the migration notes, oldest first, then the skills', async () => {
+        const guides = await listGuides(client)
+
+        expect(guides.slice(-SKILL_FILES.length).map((g) => g.type)).toEqual(SKILL_FILES.map(() => 'skill'))
+        expect(guides.slice(0, -SKILL_FILES.length)).toEqual([
             {
                 id: GUIDE_IDS.rulesXml,
                 type: 'specification',
@@ -58,6 +65,33 @@ describe('listGuides', () => {
             },
             expect.objectContaining({ id: GUIDE_IDS.migration700, size: Buffer.byteLength(NOTES_700) }),
         ])
+    })
+
+    it('lists every file of the skills, a skill before its files, titled by its heading, without OpenL Studio', async () => {
+        const skills = await listGuides(client, { type: 'skill' })
+
+        expect(mockHttp.history.get).toEqual([])
+        expect(skills).toHaveLength(SKILL_FILES.length)
+        expect(skills).toContainEqual({
+            id: 'skill/planning',
+            type: 'skill',
+            title: 'OpenL Change Planning',
+            path: 'skill://planning/SKILL.md',
+            size: Buffer.byteLength(skillFiles['planning/SKILL.md']),
+        })
+        const ids = skills.map((g) => g.id)
+        expect(ids.indexOf('skill/planning')).toBe(ids.indexOf('skill/planning/references/templates.md') - 1)
+        expect(skills.find((g) => g.id === 'skill/change-log-and-reapply/assets/openl-change-set.schema.json')?.title)
+            .toBe('openl-change-set.schema.json')
+    })
+
+    it('finds a skill by a part of its description, whatever its case and line breaks, but not its other files', async () => {
+        const found = await listGuides(client, { search: 'Merge Conflicts' })
+
+        expect(found.map((g) => g.id)).toContain('skill/branching')
+        expect(found.every((g) => g.type === 'skill' && !g.id.slice('skill/'.length).includes('/'))).toBe(true)
+        expect((await listGuides(client, { search: 'conflicts, merging to the base' })).map((g) => g.id))
+            .toEqual(['skill/branching'])
     })
 
     it('reads the table of contents beside the REST API, and only the migration notes it lists', async () => {
@@ -95,6 +129,33 @@ describe('readGuideBodies', () => {
         expect(unknown).toEqual([GUIDE_IDS.migration65])
     })
 
+    it('returns the files of the skills verbatim without OpenL Studio, which other ids read', async () => {
+        const skills = await readGuideBodies(client, ['skill/testing', 'skill/planning/references/templates.md'])
+
+        expect(skills.found.map((f) => f.body)).toEqual([skillFiles['testing/SKILL.md'], skillFiles['planning/references/templates.md']])
+        expect(mockHttp.history.get).toEqual([])
+
+        const mixed = await readGuideBodies(client, ['skill/testing', GUIDE_IDS.rulesXml, 'skill/unknown'])
+        expect(mixed.found.map((f) => f.entry.id)).toEqual(['skill/testing', GUIDE_IDS.rulesXml])
+        expect(mixed.unknown).toEqual(['skill/unknown'])
+    })
+
+    it('reports an unknown skill among skills without OpenL Studio, even when it serves no guides', async () => {
+        mockHttp.onGet('../docs/toc.json').reply(500)
+
+        expect((await readGuideBodies(client, ['skill/testing', 'skill/unknown'])).unknown).toEqual(['skill/unknown'])
+        expect(mockHttp.history.get).toEqual([])
+    })
+
+    it('knows the file every relative link of a skill names by the id under the one of the skill', async () => {
+        const linked = Object.entries(skillFiles).flatMap(([path, text]) =>
+            [...text.matchAll(/\]\((?![a-z]+:|#)([^)#\s]+)/g)].map(([, target]) =>
+                `skill/${new URL(target, `file:///${path}`).pathname.slice(1)}`))
+
+        expect(linked).toContain('skill/planning/references/templates.md')
+        expect((await readGuideBodies(client, linked)).unknown).toEqual([])
+    })
+
     it('de-duplicates requested ids preserving first occurrence', async () => {
         const { found } = await readGuideBodies(client, [GUIDE_IDS.rulesXml, GUIDE_IDS.basicConcepts, GUIDE_IDS.rulesXml])
         expect(found.map((f) => f.entry.id)).toEqual([GUIDE_IDS.rulesXml, GUIDE_IDS.basicConcepts])
@@ -118,6 +179,11 @@ describe('findKnownGuideIds', () => {
     it('returns the ids referenced in the text, in index order', async () => {
         const text = `Check ${GUIDE_IDS.smartRules} first, then ${GUIDE_IDS.rulesXml}. Ignore spec/unknown-thing.`
         expect(await findKnownGuideIds(client, text)).toEqual([GUIDE_IDS.rulesXml, GUIDE_IDS.smartRules])
+    })
+
+    it('returns the skills and their files the text names', async () => {
+        const text = 'Follow skill/planning, then skill/planning/references/templates.md; skill/plan is none.'
+        expect(await findKnownGuideIds(client, text)).toEqual(['skill/planning', 'skill/planning/references/templates.md'])
     })
 
     it('takes an id only as a whole, not as the start of a longer one', async () => {

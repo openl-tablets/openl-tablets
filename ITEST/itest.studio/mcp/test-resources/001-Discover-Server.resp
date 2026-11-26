@@ -18,7 +18,7 @@ HTTP/1.1 200 OK
         }
       }
     },
-    "instructions": "This server connects you to OpenL Studio*skill://planning/SKILL.md*",
+    "instructions": "This server connects you to OpenL Studio*`skill/planning`*",
     "resultType": "complete",
     "ttlMs": 0,
     "cacheScope": "private",

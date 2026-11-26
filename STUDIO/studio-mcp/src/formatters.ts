@@ -225,6 +225,9 @@ function outlineOf(content: string): string {
     return `${content.slice(0, sections[0].start).trimEnd()}\n\nContents:\n${contents.join('\n')}`
 }
 
+/** The skill that creates the `AGENTS.md` of a project and keeps it current, and the tool that reads it. */
+export const PROJECT_GUIDANCE_SKILL = '`skill/project-guidance` (`openl_get_guides`)'
+
 /**
  * Render a project's applicable AGENTS.md files as a single markdown document.
  *
@@ -245,7 +248,7 @@ function outlineOf(content: string): string {
 export function formatAgentsDocument(files: Types.AgentsFile[], titles?: string[]): string {
     if (files.length === 0) {
         return 'No AGENTS.md files apply to this project. When you change it, create its AGENTS.md before you save, as the '
-            + '`project-guidance` skill (`skill://project-guidance/SKILL.md`) tells.'
+            + `skill ${PROJECT_GUIDANCE_SKILL} tells.`
     }
     const body = (part: (content: string) => string): string => files.toReversed().map((file) => {
         const path = file.path.startsWith('/') ? file.path : `/${file.path}`
