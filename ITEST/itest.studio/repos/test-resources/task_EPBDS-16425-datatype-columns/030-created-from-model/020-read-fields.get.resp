@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Policy' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "XKJG11YYNAGHNNBE",
+        "name": "Policy",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16425-Columns",
+        "cell": "B2"
+      }
+    }
+  ],
   "id": "XKJG11YYNAGHNNBE",
   "tableType": "Datatype",
   "kind": "Datatype",

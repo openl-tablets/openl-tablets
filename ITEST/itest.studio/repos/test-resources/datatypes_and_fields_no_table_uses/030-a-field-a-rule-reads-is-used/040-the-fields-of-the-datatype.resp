@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Field 'agentCode' of datatype 'Policy' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "${POLICY}",
+        "name": "Policy",
+        "module": "Model",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "B8",
+        "start": 0,
+        "end": 9
+      }
+    }
+  ]
+}

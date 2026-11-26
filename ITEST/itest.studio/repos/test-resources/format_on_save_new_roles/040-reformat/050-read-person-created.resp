@@ -1,4 +1,4 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-&../020-create-tables/041-read-person-created.json
+&050-read-person-created.json

@@ -120,5 +120,21 @@ Content-Type: application/json
       "to": 19
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'StyledData' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "HZW3F11ZYYN4DBYD",
+        "name": "StyledData",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16194",
+        "cell": "B2"
+      }
+    }
+  ]
 }

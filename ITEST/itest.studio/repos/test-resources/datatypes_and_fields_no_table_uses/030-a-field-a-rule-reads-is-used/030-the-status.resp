@@ -1,0 +1,129 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "compileStatus": {
+    "compileState": "warnings",
+    "compilation": {
+      "messages": {
+        "items": [
+          {
+            "id": "###",
+            "summary": "Unreachable statement",
+            "severity": "WARN",
+            "location": {
+              "type": "table",
+              "id": "${METHOD}",
+              "name": "describeCoverage",
+              "module": "Rating",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "A3",
+              "start": 28,
+              "end": 34
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Field 'hobby' of datatype 'Adult' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${ADULT}",
+              "name": "Adult",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "B5",
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Field 'limit' of datatype 'Coverage' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${COVERAGE}",
+              "name": "Coverage",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "B4",
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Datatype 'Discount' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${DISCOUNT}",
+              "name": "Discount",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "A1"
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Field 'email' of datatype 'Driver' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${DRIVER}",
+              "name": "Driver",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "B8",
+              "start": 0,
+              "end": 5
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Field 'agentCode' of datatype 'Policy' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${POLICY}",
+              "name": "Policy",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "B8",
+              "start": 0,
+              "end": 9
+            }
+          },
+          {
+            "id": "###",
+            "summary": "Vocabulary 'Region' is not used in the current project.",
+            "severity": "INFO",
+            "location": {
+              "type": "table",
+              "id": "${REGION}",
+              "name": "Region",
+              "module": "Model",
+              "projectId": "${PROJECT}",
+              "project": "${PROJECT_NAME}",
+              "cell": "A1"
+            }
+          }
+        ],
+        "total": 7,
+        "errors": 0,
+        "warnings": 1
+      },
+      "modules": {
+        "total": 2,
+        "compiled": 2
+      }
+    }
+  }
+}

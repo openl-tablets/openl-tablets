@@ -68,9 +68,13 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         return getHeader().getType();
     }
 
+    /** What the body of the method uses, every expression of it. A method compiled for the execution keeps none. */
     @Override
     public void updateDependency(BindingDependencies dependencies) {
-        getTableMethod().getCompositeMethod().getMethodBodyBoundNode().updateDependency(dependencies);
+        var compositeMethod = getTableMethod().getCompositeMethod();
+        if (compositeMethod != null) {
+            compositeMethod.updateDependency(dependencies);
+        }
     }
 
     private TableMethod getTableMethod() {

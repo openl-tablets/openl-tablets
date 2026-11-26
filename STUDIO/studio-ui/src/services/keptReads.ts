@@ -14,7 +14,7 @@ import {
 } from './modules'
 import { getProjectMigration, type ProjectMigration } from './migration'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS } from './projectIndex'
-import { isCompiled } from './projectStatus'
+import { isCompiled, type ProjectStatusDetailedMessage } from './projectStatus'
 import {
     getDesignRepositories,
     getProject,
@@ -231,6 +231,25 @@ export const readTableWindow = (
 /** The first window of a table as the editor last read it, when that read is still trusted. */
 export const keptTableWindow = (projectId: string, tableId: string, moduleName: string): RawTableView | undefined =>
     keptValue(tableKey('table', projectId, tableId, moduleName))
+
+/**
+ * Gives the first window of a table kept for the next screen the messages read of the table since: a screen that reads
+ * them again once a compilation ends keeps them for the next time the table is opened. A table not kept already is not
+ * kept for it, and the window keeps when it was read.
+ */
+export const keepTableMessages = (
+    projectId: string,
+    tableId: string,
+    moduleName: string,
+    messages: ProjectStatusDetailedMessage[]
+): void => {
+    const known = kept.get(tableKey('table', projectId, tableId, moduleName)) as Kept<RawTableView> | undefined
+    if (known?.value?.id === tableId) {
+        const value = { ...known.value, messages }
+        known.value = value
+        known.answer = Promise.resolve(value)
+    }
+}
 
 /** The details of a table: its kind, its properties and where they come from. */
 export const readTableDetails = (

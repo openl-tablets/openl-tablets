@@ -105,5 +105,21 @@
       "to": 23
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Vocabulary 'Color' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "Color",
+        "module": "Main",
+        "projectId": "***",
+        "project": "FormatOnSaveRoles",
+        "cell": "B6"
+      }
+    }
+  ]
 }

@@ -39,5 +39,21 @@ Content-Type: application/json
       }
     ]
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Coverage' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "BB8822TS0QXDJVRT",
+        "name": "Coverage",
+        "module": "Rates",
+        "projectId": "***",
+        "project": "EPBDS-16662",
+        "cell": "B14"
+      }
+    }
+  ]
 }

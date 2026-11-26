@@ -28,7 +28,7 @@ function severityRank(severity: string | undefined): number {
 /**
  * The compile messages `openl_project_status` answers: none of a compilation still running, which has made no counts
  * yet, nor of an "ok" one unless a severity is asked for; else those of the severities asked for, errors first, so the
- * most actionable survive a cut (Studio sends them in id order). Unless `grouped` is false, the messages of one table
+ * most actionable survive a cut (Studio sends them so too). Unless `grouped` is false, the messages of one table
  * after its first of a severity are counted in `more` of the first: an error in one table makes every table that uses
  * it fail too, hundreds of messages of one cause. `limit` caps them.
  */

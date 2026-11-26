@@ -133,5 +133,21 @@
       "to": 15
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Result' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "Result",
+        "module": "Main",
+        "projectId": "***",
+        "project": "FormatOnSaveRoles",
+        "cell": "B10"
+      }
+    }
+  ]
 }

@@ -39,8 +39,9 @@ import org.openl.util.TextRange;
 @RequiredArgsConstructor
 public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDescriptionMapper {
 
+    /** The errors first, then the warnings, then the information messages, each in the order they were raised. */
     private static final Comparator<DetailedMessageDescription> BY_SEVERITY_AND_ID = Comparator
-            .<DetailedMessageDescription, Severity>comparing(m -> m.source().severity())
+            .<DetailedMessageDescription, Severity>comparing(m -> m.source().severity(), Comparator.reverseOrder())
             .thenComparingLong(m -> m.source().id());
 
     @Override
@@ -104,6 +105,7 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
      * Resolves message locations against indexes built once per project, so a project raising thousands of
      * messages does not walk its tables again for each of them.
      */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private static final class MessageLocator {
 
         /** The compiled project a message about a table is looked up in, none for the messages about files. */
@@ -121,12 +123,6 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         private final @Nullable Path projectFolder;
         /** What the places of a message about a file are counted from. */
         private final MessagePositions positions;
-
-        MessageLocator(@Nullable ProjectModel model, @Nullable Path projectFolder, MessagePositions positions) {
-            this.model = model;
-            this.projectFolder = projectFolder;
-            this.positions = positions;
-        }
 
         MessageSource resolve(OpenLMessage message) {
             var sourceLocation = message.getSourceLocation();

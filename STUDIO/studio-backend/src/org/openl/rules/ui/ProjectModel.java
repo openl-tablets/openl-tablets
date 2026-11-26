@@ -93,6 +93,7 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.validation.DatatypeUsageCheck;
 import org.openl.rules.validation.ValidationUtils;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
@@ -102,6 +103,7 @@ import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.IProjectSourceCodeModule;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.localization.LocalizationCache;
 import org.openl.studio.projects.service.tables.StaleTableIds;
@@ -160,6 +162,20 @@ public class ProjectModel {
     private final StaleTableIds.Compilations tableIdChanges = new StaleTableIds.Compilations();
     /** The warnings about the localization files of the project, and about the calls of {@code msg} of its modules. */
     private final ProjectLocalization localization = new ProjectLocalization();
+    /**
+     * The messages about the datatypes and the fields no table of the project uses, by the source of the module that
+     * declares them. Found once the whole project is compiled: a module alone does not see the modules that use its
+     * datatypes. A module read again, after a write, a restore or a change by another program, drops them: they would
+     * point at cells that moved. They come back with the next check, and stay until the one after it; the source names
+     * a module the same way in every compilation. They name the project they are about, as the module open is read
+     * apart from them.
+     */
+    private final AtomicReference<Lint> datatypeUsage = new AtomicReference<>(Lint.NONE);
+    /**
+     * Whether the datatypes were checked once the module opened last compiled, as the whole of a project of one
+     * module. Guarded by this model.
+     */
+    private boolean datatypeUsageCheckedWithModule;
     /** The messages of the project the session reads the localization of, kept between its requests. */
     @Getter
     private final LocalizationCache localizationCache = new LocalizationCache();
@@ -336,12 +352,20 @@ public class ProjectModel {
 
     public List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
         var tableSyntaxNode = getTableByUri(uri);
-        return getMessagesByTsn(tableSyntaxNode, severity, getModuleMessages());
+        return getMessagesByTsn(tableSyntaxNode, severity, messagesOf(getCompiledOpenClass(), severity));
     }
 
     public List<OpenLMessage> getOpenedModuleMessagesByTsn(String uri, Severity severity) {
         var tableSyntaxNode = getTableByUri(uri);
-        return getMessagesByTsn(tableSyntaxNode, severity, getOpenedModuleMessages());
+        return getMessagesByTsn(tableSyntaxNode, severity, messagesOf(getOpenedModuleCompiledOpenClass(), severity));
+    }
+
+    /** The messages a read of one severity looks among: the checks made apart from the compilation raise no error. */
+    private Collection<OpenLMessage> messagesOf(@Nullable CompiledOpenClass compiled, Severity severity) {
+        if (severity == Severity.ERROR) {
+            return compiled == null ? List.of() : compiled.getAllMessages();
+        }
+        return withCheckMessages(compiled);
     }
 
     public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
@@ -576,6 +600,8 @@ public class ProjectModel {
             return status.build();
         }
         localization.addTo(status);
+        // The messages of the linter are those of the last compilation of the project until the next one tells them
+        status.addMessages(projectLint(module));
         if (compilesAlone(module)) {
             return compiledAloneStatus(status);
         }
@@ -601,22 +627,24 @@ public class ProjectModel {
 
     /** A module compiled on its own is the whole cycle: one module, counted as finished, with its messages. */
     private ProjectCompilationStatus compiledAloneStatus(ProjectCompilationStatus.Builder status) {
-        var compiled = this.compiledOpenClass.get();
-        if (compiled != null) {
-            status.addMessages(compiled.getAllMessages());
-        }
+        addCompiledMessages(status);
         return status.addModulesCompiled(1).addModulesCount(1).build();
     }
 
     /** A project compiled through has every module it took in compiled, and its messages are the project's. */
     private ProjectCompilationStatus compiledThroughStatus(ProjectCompilationStatus.Builder status,
                                                            Collection<IDependencyLoader> loaders) {
+        addCompiledMessages(status);
+        var modules = (int) loaders.stream().filter(loader -> !loader.isProjectLoader()).count();
+        return status.addModulesCount(modules).addModulesCompiled(modules).build();
+    }
+
+    /** The messages of what was compiled last. */
+    private void addCompiledMessages(ProjectCompilationStatus.Builder status) {
         var compiled = this.compiledOpenClass.get();
         if (compiled != null) {
             status.addMessages(compiled.getAllMessages());
         }
-        var modules = (int) loaders.stream().filter(loader -> !loader.isProjectLoader()).count();
-        return status.addModulesCount(modules).addModulesCompiled(modules).build();
     }
 
     /** What one loader adds while the project is still compiling: a module of it, or another project's messages. */
@@ -663,30 +691,130 @@ public class ProjectModel {
     }
 
     /**
-     * What the compilation raised, together with the warnings about the calls of {@code msg}: those are checked apart
-     * from the compilation, and are about the cells the calls are written in.
+     * What the compilation raised, together with the messages of the checks made apart from it: about the calls of
+     * {@code msg}, on the cells the calls are written in, and about the datatypes and the fields no table uses, on the
+     * tables that declare them.
      */
     public Collection<OpenLMessage> getModuleMessages() {
-        return withCallMessages(getCompiledOpenClass());
+        return withCheckMessages(getCompiledOpenClass());
     }
 
-    /** What the compilation of the opened module raised, with the warnings about the calls of {@code msg}. */
+    /**
+     * What the compilation of the opened module raised, with the messages of the checks made apart from it about the
+     * module and the modules it depends on.
+     */
     public Collection<OpenLMessage> getOpenedModuleMessages() {
-        return withCallMessages(getOpenedModuleCompiledOpenClass());
+        return withCheckMessages(getOpenedModuleCompiledOpenClass());
     }
 
-    private Collection<OpenLMessage> withCallMessages(@Nullable CompiledOpenClass compiled) {
+    private Collection<OpenLMessage> withCheckMessages(@Nullable CompiledOpenClass compiled) {
         if (compiled == null) {
             return Collections.emptyList();
         }
-        // The calls of the module and of the modules it depends on, as the compilation tells their messages too.
-        var calls = localization.callMessages(ValidationUtils.modulesOf(compiled.getOpenClassWithErrors()));
-        if (calls.isEmpty()) {
+        // The module and the modules it depends on, as the compilation tells their messages too.
+        var modules = ValidationUtils.modulesOf(compiled.getOpenClassWithErrors());
+        var calls = localization.callMessages(modules);
+        var unused = lintOf(modules);
+        if (calls.isEmpty() && unused.isEmpty()) {
             return compiled.getAllMessages();
         }
         var messages = new ArrayList<>(compiled.getAllMessages());
         messages.addAll(calls);
+        messages.addAll(unused);
         return messages;
+    }
+
+    /** The messages of the linter about the modules: their datatypes and fields no table of the project uses. */
+    private List<OpenLMessage> lintOf(Collection<XlsModuleOpenClass> modules) {
+        var module = this.moduleInfo;
+        if (module != null && isLintHidden(module)) {
+            return List.of();
+        }
+        var usage = datatypeUsage.get().bySource();
+        return modules.stream()
+                .map(ProjectModel::sourceOf)
+                .filter(Objects::nonNull)
+                .flatMap(source -> usage.getOrDefault(source, List.of()).stream())
+                .toList();
+    }
+
+    /**
+     * The messages of the linter about the project of the module: none while those kept are of the project open before,
+     * which a switch to another project drops right after it names the new module.
+     */
+    private List<OpenLMessage> projectLint(Module module) {
+        var lint = datatypeUsage.get();
+        if (isLintHidden(module) || !folderOf(module.getProject()).equals(lint.folder())) {
+            return List.of();
+        }
+        return lint.bySource().values().stream().flatMap(List::stream).toList();
+    }
+
+    /** The folder of a project, as the messages of the linter name it. */
+    private static Path folderOf(ProjectDescriptor project) {
+        return project.getProjectFolder().toAbsolutePath().normalize();
+    }
+
+    /**
+     * The messages of the linter about a project, by the source of the module that declares the types they are about,
+     * and the folder of the project.
+     */
+    private record Lint(@Nullable Path folder, Map<String, List<OpenLMessage>> bySource) {
+        /** No message, about no project. */
+        static final Lint NONE = new Lint(null, Map.of());
+    }
+
+    /**
+     * Whether no message of the linter is told: while a module of a project of several compiles alone, the modules
+     * that may use its datatypes are not compiled with it.
+     */
+    private static boolean isLintHidden(Module module) {
+        return compilesAlone(module) && hasSeveralModules(module.getProject());
+    }
+
+    /**
+     * The messages about the datatypes and the fields no table of the compiled project uses, by the source of the
+     * module that declares them. Only the modules of the files of the project are checked: a module may depend on a
+     * module of another project, whose datatypes this one has no reason to use and whose errors leave its tables as they
+     * are.
+     *
+     * <p>The check only informs, so a failure of it leaves the compilation as it is: it is logged, and nothing is
+     * told.
+     */
+    private static Lint checkDatatypeUsage(CompiledOpenClass project, ProjectDescriptor descriptor) {
+        var folder = folderOf(descriptor);
+        try {
+            var bySource = DatatypeUsageCheck.check(project, module -> isIn(module, folder))
+                    .entrySet()
+                    .stream()
+                    .collect(Collectors.toUnmodifiableMap(found -> sourceOf(found.getKey()), Map.Entry::getValue));
+            return new Lint(folder, bySource);
+        } catch (RuntimeException | LinkageError e) {
+            log.warn("Failed to check which datatypes the project uses.", e);
+            return Lint.NONE;
+        }
+    }
+
+    /** Whether a module is compiled from a file of the given project folder. */
+    private static boolean isIn(XlsModuleOpenClass module, Path folder) {
+        return sourceModuleOf(module) instanceof IProjectSourceCodeModule source
+                && folder.equals(source.getProjectFolder().toAbsolutePath().normalize());
+    }
+
+    /** The source a module is compiled from, such as its workbook, or {@code null} for a module of no source. */
+    private static @Nullable String sourceOf(XlsModuleOpenClass module) {
+        var metaInfo = module.getXlsMetaInfo();
+        return metaInfo == null ? null : metaInfo.getSourceUrl();
+    }
+
+    private static @Nullable IOpenSourceCodeModule sourceModuleOf(XlsModuleOpenClass module) {
+        var metaInfo = module.getXlsMetaInfo();
+        return metaInfo == null ? null : metaInfo.getXlsModuleNode().getModule();
+    }
+
+    /** Whether the project has several modules: one module alone does not see the others that may use its types. */
+    private static boolean hasSeveralModules(ProjectDescriptor project) {
+        return project.getModules().size() > 1;
     }
 
     public @Nullable XlsModuleSyntaxNode getXlsModuleNode() {
@@ -1101,6 +1229,12 @@ public class ProjectModel {
         compilationCancelled = true;
         dependencyManager.cancel();
         endCurrentCompilation();
+        var module = this.moduleInfo;
+        if (module != null && hasSeveralModules(module.getProject())) {
+            // The messages of the linter are of the compilation before: what the project uses now is not known. They
+            // are dropped after the cycle ends, which a compilation keeping its messages looks at after it keeps them.
+            datatypeUsage.set(Lint.NONE);
+        }
         publishStatusChanged();
     }
 
@@ -1364,6 +1498,7 @@ public class ProjectModel {
     private void letGoOfModule() {
         this.moduleInfo = null;
         localization.clear();
+        datatypeUsage.set(Lint.NONE);
         compiledFiles.set(null);
         projectFilesChanged = false;
 
@@ -1496,7 +1631,12 @@ public class ProjectModel {
         }
         // Opening another module of a project compiled already compiles nothing of the project again.
         var compiled = compiledFiles.get();
-        if (reloadType != ReloadType.NO || compiled == null || !compiled.folder().equals(projectFolder)) {
+        var anotherProject = compiled == null || !compiled.folder().equals(projectFolder);
+        if (anotherProject || reloadType != ReloadType.NO) {
+            // The messages of the linter are of another project, or of the files as they were before a write, a restore
+            // or another program changed them: they would point at cells that moved. The next check tells them again,
+            // at once for a project of one module, once the project compiles for one of several.
+            datatypeUsage.set(Lint.NONE);
             compiledFiles.set(ProjectFiles.of(moduleInfo.getProject()));
             projectFilesChanged = false;
         }
@@ -1508,6 +1648,7 @@ public class ProjectModel {
         // What was compiled belongs to the module being replaced, and the new one is not compiled until the
         // load below returns. Keeping it would report the module as ready from the moment it was asked for.
         openedModuleCompiledOpenClass.set(null);
+        datatypeUsageCheckedWithModule = false;
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         // Read before the module is compiled, which on a large project takes minutes: what the files raise is told
         // while it runs.
@@ -1523,22 +1664,36 @@ public class ProjectModel {
             if (compiledOpenClass.get() == null || !isProjectCompilationCompleted() || ReloadType.NO != reloadType) {
                 compiledOpenClass.set(thisModuleCompiledOpenClass);
             }
-            if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
-                ResolvedDependency projectDependency = AbstractDependencyManager
-                        .buildResolvedDependency(moduleInfo.getProject());
-                if (ReloadType.NO != reloadType || !Objects.equals(projectDependency,
-                        projectCompilationCompleted.get())) {
-                    compileProject(false, false);
-                }
-            } else {
-                this.compilationInProgress = false;
-                // Single-module compile already finished synchronously above. Register a fresh
-                // completed cycle so external observers see a new identity for this compilation.
-                this.currentCompilation.set(RegisteredCompilation.completed());
-                publishStatusChanged();
+            // The module is the whole project: what it uses is known as soon as it compiles, and a read right after
+            // it tells it without waiting for the compilation of the project
+            datatypeUsageCheckedWithModule = !hasSeveralModules(moduleInfo.getProject());
+            if (datatypeUsageCheckedWithModule) {
+                datatypeUsage.set(checkDatatypeUsage(thisModuleCompiledOpenClass, moduleInfo.getProject()));
             }
+            compileProjectOf(moduleInfo, reloadType);
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
+        }
+    }
+
+    /**
+     * Compiles the project of the module just compiled in the background, unless it is compiled already and nothing
+     * was reloaded. A module compiled alone ends the compilation instead.
+     */
+    private void compileProjectOf(Module moduleInfo, ReloadType reloadType) {
+        if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
+            ResolvedDependency projectDependency = AbstractDependencyManager
+                    .buildResolvedDependency(moduleInfo.getProject());
+            if (ReloadType.NO != reloadType || !Objects.equals(projectDependency,
+                    projectCompilationCompleted.get())) {
+                compileProject(false, false);
+            }
+        } else {
+            this.compilationInProgress = false;
+            // Single-module compile already finished synchronously above. Register a fresh
+            // completed cycle so external observers see a new identity for this compilation.
+            this.currentCompilation.set(RegisteredCompilation.completed());
+            publishStatusChanged();
         }
     }
 
@@ -1576,46 +1731,75 @@ public class ProjectModel {
             // thread completes the cycle's future.
             cycle.future().whenComplete((ignored, throwable) -> publishStatusChanged());
             ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
-            this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, compiledDependency -> {
-                Throwable failure = null;
-                var stopped = false;
-                synchronized (this) {
-                    if (cycle != currentCompilation.get() || cycle.future().isDone()) {
-                        // This compilation ended while this load was on its way: the reader stopped it, the model
-                        // let go of what it compiled, or another compilation took its place. What was built stays
-                        // as it is — the module they have open above all: validating the project now would go
-                        // through a dependency manager that answers every module with an interruption, and the
-                        // empty class it returns would replace both. The project is not marked as compiled through
-                        // either, because it is not.
-                        stopped = true;
-                    } else {
-                        try {
-                            this.compiledOpenClass.set(this.validate(projectDescriptor));
-                            var metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.get().getOpenClassWithErrors()
-                                    .getMetaInfo();
-                            replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
-                        } catch (Exception | LinkageError e) {
-                            onCompilationFailed(e);
-                            failure = e;
-                        }
-                        this.projectCompilationCompleted.set(compiledDependency.getDependency());
-                        this.compilationInProgress = false;
-                    }
-                }
-                if (stopped) {
-                    // The cycle ends however the compilation ended, a stop included: a caller waiting on it
-                    // would otherwise wait for something nothing is going to finish.
-                    cycle.future().cancel(false);
-                } else if (failure != null) {
-                    cycle.future().completeExceptionally(failure);
-                } else {
-                    cycle.future().complete(null);
-                }
-            });
+            this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency,
+                    compiledDependency -> endCompilation(cycle, projectDescriptor, compiledDependency));
         }
         publishStatusChanged();
         if (sync) {
             awaitCompilation(cycle);
+        }
+    }
+
+    /**
+     * Ends a compilation of the project once its modules are loaded. The project is validated, unless the compilation
+     * ended while the load was on its way. The cycle ends however the compilation ended, a stop included: a caller
+     * waiting on it would otherwise wait for something nothing is going to finish.
+     */
+    private void endCompilation(RegisteredCompilation cycle,
+                                ProjectDescriptor projectDescriptor,
+                                CompiledDependency compiledDependency) {
+        boolean stopped;
+        Throwable failure = null;
+        synchronized (this) {
+            // The reader stopped it, the model let go of what it compiled, or another compilation took its place.
+            // What was built stays as it is — the module they have open above all: validating the project now would go
+            // through a dependency manager that answers every module with an interruption, and the empty class it
+            // returns would replace both. The project is not marked as compiled through either, because it is not.
+            stopped = cycle != currentCompilation.get() || cycle.future().isDone();
+            if (!stopped) {
+                failure = validateProject(cycle, projectDescriptor);
+                this.projectCompilationCompleted.set(compiledDependency.getDependency());
+                this.compilationInProgress = false;
+            }
+        }
+        if (stopped) {
+            cycle.future().cancel(false);
+        } else if (failure != null) {
+            cycle.future().completeExceptionally(failure);
+        } else {
+            cycle.future().complete(null);
+        }
+    }
+
+    /** Validates the compiled project and checks what it uses, and answers the failure, or {@code null}. */
+    private @Nullable Throwable validateProject(RegisteredCompilation cycle, ProjectDescriptor projectDescriptor) {
+        try {
+            this.compiledOpenClass.set(this.validate(projectDescriptor));
+            if (!datatypeUsageCheckedWithModule || hasSeveralModules(projectDescriptor)) {
+                // A project of one module was checked once the module compiled, unless its descriptor has more
+                // modules since
+                setDatatypeUsage(cycle, checkDatatypeUsage(this.compiledOpenClass.get(), projectDescriptor));
+            }
+            var metaInfo = (XlsMetaInfo) this.compiledOpenClass.get().getOpenClassWithErrors().getMetaInfo();
+            replaceProjectNode(projectDescriptor.getName(), metaInfo.getXlsModuleNode());
+            return null;
+        } catch (Exception | LinkageError e) {
+            // What the project used before the failure is no longer known
+            datatypeUsage.set(Lint.NONE);
+            onCompilationFailed(e);
+            return e;
+        }
+    }
+
+    /**
+     * Keeps the messages of the linter that a compilation found, unless the compilation was stopped meanwhile. A stop
+     * drops the messages without the lock of the model, so they are dropped whether the stop comes before or after.
+     */
+    private void setDatatypeUsage(RegisteredCompilation cycle, Lint usage) {
+        datatypeUsage.set(usage);
+        if (cycle.future().isDone()) {
+            // The stop ended the cycle before it dropped the messages: what the project uses is not known
+            datatypeUsage.set(Lint.NONE);
         }
     }
 

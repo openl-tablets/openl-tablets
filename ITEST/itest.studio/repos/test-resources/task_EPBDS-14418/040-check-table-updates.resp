@@ -2,6 +2,22 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Foo' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "3FB2HZZ4FS2FYXJN",
+        "name": "Foo",
+        "module": "Qwerty",
+        "projectId": "***",
+        "project": "EPBDS-14418",
+        "cell": "B7"
+      }
+    }
+  ],
   "tableType": "Datatype",
   "id": "3FB2HZZ4FS2FYXJN",
   "kind": "Datatype",

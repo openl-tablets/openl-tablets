@@ -157,5 +157,21 @@
       "to": 14
     }
   ],
-  "headerHeight": 1
+  "headerHeight": 1,
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Claim' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "***",
+        "name": "Claim",
+        "module": "Main",
+        "projectId": "***",
+        "project": "FormatOnSaveRoles",
+        "cell": "B18"
+      }
+    }
+  ]
 }

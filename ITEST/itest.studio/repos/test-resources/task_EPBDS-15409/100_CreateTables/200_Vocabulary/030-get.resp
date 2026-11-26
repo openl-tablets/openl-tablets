@@ -62,5 +62,21 @@ Content-Type: application/json
     {
       "value": "IE"
     }
+  ],
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Vocabulary 'CountryCode' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "BHVW9FQXFPJ1MKZX",
+        "name": "CountryCode",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-15409",
+        "cell": "B2"
+      }
+    }
   ]
 }

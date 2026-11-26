@@ -7,10 +7,14 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -24,10 +28,8 @@ import org.openl.types.IOpenClass;
 import org.openl.validation.ValidationResult;
 import org.openl.validation.ValidationStatus;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationUtils {
-
-    private ValidationUtils() {
-    }
 
     static ValidationResult withMessages(Collection<OpenLMessage> messages) {
         if (messages == null || messages.isEmpty()) {
@@ -36,9 +38,8 @@ public final class ValidationUtils {
         var errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
         if (errorMessages.isEmpty()) {
             return new ValidationResult(ValidationStatus.SUCCESS, messages);
-        } else {
-            return new ValidationResult(ValidationStatus.FAIL, messages);
         }
+        return new ValidationResult(ValidationStatus.FAIL, messages);
     }
 
     public static ValidationResult validationSuccess() {
@@ -82,6 +83,20 @@ public final class ValidationUtils {
      * @return the modules, or nothing when the class is not a module of rules
      */
     public static List<XlsModuleOpenClass> modulesOf(IOpenClass compiled) {
+        return modulesOf(compiled, dependency -> true);
+    }
+
+    /**
+     * The compiled module and every module it depends on through the dependencies the filter follows.
+     *
+     * <p>Each module comes once, the compiled one first. A dependency the filter leaves out is not looked into, and
+     * neither is a dependency that is not a module of rules.
+     *
+     * @param compiled the class a compilation built
+     * @param followed whether a dependency is followed
+     * @return the modules, or nothing when the class is not a module of rules
+     */
+    static List<XlsModuleOpenClass> modulesOf(IOpenClass compiled, Predicate<CompiledDependency> followed) {
         var modules = new ArrayList<XlsModuleOpenClass>();
         if (!(compiled instanceof XlsModuleOpenClass top)) {
             return modules;
@@ -95,6 +110,7 @@ public final class ValidationUtils {
                 modules.add(module);
                 module.getDependencies()
                         .stream()
+                        .filter(followed)
                         .map(dependency -> moduleOf(dependency.getCompiledOpenClass()))
                         .filter(Objects::nonNull)
                         .forEach(pending::add);

@@ -354,5 +354,43 @@ describe('CompileProblemsPanel', () => {
         expect(screen.getByTestId('compile-problems')).toBeInTheDocument()
         expect(screen.getByTestId('compile-problems-errors')).toHaveTextContent('2')
         expect(screen.getByTestId('compile-problems-warnings')).toHaveTextContent('1')
+        expect(screen.queryByTestId('compile-problems-infos')).toBeNull()
+    })
+
+    it('counts the information messages and lists them after the warnings', () => {
+        render(<CompileProblemsPanel
+            project={{
+                ...base,
+                compileStatus: status([
+                    {
+                        id: 1,
+                        severity: 'INFO',
+                        summary: "Datatype 'Discount' is not used in the current project.",
+                        stacktrace: false,
+                    },
+                    { id: 2, severity: 'WARN', summary: 'Deprecated spreadsheet pattern', stacktrace: false },
+                ]),
+            }}
+        />)
+
+        expect(screen.getByTestId('compile-problems-warnings')).toHaveTextContent('1')
+        expect(screen.getByTestId('compile-problems-infos')).toHaveTextContent('1')
+        const listed = screen.getAllByTestId(/^compile-message-\d+$/).map(row => row.getAttribute('data-testid'))
+        expect(listed).toEqual(['compile-message-2', 'compile-message-1'])
+    })
+
+    it('stands for a project whose compilation told information messages alone', () => {
+        // What the total counts beside the errors and the warnings is told as information messages
+        const compiling: ProjectStatusUpdate = {
+            projectId: 'p1',
+            branch: 'main',
+            compileState: 'compiling',
+            compilation: { messages: { total: 2, errors: 0, warnings: 0 } },
+        }
+
+        render(<CompileProblemsPanel project={{ ...base, compileStatus: compiling }} />)
+
+        expect(screen.getByTestId('compile-problems-infos')).toHaveTextContent('2')
+        expect(screen.queryByTestId('compile-problems-warnings')).toBeNull()
     })
 })

@@ -2,6 +2,7 @@ package org.openl.binding.impl;
 
 import lombok.Getter;
 
+import org.openl.binding.BindingDependencies;
 import org.openl.binding.MethodUtil;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -40,5 +41,11 @@ public class ConstructorParamsNode extends ABoundNode implements ConstructorNode
     @Override
     public IOpenClass getType() {
         return constructor.getType();
+    }
+
+    /** The constructor called, as a call of a method tells its method. */
+    @Override
+    public void updateDependency(BindingDependencies dependencies) {
+        constructor.updateDependency(dependencies);
     }
 }

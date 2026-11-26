@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Discount' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "${DISCOUNT}",
+        "name": "Discount",
+        "module": "Model",
+        "projectId": "${PROJECT}",
+        "project": "${PROJECT_NAME}",
+        "cell": "A1"
+      }
+    }
+  ]
+}

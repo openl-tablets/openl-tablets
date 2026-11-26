@@ -13,7 +13,7 @@ import { renderInTheme, tokenFor } from '../testing/theme'
 import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { App as AntApp, ConfigProvider } from 'antd'
-import { forgetKeptReads } from '../services/keptReads'
+import { forgetKeptReads, keptTableWindow } from '../services/keptReads'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -153,13 +153,16 @@ vi.mock('./modules/TableDetailsPanel', () => ({
         return <div data-can-write={String(canWrite)} data-testid="table-details" />
     },
 }))
-// The problems are listed elsewhere; here a message only asks for the trace behind it, or for the cell it names.
+// The problems are listed elsewhere; here a message only asks for the trace behind it, or for the cell it names, and
+// the list says which messages it was handed.
 vi.mock('./modules/TableProblems', () => ({
-    TableProblems: ({ onStacktrace, onEditCell }: {
+    TableProblems: ({ messages, onStacktrace, onEditCell }: {
+        messages?: { summary: string }[]
         onStacktrace?: (message: { id: string }) => unknown
         onEditCell?: (address: string) => void
     }) => (
         <>
+            <span data-testid="table-problems">{(messages ?? []).map(message => message.summary).join('|')}</span>
             <button data-testid="table-stacktrace" onClick={() => onStacktrace?.({ id: 'm-1' })} type="button" />
             <button data-testid="table-problem-cell" onClick={() => onEditCell?.('A3')} type="button" />
         </>
@@ -276,6 +279,14 @@ const project = (status: string) => ({
     repositoryInfo: { id: 'design', name: 'Design', features: { branches: true } },
 })
 
+/** A message of the linter about a field of the table. */
+const UNUSED_CODE = {
+    id: 7,
+    summary: "Field 'code' of datatype 'Bank' is not used in the current project.",
+    severity: 'INFO' as const,
+    stacktrace: false,
+}
+
 describe('ModuleWorkspace', () => {
     beforeEach(() => {
         // What one test read must not answer the next one.
@@ -336,6 +347,141 @@ describe('ModuleWorkspace', () => {
         // Writing the cells may move the table, so the properties go to the table as it stands afterwards.
         await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-2', changed: true })
         expect(write).toHaveBeenCalled()
+    })
+
+    it('reads the messages of the table again once the compilation a refresh asked for ends', async () => {
+        workspace.opened = true
+        workspace.state = 'warnings'
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.anything()))
+        await userEvent.click(screen.getByTestId('module-refresh'))
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledTimes(2))
+        // The project compiles again; the messages of the linter are told once it has
+        workspace.state = 'compiling'
+        rerender(<ModuleWorkspace />)
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            messages: [{
+                id: 7,
+                summary: "Field 'code' of datatype 'Bank' is not used in the current project.",
+                severity: 'INFO',
+                stacktrace: false,
+            }],
+        })
+        workspace.state = 'warnings'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('table-problems'))
+            .toHaveTextContent("Field 'code' of datatype 'Bank' is not used in the current project."))
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, styles: false })
+    })
+
+    it('reads the messages of the table again once the compilation running when the module opened ends', async () => {
+        workspace.opened = true
+        // The module is built, the rest of the project is not: the messages of the linter are not told yet
+        workspace.state = 'compiling'
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+        expect(screen.getByTestId('table-problems')).not.toHaveTextContent('is not used')
+
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 't-1',
+            name: 'BankRating',
+            source: [[{ cell: 'A1', value: 'Bank' }]],
+            messages: [{
+                id: 7,
+                summary: "Field 'code' of datatype 'Bank' is not used in the current project.",
+                severity: 'INFO',
+                stacktrace: false,
+            }],
+        })
+        workspace.state = 'warnings'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(screen.getByTestId('table-problems'))
+            .toHaveTextContent("Field 'code' of datatype 'Bank' is not used in the current project."))
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, styles: false })
+        // The table opened next time from what was read of it shows them too
+        expect(keptTableWindow('p1', 't-1', 'Bank Rating')?.messages).toEqual([expect.objectContaining({ id: 7 })])
+    })
+
+    it('reads the messages again of a table read during the build whose answer arrives after the build ended',
+        async () => {
+            workspace.opened = true
+            workspace.state = 'compiling'
+            let releaseTable!: (read: unknown) => void
+            vi.mocked(getRawTable)
+                .mockImplementationOnce(() => new Promise(resolve => {
+                    releaseTable = resolve
+                }) as never)
+                .mockResolvedValue({ id: 't-1', name: 'BankRating', source: [], messages: [UNUSED_CODE] })
+            const { rerender } = render(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledTimes(1))
+
+            // The build ends while the table is on its way: the messages read then find no table to go to
+            workspace.state = 'warnings'
+            rerender(<ModuleWorkspace />)
+            await waitFor(() => expect(getRawTable).toHaveBeenCalledTimes(2))
+            await act(async () => {
+                releaseTable({ id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: 'Bank' }]] })
+            })
+
+            // The table answered with the messages of the compilation before, so they are asked again
+            await waitFor(() => expect(screen.getByTestId('table-problems')).toHaveTextContent(UNUSED_CODE.summary))
+            expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, styles: false })
+        })
+
+    it('keeps the messages of the later read of a table when two answer in the reverse order', async () => {
+        workspace.opened = true
+        workspace.state = 'compiling'
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+        const answers: ((read: unknown) => void)[] = []
+        vi.mocked(getRawTable).mockImplementation(() => new Promise(resolve => {
+            answers.push(resolve)
+        }) as never)
+        // Two compilations end one after the other: the messages are asked for twice
+        for (const state of ['warnings', 'compiling', 'warnings'] as const) {
+            workspace.state = state
+            rerender(<ModuleWorkspace />)
+        }
+        await waitFor(() => expect(answers).toHaveLength(2))
+
+        const stale = { ...UNUSED_CODE, id: 8, summary: "Field 'rate' of datatype 'Bank' is not used in the current project." }
+        await act(async () => {
+            answers[1]?.({ id: 't-1', name: 'BankRating', source: [], messages: [UNUSED_CODE] })
+        })
+        await act(async () => {
+            answers[0]?.({ id: 't-1', name: 'BankRating', source: [], messages: [stale] })
+        })
+
+        expect(screen.getByTestId('table-problems')).toHaveTextContent(UNUSED_CODE.summary)
+        expect(screen.getByTestId('table-problems')).not.toHaveTextContent(stale.summary)
+    })
+
+    it('drops the messages asked for on the branch the reader switched from', async () => {
+        workspace.opened = true
+        workspace.state = 'compiling'
+        const { rerender } = render(<ModuleWorkspace />)
+        await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
+        let releaseMessages!: (read: unknown) => void
+        vi.mocked(getRawTable).mockImplementationOnce(() => new Promise(resolve => {
+            releaseMessages = resolve
+        }) as never)
+        workspace.state = 'warnings'
+        rerender(<ModuleWorkspace />)
+        await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', expect.objectContaining({ styles: false })))
+
+        // Another branch holds a table of the same id: what the branch left behind tells of it is no news of this one
+        workspace.branch = 'feature'
+        await userEvent.click(screen.getByTestId('branch-switched'))
+        await act(async () => {
+            releaseMessages({ id: 't-1', name: 'BankRating', source: [], messages: [UNUSED_CODE] })
+        })
+
+        expect(screen.getByTestId('table-problems')).not.toHaveTextContent(UNUSED_CODE.summary)
     })
 
     it('lays the table on the plain ground of the theme, not on the grey of a page', async () => {
@@ -1403,8 +1549,8 @@ describe('ModuleWorkspace', () => {
         rerender(<ModuleWorkspace />)
 
         await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
-        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
-        // The rows drawn stay as they were: only the run state was asked for.
+        expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
+        // The rows drawn stay as they were: only the run state was asked for, and the messages in a read of their own.
         expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
     })
 
@@ -1443,7 +1589,8 @@ describe('ModuleWorkspace', () => {
 
         await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
         expect(screen.getByTestId('table-toolbar')).toHaveAttribute('data-compiled', 'true')
-        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
+        // The messages of the table are asked again at the same time, in a read of their own
+        expect(getRawTable).toHaveBeenCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
     })
 
     it('asks again about a table read during the build whose answer arrives after the build ended', async () => {
@@ -1472,7 +1619,10 @@ describe('ModuleWorkspace', () => {
         })
 
         await waitFor(() => expect(screen.getByTestId('table-toolbar')).toHaveTextContent('can-run'))
-        expect(getRawTable).toHaveBeenCalledTimes(2)
+        // The table, its messages once the build ended, then its messages and its run state again once the table
+        // arrived: it was read during the build
+        expect(getRawTable).toHaveBeenCalledTimes(4)
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 't-1', { module: 'Bank Rating', maxRows: 1, runState: true })
         expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1')
     })
 

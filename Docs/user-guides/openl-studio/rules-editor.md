@@ -10,6 +10,7 @@ The following topics are included in this chapter:
 -   [Managing Projects and Modules](#managing-projects-and-modules)
 -   [Defining Project Dependencies](#defining-project-dependencies)
 -   [Editing Localization Messages](#editing-localization-messages)
+-   [Checking Unused Datatypes and Fields](#checking-unused-datatypes-and-fields)
 -   [Viewing Tables](#viewing-tables)
 -   [Modifying Tables](#modifying-tables)
 -   [Referring to Tables](#referring-to-tables)
@@ -62,7 +63,7 @@ By default, a project is opened in the multi-module mode. This is a common produ
 
 For more information on project and module dependencies, see [OpenL Tablets Reference Guide > Project, Module, and Rule Dependencies](../reference-guide/04-working-with-projects/02-project-module-and-rule-dependencies.md#project-module-and-rule-dependencies).
 
-The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The **Compiling N of M** indicator beside the module name shows how many modules are compiled, and the tree shows a skeleton until the tables of the module are read. The compilation problems panel at the bottom of the page lists errors and warnings as more modules are compiled, and the number of errors is shown in the tree next to the tables that have them.
+The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The **Compiling N of M** indicator beside the module name shows how many modules are compiled, and the tree shows a skeleton until the tables of the module are read. The compilation problems panel at the bottom of the page lists errors, warnings and information messages as more modules are compiled, and the number of errors is shown in the tree next to the tables that have them.
 
 Opening a module of another project stops loading the project opened before: only the module being compiled at that moment is finished. A dependency project that is not included automatically (`autoIncluded` is `false`) is loaded only with the modules the project uses, and the **Compiling N of M** indicator counts only those modules of it.
 
@@ -320,6 +321,74 @@ In a table, the key of a `msg` call is a link. Point to it to see the default te
 ![A spreadsheet whose steps call msg, with the key order.total pointed at and its default text shown](images/localization-message-key-in-cell.png)
 
 *The key of a msg call in a table cell*
+
+### Checking Unused Datatypes and Fields
+
+Once the whole project is compiled, OpenL Studio tells about the parts of its datatypes that no table of the project
+uses, so that they can be removed. These are information messages:
+
+-   A field of a datatype that no table of the project reads or sets, such as
+    **Field 'driverType' of datatype 'Driver' is not used in the current project.** The message is shown on the
+    Datatype table, on the name of the field.
+-   A datatype or a vocabulary that no table of the project refers to, such as
+    **Datatype 'Discount' is not used in the current project.** The message is shown on the whole table, and the
+    fields of such a datatype get no messages of their own.
+
+![The Driver datatype with the information messages about its fields driverType and driverRisk in the Problems block above the table](images/unused-datatype-fields.png "Information messages about unused fields")
+
+*Information messages about unused fields of a datatype*
+
+A field is used when a table reads or sets it:
+
+-   a formula of a rule, a condition, an action or a return of a decision table, including the columns Smart rules
+    match to the fields by their titles, or a formula of a constant;
+-   a column of a Data, Test or Run table;
+-   a named argument of a constructor, such as `new Driver(name = "Ann")`;
+-   a getter or a setter of the field, such as `driver.getName()`, or the constructor that takes every field in their
+    order, such as `new Driver("Ann", 30)`;
+-   a row of a ColumnMatch table named after the field of its argument;
+-   a field, a getter, a setter or the constructor that takes every field of the compiled class of the datatype,
+    which a module sees when it imports the package of the classes of the datatypes, such as
+    `org.openl.generated.beans`;
+-   a property of the runtime context the field fills, such as `lob : context`.
+
+A field a datatype inherits is used through the datatype that declares it. A datatype or a vocabulary is used when a
+table refers to it, for example as the type of a rule parameter, of a Data table, of a used field, of a constant or of
+a Spreadsheet step, or by its name in a formula, such as `getValues(Region)`. A datatype is also used as the parent of
+a used datatype.
+
+A message tells what can be removed without a compilation error:
+
+-   A datatype or a vocabulary that the declaration of another datatype names, as the type of a field or as the
+    parent, gets no message while the declaration stays, even if no table uses that field or that datatype: it cannot
+    be removed before them. Its own fields that no table uses get a message each.
+-   A datatype that no table uses and no declaration names gets one message on its table, not one for each of its
+    fields.
+
+All modules of the project are checked together, so a datatype one module declares and another module uses is used.
+A module of another project, which a module of this one depends on, is not checked.
+
+These messages come from a linter, not from the compilation. They are information messages, so the compilation
+problems panel and the **Problems** block of a table list them last, after the errors and the warnings. They are not
+warnings of the project: a project with no other problem is shown as compiled. The MCP server lists them as `INFO`
+lines after the other messages of a project; for a project with no error and no warning, it lists them only when the
+information messages are asked for. They do not stop the project from being compiled, run, tested or deployed, and
+OpenL Rule Services do not check the datatypes.
+
+The check sees the tables of the project only. A field only Java or Groovy code reads, or only a project that depends
+on this one uses, gets a message too. A Datatype or a vocabulary table with a compilation error is not checked until
+the error is fixed. While any other table or file of the project has a compilation error, such as an error of a rule
+or a file that cannot be read, nothing is checked: what the table or the file uses is not known. An error of a
+project this one depends on, or of a module of another project a module of this one depends on, does not stop the
+check. While a module of a project of several modules is open with **Compile this module only** selected, the check
+is not shown, since the modules that may use its datatypes are not compiled with it. A project of one module is
+checked all the same. Stopping the compilation of a project of several modules drops the messages until the project
+is compiled again.
+
+When a table of a project of several modules is saved, a version is restored or another program changes a file, the
+messages are dropped until the project is compiled again, as they would point at cells that moved. The **Problems**
+block of the table shows the new messages as soon as that compilation ends, with no refresh of the page, and so does a
+table opened while the project is still compiling. A project of one module is checked again at once.
 
 ### Viewing Tables
 

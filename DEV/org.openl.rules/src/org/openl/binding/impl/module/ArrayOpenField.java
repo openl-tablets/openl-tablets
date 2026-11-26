@@ -2,6 +2,7 @@ package org.openl.binding.impl.module;
 
 import java.lang.reflect.Array;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.types.IMemberMetaInfo;
@@ -13,6 +14,8 @@ import org.openl.vm.IRuntimeEnv;
 @RequiredArgsConstructor
 public class ArrayOpenField implements IOpenField {
 
+    /** The field of an element that the field reads from every element of the array. */
+    @Getter
     private final IOpenField field;
     private IOpenClass type;
     private final int dimension;

@@ -2,6 +2,22 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "messages": [
+    {
+      "id": "###",
+      "summary": "Datatype 'Claim' is not used in the current project.",
+      "severity": "INFO",
+      "location": {
+        "type": "table",
+        "id": "7ZJWV6B1MMPP090A",
+        "name": "Claim",
+        "module": "Main",
+        "projectId": "***",
+        "project": "EPBDS-16425-Columns",
+        "cell": "B2"
+      }
+    }
+  ],
   "id": "7ZJWV6B1MMPP090A",
   "tableType": "Datatype",
   "kind": "Datatype",

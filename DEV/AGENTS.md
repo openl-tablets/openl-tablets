@@ -25,8 +25,9 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
   `test-resources/functionality` holds what a user showcase cannot: regressions of specific defects, expected
   compilation errors and warnings (`.msg.txt`), Java and Groovy interop, engine internals. The warnings of a source
   include those OpenL Studio adds about its calls of `msg` (`MessageCallCheck`), checked against the messages of the
-  project. A behavior users see is shown and tested once, in `Example-4-Reference-Guide` of `org.openl.rules.demo`,
-  never again here.
+  project. The information messages of the linter (`DatatypeUsageCheck`) are not checked: a case declares types it
+  does not use. A behavior users see is shown and tested once, in `Example-4-Reference-Guide` of
+  `org.openl.rules.demo`, never again here.
   **A case there is never deleted because the behavior it checks changed** — not a workbook, a table, a test case
   or a line of `.msg.txt`. Its expected result is updated instead, and a workbook that now compiles gets a test
   table that shows it works, so the case keeps failing if the old behavior comes back by mistake. Update an expected
@@ -126,6 +127,41 @@ A dependency is cleared at the end of its own compilation, before the module usi
 validator of the using module reads from its dependencies, such as the `msg` calls OpenL Studio checks with
 `MessageCallCheck`, is therefore not collected at all in the execution mode, rather than cleared afterwards. A validator that only warns
 the author skips the execution mode too: OpenL Rule Services report only the errors of a compilation.
+
+### Linter Checks (`org.openl.rules/src/org/openl/rules/validation/`)
+
+A check that needs the whole project runs in OpenL Studio once the project is compiled, apart from the compilation.
+`DatatypeUsageCheck` tells about the datatypes, the vocabularies and the fields of datatypes that no table of the
+project uses. A message tells what can be removed with no compilation error: a type the declaration of any datatype
+names, as the type of a field or as the parent, is used, though nothing uses the field or the child, and its unused
+fields are told about one by one. A datatype nothing uses or names gets one message, not one per field. A module
+validator (`IOpenLValidator`) cannot do it: it sees one module and the modules it depends on, not the modules of the
+project that use its datatypes.
+
+Its messages are `OpenLLintMessage`, information messages (`Severity.INFO`): they count as no warning of the project.
+OpenL Studio sorts every list of messages it answers errors first and information messages last, so they come after
+the errors and the warnings of the compilation; its REST answers tell them by nothing but their severity. A message
+keeps its place as text, not the syntax node: OpenL Studio holds the messages while the project compiles again, and a
+node would hold the compilation before.
+
+**Rules**: a field counts as used when the check reaches it through `BindingDependencies` — a field, or among the
+methods a getter, a setter or the constructor that takes every field — through the path of a column of a Data or Test
+table (`ColumnDescriptor.getPathFields`), or through the name of a row of a ColumnMatch table (`MatchNode.getArgument`),
+which no dependency tells. A bound node that calls a member reports it in its `updateDependency`, as
+`ConstructorParamsNode` does. A new `IOpenField` that wraps the field of a datatype, as `FieldChain` or
+`CollectionElementField` do, is unwrapped in `DatatypeUsageCheck`, or the field is told as not used. A table is walked
+with the collector of the check (`updateDependency`), never through `getDependencies()`: that one fills a collector of
+its own and drops the types the expressions take. A type a table names with no expression to read it — the type of a
+constant of a Constants table, the type the header of a Spreadsheet step or column names, whatever type the cell takes —
+is read from the table itself, and the formulas of the constants are walked as the body of a rule: the Constants table
+keeps them compiled outside the execution mode (`ConstantsTableBoundNode.getFormulas`). Only the methods and the Data
+tables the checked modules declare are walked: a module holds those of the projects it depends on too. OpenL Studio
+checks the modules of the files of the project alone (`DatatypeUsageCheck.check(CompiledOpenClass, Predicate)`): a
+module of another project, which a module of this one depends on, is not read, and its errors stop nothing. A Java class
+counts as the datatype of its Java name, and its fields, getters, setters and the constructor taking as many arguments
+as it has properties as those of the datatype: a project may hold the beans of its datatypes compiled in a jar, and a
+module that imports their package sees each as a Java class. A type an expression names, as `getValues(Region)` does, is
+the type of its node wrapped in a `StaticOpenClass`, which the check unwraps.
 
 ### Bytecode Generation (`org.openl.rules/src/org/openl/rules/runtime/`)
 

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenField;
@@ -12,6 +14,16 @@ import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.vm.IRuntimeEnv;
 
 public class RootDictionaryContext implements VariableInContextFinder {
+
+    /**
+     * The field a field of the dictionary is read through, such as the parameter {@code driver} for {@code age}.
+     *
+     * @param field a field the dictionary found
+     * @return the field it is read through, or {@code null} for a root, or for a field the dictionary did not find
+     */
+    public static @Nullable IOpenField parentOf(IOpenField field) {
+        return field instanceof ContextField contextField ? contextField.parent : null;
+    }
 
     private static final class ContextField extends OpenFieldDelegator {
         private final IOpenField parent;
