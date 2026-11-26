@@ -62,9 +62,10 @@ function groupedByTable(messages: Types.DetailedMessageDescription[]): AnsweredM
 }
 
 /**
- * The status with the tables each changed workbook holds otherwise than the saved revision, when they are asked for:
- * the pending changes name files only. Studio holds one comparison per client, so the workbooks are compared one by
- * one; a workbook whose comparison fails is named without its tables.
+ * The status with its pending changes named by their paths in the project, which the file tools take, and, when they
+ * are asked for, the tables each changed workbook holds otherwise than the saved revision: the pending changes name
+ * files only. Studio holds one comparison per client, so the workbooks are compared one by one; a workbook whose
+ * comparison fails is named without its tables.
  */
 async function withChangedTables(
     client: OpenLClient,
@@ -73,19 +74,25 @@ async function withChangedTables(
     extra: ToolHandlerExtra | undefined
 ): Promise<Types.ProjectStatusView> {
     const { pendingChanges, revision, branch, projectId } = status
-    if (!asked || !pendingChanges?.files.length || !revision) {
+    if (!pendingChanges?.files.length) {
         return status
     }
-    // A pending change names its file by the path of the project in its repository, a comparison by the path in it
-    const root = (await client.getProject(projectId)).path
+    // A pending change names its file by the path of the project in its repository, every other tool by the path in it;
+    // a project that cannot be read leaves the paths as Studio answered them
+    const root = await client.getProject(projectId).then(({ path }) => path, () => undefined)
+    const inProject = pendingChanges.files.map((file) =>
+        (root && file.path.startsWith(`${root}/`) ? { ...file, path: file.path.slice(root.length + 1) } : file))
+    if (!asked || !revision) {
+        return { ...status, pendingChanges: { ...pendingChanges, files: inProject } }
+    }
     const files = []
     // One workbook after another: Studio keeps one comparison per client, and a second one cancels the first
-    for (const file of pendingChanges.files) {
+    for (const file of inProject) {
         if (file.type !== 'modified' || !isWorkbook(file.path)) {
             files.push(file)
             continue
         }
-        const path = root && file.path.startsWith(`${root}/`) ? file.path.slice(root.length + 1) : file.path
+        const { path } = file
         const tables = await changedTablesIfCompared(client, // NOSONAR typescript:S9382
             () => client.compareProjectFiles(projectId, { path, branch, revision }, { path }), extra)
         files.push(tables ? { ...file, tables } : file)
