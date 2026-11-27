@@ -63,6 +63,27 @@ class ProjectModulesTest {
     }
 
     @Test
+    void namesAModuleDeclaredWithoutANameAsTheProjectResolvedIt() {
+        // Two workbooks of one name: the engine adds their folders to the names.
+        var declared = List.of(module(null, "FL/calc.xlsx"), module(null, "NY/calc.xlsx"));
+        var resolved = List.of(module("calc (FL)", "FL/calc.xlsx"), module("calc (NY)", "NY/calc.xlsx"));
+
+        var modules = ProjectModules.map(declared, resolved);
+
+        assertEquals(List.of("calc (FL)", "calc (NY)"), modules.stream().map(ModuleViewModel::name).toList());
+    }
+
+    @Test
+    void showsTheNamesDeclaredForOnePathAsWritten() {
+        var declared = List.of(module("Alpha", "rules/Main.xlsx"), module("Beta", "rules/Main.xlsx"));
+        var resolved = List.of(module("Alpha", "rules/Main.xlsx"), module("Beta", "rules/Main.xlsx"));
+
+        var modules = ProjectModules.map(declared, resolved);
+
+        assertEquals(List.of("Alpha", "Beta"), modules.stream().map(ModuleViewModel::name).toList());
+    }
+
+    @Test
     void showsTheModulesOfAProjectThatDeclaresNone() {
         // A project without rules.xml is made of the Excel files found in it.
         var modules = ProjectModules.map(List.of(), List.of(module("Main", "Main.xlsx")));

@@ -18,7 +18,8 @@
             <rules-root path="rules/**/*.xlsx"/>
         </module>
         <module>
-            <!-- The real module name is filename of the matched file if absent-->
+            <!-- A matched file is a module named after the file, whatever the name here; -->
+            <!-- see Module Names below for files of one name in different folders -->
             <name>AllTests</name>
             <!-- Ant-style files inclusion -->
             <rules-root path="tests/**/*.xlsx"/>
@@ -109,6 +110,26 @@
     </openapi>
 </project>
 ```
+
+## Module Names
+
+A module is known by its name across the project: an `Environment` table depends on it by name, and OpenL Studio,
+OpenL Rule Services and the OpenL Maven Plugin find it by name.
+
+- **A declared name** — the `name` of a module naming one file or folder is kept as written; a path with `*` or
+  `?` gives its name to none of the modules it matches
+- **A name the engine gives** — a module declared without a name, and each file or folder a pattern matches, is
+  named after the file without its extension, or after the folder
+- **Files of one name** — when another module has the name too, the engine adds the last folders of the path in
+  brackets, as few as tell the modules apart: `rules/FL/calc.xlsx` and `rules/NY/calc.xlsx` are `calc (FL)` and
+  `calc (NY)`, `rules/a/x/calc.xlsx` and `rules/b/x/calc.xlsx` are `calc (a - x)` and `calc (b - x)`. More folders
+  are taken while a name is one another module has, such as a workbook `calc (FL).xlsx`. A module in the project
+  root keeps the name of its file, so a module declared under that name makes the error below
+- **All versions as a dependency** — `calc*` in an `Environment` table depends on every such module, and the
+  `properties-file-name-pattern` of the folders, such as `rules/%state%/.*`, tells them apart
+- **One name for several modules** — two modules declared under one name, or modules no folder tells apart, are an
+  error of every module of the project, starting with
+  `Several modules are named 'calc': 'FL/calc.xlsx', 'NY/calc.xlsx'.`
 
 ## Validation on Save
 

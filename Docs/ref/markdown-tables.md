@@ -23,7 +23,7 @@ rules/
 | Declared in `rules.xml` | A path to the folder, or a mask that matches folders holding a file of a table | `rules/Rating`, `rules/*` |
 | Matched by a mask | A folder of a file of a table, a front matter with `table`; a workbook in it is a module of its own | `rules/Docs/README.md` is none |
 | Not in the default masks | Without `<modules>` only `rules/**/*.xlsx` and `tests/**/*.xlsx` are modules | — |
-| Module name | The name of the folder, dots included | `rules/Rates.v2` is `Rates.v2` |
+| Module name | The name of the folder, dots included, as [Module Names](rules.xml.md#module-names) tell | `rules/Rates.v2` is `Rates.v2` |
 | Sheet name | The folder of the file; the module folder for a file at its root | `Factors` |
 | Reading order | Paths in natural order: a number in a name by its value | `rate.md`, `rate1.md`, `rate2.md`, `rate10.md` |
 | File name | The name of the table; a taken name gets a number | `premium.md`, `premium1.md` |

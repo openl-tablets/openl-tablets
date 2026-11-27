@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.openl.rules.project.model.Module;
 import org.openl.studio.projects.model.ModuleViewModel;
+import org.openl.util.StringUtils;
 
 /**
  * The modules of a project as the screen shows them: what {@code rules.xml} declares, and what each
@@ -30,17 +32,33 @@ final class ProjectModules {
      */
     static List<ModuleViewModel> map(List<Module> declared, List<Module> resolved) {
         var matched = matchesByPattern(resolved);
+        var resolvedNames = namesByPath(resolved);
         var views = new ArrayList<ModuleViewModel>(declared.size());
         for (var module : declared) {
             if (module.isModuleWithWildcard()) {
                 var pattern = module.getRulesRootPath();
                 views.add(ModuleViewModel.pattern(module.getName(), pattern, matched.getOrDefault(pattern, List.of())));
             } else {
-                views.add(module(module));
+                views.add(declaredModule(module, resolvedNames));
             }
         }
         declaredPathsAside(declared, resolved).forEach(module -> views.add(module(module)));
         return views;
+    }
+
+    /**
+     * The names the project resolved the modules declared by their own paths to. A module declared without a name
+     * is named after its file, with its folders added when another module has that name.
+     */
+    private static Map<String, String> namesByPath(List<Module> resolved) {
+        var names = new HashMap<String, String>();
+        for (var module : resolved) {
+            if (module.getWildcardRulesRootPath() == null && module.getRulesRootPath() != null
+                    && module.getName() != null) {
+                names.putIfAbsent(module.getRulesRootPath(), module.getName());
+            }
+        }
+        return names;
     }
 
     /** The matches of every pattern, in the order the project resolved them. */
@@ -65,6 +83,17 @@ final class ProjectModules {
                 .filter(module -> module.getWildcardRulesRootPath() == null)
                 .filter(module -> !declaredPaths.contains(module.getRulesRootPath()))
                 .toList();
+    }
+
+    /**
+     * A module declared by its own path. A declared name is shown as written; a declaration without one is shown
+     * by the name the project resolved it to.
+     */
+    private static ModuleViewModel declaredModule(Module module, Map<String, String> resolvedNames) {
+        var name = StringUtils.isBlank(module.getName())
+                ? resolvedNames.getOrDefault(module.getRulesRootPath(), module.getResolvedName())
+                : module.getName();
+        return ModuleViewModel.module(name, module.getRulesRootPath());
     }
 
     /** A module reads by the name it is known by, which for a declaration without one is its file. */

@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ModuleNames;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.properties.PropertiesLoader;
 
@@ -47,6 +48,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         try {
             var projectDescriptor = ProjectDescriptor.read(folder).expand(ignored);
             var processor = buildProcessor(propertiesFileNameProcessorBuilder, projectDescriptor, globalErrorMessages);
+            globalErrorMessages.addAll(ModuleNames.duplicates(projectDescriptor.getModules()));
 
             var globalWarnMessages = new LinkedHashSet<String>();
             if ("org.openl.rules.project.resolving.CWPropertyFileNameProcessor"

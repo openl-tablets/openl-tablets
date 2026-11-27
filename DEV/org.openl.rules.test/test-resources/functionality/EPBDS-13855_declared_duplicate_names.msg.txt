@@ -1,0 +1,3 @@
+ERROR: Several modules are named 'calc': 'FL/calc.xlsx', 'NY/calc.xlsx'. Each module of the project must have a name of its own.
+ERROR: Several modules are named 'calc': 'FL/calc.xlsx', 'NY/calc.xlsx'. Each module of the project must have a name of its own.
+WARN: File 'mainModule.xlsx' does not match file name pattern '%state%/.*'.

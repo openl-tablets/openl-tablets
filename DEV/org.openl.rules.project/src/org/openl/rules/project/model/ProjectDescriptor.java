@@ -22,8 +22,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -397,6 +399,9 @@ public class ProjectDescriptor {
      * Completes the descriptor read from the project folder: names the project and its modules, and finds the
      * modules a path with a wildcard declares.
      *
+     * <p>A module named after its file gets the last folders of its path when another module has that name too,
+     * as {@link ModuleNames#nameApart} tells. A name declared in rules.xml is kept as it is.
+     *
      * <p>No module is found in an ignored file or folder, such as the output folder of a build.
      *
      * @param ignored tells the files and the folders of the project no module is found in
@@ -405,6 +410,10 @@ public class ProjectDescriptor {
         fillProjectName();
         fillModulesByPattern(ignored);
 
+        var namedByTheEngine = Collections.<Module>newSetFromMap(new IdentityHashMap<>());
+        getModules().stream()
+                .filter(module -> StringUtils.isBlank(module.getName()) || module.getWildcardRulesRootPath() != null)
+                .forEach(namedByTheEngine::add);
         for (Module module : getModules()) {
             module.setProject(this);
             if (module.getMethodFilter() == null) {
@@ -434,6 +443,7 @@ public class ProjectDescriptor {
                 module.setRulesRootPath(FileNameFormatter.normalizePath(projectFolder.relativize(modulePath)));
             }
         }
+        ModuleNames.nameApart(getModules(), namedByTheEngine::contains);
         return this;
     }
 

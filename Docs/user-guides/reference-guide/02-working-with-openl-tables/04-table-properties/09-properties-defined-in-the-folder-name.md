@@ -27,3 +27,14 @@ The following Ant and file patterns are supported:
 | \*                | Any character of the file name.                     |
 | .                 | Separator of the file extension.                    |
 | ?                 | Any one symbol of the file name.                    |
+
+Files of one name in different folders are modules of their own. A module is named after its file, and when another
+module has that name too, the last folders of its path are added in brackets, as few as tell the modules apart. For
+example, the `rules/FL/MainAlgo.xlsx` and `rules/NY/MainAlgo.xlsx` files are the `MainAlgo (FL)` and `MainAlgo (NY)`
+modules. To use all versions in another module, add them to its **Environment** table with the asterisk, as
+`MainAlgo*`; see
+[Defining Dependencies between Modules in the Configuration Table](../03-table-types/09-configuration-table/02-defining-dependencies-between-modules-in-the-configuration-table.md#defining-dependencies-between-modules-in-the-configuration-table).
+
+The name of a module declared in `rules.xml` for one file or folder is kept as written. A name declared for a path
+with `*` or `?` is not given to the modules it matches: they are named after their files. Two modules declared under
+one name are an error of the project, which every module reports.

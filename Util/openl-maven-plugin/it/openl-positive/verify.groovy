@@ -23,6 +23,7 @@ try {
             'Service',
             'Tests folder skipped by skipTests',
             'When tested method has two candidates',
+            'Versions by folders',
     ].each { name ->
         assert lines.any { it =~ /^\[INFO\] ${Pattern.quote(name)} \.+ SUCCESS/ }, "Module '${name}' must pass"
     }
@@ -101,6 +102,15 @@ try {
     def junitReport1 = new File(folder, 'openl-testedmethod-has-two-candidates/target/openl-test-reports/TEST-OpenL.rater.AgeGenderFactorTest.xml')
     assert junitReport1.exists()
     assert junitReport1.readLines().get(1).contains('tests="1" skipped="0" failures="0" errors="0"')
+
+    // ---------------------------------------------------------------------------------------
+    // openl-versioned-folders: workbooks of one name in different folders are modules of their own,
+    // named after their folders, so each one is compiled and tested on its own.
+    // ---------------------------------------------------------------------------------------
+    def versioned = sections['openl-versioned-folders']
+    assert versioned.any { it.contains("Searching tests in module 'calc (FL)'...") }
+    assert versioned.any { it.contains("Searching tests in module 'calc (NY)'...") }
+    assert versioned.any { it.contains('Total tests run: 2, Failures: 0, Errors: 0') }
 
     // ---------------------------------------------------------------------------------------
     // openl-project: the openl-groovy module compiles, its tests run, the tests/ folder is

@@ -1000,6 +1000,23 @@ class WorkspaceProjectServiceTest {
         assertTrue(result.descriptor.sourcesDefault());
     }
 
+    /** A project that is not opened names its workbooks of one name as the engine names them once it is opened. */
+    @Test
+    void get_project_names_workbooks_of_one_name_after_their_folders_when_workspace_folder_is_unavailable()
+            throws Exception {
+        var project = closedProject("""
+                <project>
+                    <name>VersionedProject</name>
+                </project>
+                """, "rules/FL/calc.xlsx", "rules/NY/calc.xlsx", "rules/Main.xlsx");
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class));
+
+        var result = service.getProject(project, List.of(ProjectInclude.DESCRIPTOR));
+
+        assertEquals(List.of("calc (FL)", "calc (NY)", "Main"),
+                result.descriptor.modules().getFirst().modules().stream().map(ModuleViewModel::name).toList());
+    }
+
     @Test
     void get_project_answers_a_pattern_only_with_the_files_it_matches() throws Exception {
         var project = closedProject("""

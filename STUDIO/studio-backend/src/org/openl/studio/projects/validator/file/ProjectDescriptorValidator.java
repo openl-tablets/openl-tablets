@@ -198,11 +198,12 @@ public class ProjectDescriptorValidator implements Validator {
      *
      * <p>A module that declares no name is left alone: the engine names it after the file its path points at,
      * and the modules a pattern stands for after the files it matched. A name that is declared has to be one a
-     * repository can hold, and has to be the module's own — two modules of one name are one module to the
-     * engine, and the second would quietly replace the first.
+     * repository can hold, and has to be the module's own — two modules declared under one name are an error of
+     * the whole project to the engine.
      *
      * <p>A workbook a pattern reads is a module named after the file, so a module naming one file cannot be
-     * called by the name of such a workbook either.
+     * called by the name of such a workbook either: the engine would add its folders to the name of that
+     * workbook's module, and what depends on the module by name would reach the declared one instead.
      */
     private void validateModuleName(Module module,
                                     List<Module> modules,
