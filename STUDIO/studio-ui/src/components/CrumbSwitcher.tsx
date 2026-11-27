@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Dropdown } from 'antd'
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { SearchInput } from './SearchInput'
 import { ListLoading } from './ListLoading'
 import { useStyles } from './CrumbSwitcher.styles'
@@ -47,10 +48,11 @@ interface CrumbSwitcherProps {
     testId: string
 }
 
-const byName = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
-
-/** The items the recent ones first, in the order they were chosen, then the others by name, a line between. */
-const recentFirst = (items: CrumbSwitcherItem[], recent: readonly string[]): CrumbSwitcherItem[] => {
+/**
+ * The items the recent ones first, in the order they were chosen, then the others by name in the UI language, a line
+ * between.
+ */
+const recentFirst = (items: CrumbSwitcherItem[], recent: readonly string[], byName: Intl.Collator): CrumbSwitcherItem[] => {
     const known = new Map(items.map(item => [item.key, item]))
     const first = recent.flatMap(key => known.get(key) ?? [])
     const chosen = new Set(recent)
@@ -88,6 +90,8 @@ export const CrumbSwitcher = ({
     testId,
 }: CrumbSwitcherProps) => {
     const { styles, cx } = useStyles()
+    const { i18n } = useTranslation()
+    const locale = i18n.resolvedLanguage ?? i18n.language
     const [query, setQuery] = useState('')
 
     const needle = query.trim().toLowerCase()
@@ -95,8 +99,10 @@ export const CrumbSwitcher = ({
     // list while the screen around it is drawn again.
     const shown = useMemo(() => {
         const found = needle ? (items ?? []).filter(item => item.search.toLowerCase().includes(needle)) : items ?? []
-        return recent === undefined ? found : recentFirst(found, recent)
-    }, [items, needle, recent])
+        return recent === undefined
+            ? found
+            : recentFirst(found, recent, new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }))
+    }, [items, locale, needle, recent])
 
     const listContent = (menu: ReactNode) => {
         if (items === null && loading) {

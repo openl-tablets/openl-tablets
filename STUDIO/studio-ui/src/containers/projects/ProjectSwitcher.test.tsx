@@ -8,7 +8,10 @@ import { recentProjects } from '../../utils/recentChoices'
 
 vi.mock('../../services/repositories', () => ({ getProjects: vi.fn() }))
 
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
+vi.mock('react-i18next', () => {
+    const t = (key: string) => key
+    return { useTranslation: () => ({ t, i18n: { language: 'en', resolvedLanguage: 'en' } }) }
+})
 
 vi.mock('../../components/SearchInput', () => ({
     SearchInput: (props: Record<string, unknown>) => (

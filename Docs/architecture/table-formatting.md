@@ -26,7 +26,7 @@ glance: what the table is, what it takes, and what it gives.
 | Writing to Excel, always | System setting **Format tables on save**, on by default: every table saved, created, copied, uploaded or merged is formatted. |
 | Edit toolbar | Formatting buttons only with **Format tables on save** off and **Excel Formatting** on; indent always for TBasic and ColumnMatch. |
 | `.xls` files | Not formatted, ignored by every formatting path. |
-| Screen | The **Excel Formatting** switch of **My Settings**, offered with **Format tables on save** off. Off or not offered: the Studio look. On: the Excel look. |
+| Screen | The **Excel Formatting** switch of **My Settings**, offered with **Format tables on save** off. Off or not offered: the Studio look. On: the Excel look. A comparison, and a table read with no roles, always take the Excel look. |
 | Switching | The switch only re-renders. Both looks are drawn from one read of the table. |
 | Studio look | Formulas and code are highlighted as CodeMirror highlights code; values are coloured by their type. |
 | Colour picker | Only the 60 theme colours and the 10 standard colours of Excel. No custom colour. |
@@ -481,7 +481,7 @@ The **Excel Formatting** switch sits in the **Table Settings** group of **My Set
 (`localStorage`, `openl.settings.excelFormatting`) like the other settings, and is off by default. It is offered only
 while **Format tables on save** is off: a save would write the OpenL table style over the formatting it shows, so
 while the system setting is on the switch is hidden and the tables take the Studio look, whatever the browser keeps
-(`useExcelFormatting`).
+(`useExcelFormatting`). A comparison, and a table read with no roles, keep the Excel look either way, as below.
 
 | | Studio look (switch off) | Excel look (switch on) |
 |---|---|---|
