@@ -59,8 +59,9 @@ public class Module {
     /**
      * The name this module is known by.
      *
-     * <p>A module that declares no name of its own is known by the base name of its path, which is the name the
-     * engine gives it when it reads the project.
+     * <p>A module that declares no name of its own is known by the base name of its path. When the engine reads the
+     * project, it adds the folders of the path to that name if another module has it too, as
+     * {@link ModuleNames#nameApart} tells.
      *
      * <p>A pattern names no single file, so a pattern that declares no name has none: the modules it stands for
      * are named after the files it matched, not after the pattern.

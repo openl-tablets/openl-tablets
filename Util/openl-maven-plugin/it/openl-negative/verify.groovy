@@ -16,6 +16,7 @@ try {
             'Compilation error in OpenL Tests',
             'Compilation error in the tests folder',
             'Data Binding Negative Test',
+            'Duplicate module names',
             'OpenL Jar Negative Test',
             'Exceeding default lib threshold',
             'Property Validation',
@@ -112,6 +113,16 @@ try {
     // ---------------------------------------------------------------------------------------
     assert lines.any { it.contains('Caused by: java.lang.ClassNotFoundException: mixin.PolicyMixin') }
     assert lines.any { it.contains("Verification is failed for 'org.openl.internal:openl-databinding-negative' artifact.") }
+
+    // ---------------------------------------------------------------------------------------
+    // openl-duplicate-module-names: two modules declared under one name stop the compilation.
+    // ---------------------------------------------------------------------------------------
+    def duplicateFailure = lines.findIndexOf {
+        it.contains(':compile (default-compile) on project openl-duplicate-module-names:')
+    }
+    assert duplicateFailure >= 0
+    def duplicateErrors = lines.drop(duplicateFailure + 1).takeWhile { !it.contains('Failed to execute goal') }
+    assert duplicateErrors.any { it.contains("Several modules are named 'calc': 'FL/calc.xlsx', 'NY/calc.xlsx'.") }
 
     // ---------------------------------------------------------------------------------------
     // openl-jar-verify-negative: the built jar does not pass the deployment verification.

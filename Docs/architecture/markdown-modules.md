@@ -68,7 +68,9 @@ flowchart TD
 ### Finding modules
 
 - `ProjectDescriptor.getAllModulesMatchingPathPattern` takes a matched folder that holds a Markdown file of a table,
-  at any depth, as one module named after the folder, by its whole name: a dot in it is no extension. A file of a
+  at any depth, as one module named after the folder, by its whole name: a dot in it is no extension. When another
+  module has that name, `ProjectDescriptor.expand` adds the parent folders that tell the two apart
+  (`ModuleNames.nameApart`), as for a workbook. A file of a
   table has a front matter with the `table` key (`MarkdownReader.holdsTable` reads the front matter alone), so a
   folder of documentation, such as one holding a `README.md` or the pages of a site, is no module. Only a folder the
   mask matches is searched, the search stops at the first file of a table, and a folder found without one spares its

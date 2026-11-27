@@ -20,5 +20,6 @@
         <module>openl-project</module>
         <module>openl-skip-tests</module>
         <module>openl-testedmethod-has-two-candidates</module>
+        <module>openl-versioned-folders</module>
     </modules>
 </project>

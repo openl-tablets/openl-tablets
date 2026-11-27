@@ -16,6 +16,7 @@
         <module>openl-compilation-error-in-tests</module>
         <module>openl-compilation-error-in-tests-folder</module>
         <module>openl-databinding-negative</module>
+        <module>openl-duplicate-module-names</module>
         <module>openl-jar-verify-negative</module>
         <module>openl-lib-threshold-default</module>
         <module>openl-maven-property-validation</module>

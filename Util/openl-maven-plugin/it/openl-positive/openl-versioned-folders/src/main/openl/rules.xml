@@ -1,0 +1,4 @@
+<project>
+    <name>EPBDS-13855_folder_versions</name>
+    <properties-file-name-pattern>rules/%state%/.*</properties-file-name-pattern>
+</project>

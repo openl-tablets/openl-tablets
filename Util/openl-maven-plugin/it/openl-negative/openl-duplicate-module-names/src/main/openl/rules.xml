@@ -1,0 +1,19 @@
+<project>
+    <name>EPBDS-13855_declared_duplicate_names</name>
+    <comment>test</comment>
+    <modules>
+        <module>
+            <name>calc</name>
+            <rules-root path="FL/calc.xlsx"/>
+        </module>
+        <module>
+            <name>calc</name>
+            <rules-root path="NY/calc.xlsx"/>
+        </module>
+        <module>
+            <name>mainModule</name>
+            <rules-root path="mainModule.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>%state%/.*</properties-file-name-pattern>
+</project>

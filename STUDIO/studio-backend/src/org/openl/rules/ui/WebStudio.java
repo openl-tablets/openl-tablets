@@ -746,8 +746,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * The module of the project known by that name.
      *
      * <p>A module is matched by the name it is known by, which for a module that declares none in rules.xml is the
-     * base name of its path. The descriptor read from rules.xml as written and the one the engine resolved
-     * therefore answer the same name.
+     * base name of its path. The descriptor the engine resolved adds the folders of the path to that name when
+     * another module has it too, so a module of a name shared by several files is found by the resolved name.
      */
     public @Nullable Module getModule(@Nullable ProjectDescriptor project, @Nullable final String moduleName) {
         if (project == null || moduleName == null) {

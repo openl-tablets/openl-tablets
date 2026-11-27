@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -69,6 +70,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ModuleNames;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -667,8 +669,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                                         List<FileData> files,
                                                         boolean hasProjectDescriptor) {
         var modules = new ArrayList<Module>(readModules.size());
+        // The modules named after their files, which the engine names apart when they share a name
+        var namedByTheEngine = Collections.<Module>newSetFromMap(new IdentityHashMap<>());
         for (var module : readModules) {
             if (!module.isModuleWithWildcard()) {
+                if (StringUtils.isBlank(module.getName())) {
+                    namedByTheEngine.add(module);
+                }
                 normalizeRepositoryModule(descriptor, module);
                 modules.add(module);
             }
@@ -692,6 +699,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!hasProjectDescriptor) {
             addSimpleRepositoryModules(descriptor, projectPath, files, modules);
         }
+        modules.stream()
+                .filter(module -> module.getWildcardRulesRootPath() != null || !hasProjectDescriptor)
+                .forEach(namedByTheEngine::add);
+        ModuleNames.nameApart(modules, namedByTheEngine::contains);
         return modules;
     }
 
