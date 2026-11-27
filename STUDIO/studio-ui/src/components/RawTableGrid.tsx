@@ -24,6 +24,7 @@ import { borders, collapsedBorders, indentOf, textDecoration } from './rawTableS
 import { useLaidOut } from '../hooks/useLaidOut'
 import { useScrollMargin, windowRect } from '../hooks/useScrollMargin'
 import { useAppTheme } from '../providers/AppThemeProvider'
+import { useExcelFormatting } from '../hooks/useExcelFormatting'
 import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
 import type { CodePiece } from '../utils/codeHighlight'
 import { cached } from '../utils/cached'
@@ -660,11 +661,12 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     testId,
 }) => {
     const dateFormats = useDateFormats()
-    const { compact, excelFormatting, themeName } = useAppTheme()
+    const { compact, themeName } = useAppTheme()
+    const excelFormatting = useExcelFormatting()
     const { isDarkMode } = useThemeMode()
     const token = useTheme()
     // The Studio look draws a table by what its cells mean, in the colours of the theme; a table read with no roles,
-    // or with the Excel Formatting of the theme menu on, keeps the formatting of its workbook.
+    // or with the Excel Formatting of My Settings on, keeps the formatting of its workbook.
     const studio = !onPaper(roles, excelFormatting)
     const {
         colorBgContainer,

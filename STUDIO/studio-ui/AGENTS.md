@@ -541,8 +541,8 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       theme, light and dark, as the text of the application does on its surfaces (4.5:1), and a faint text as its
       secondary text (3:1): `RawTableGrid.test.tsx` holds every theme to it. A table read with no roles — a table of
       the kind Other, a side of a comparison, a table of a user guide — and every table while the reader has **Excel
-      Formatting** on (`excelFormatting` of `useAppTheme()`, `openl.theme.excelFormatting` in `localStorage`, the
-      switch of `ThemeSwitch` under **Compact**) is drawn in the formatting of its workbook (`onPaper`). Both looks are
+      Formatting** on (`useExcelFormatting()`, the `excelFormatting` setting of **My Settings**, which counts and is
+      offered only while **Format tables on save** is off) is drawn in the formatting of its workbook (`onPaper`). Both looks are
       drawn from one read: no fetch depends on the switch.
     - **A workbook's table keeps the colours of Excel.** In the formatting of its workbook, `RawTableGrid` writes its
       cells in black on white whatever the theme, because an author fills a cell for that paper: the default text of

@@ -6,9 +6,7 @@ import {
     compactModeSetting,
     DEFAULT_THEME_MODE,
     DEFAULT_THEME_NAME,
-    excelFormattingSetting,
     THEME_COMPACT_KEY,
-    THEME_EXCEL_FORMATTING_KEY,
     THEME_MODE_KEY,
     THEME_NAME_KEY,
     themeModeSetting,
@@ -77,28 +75,6 @@ describe('themeMode', () => {
         localStorage.setItem(THEME_COMPACT_KEY, 'cosy')
 
         expect(compactModeSetting.read()).toBe(false)
-    })
-
-    it('shows the tables in the table theme until the user asks for their Excel formatting', () => {
-        expect(excelFormattingSetting.read()).toBe(false)
-    })
-
-    it('remembers whether the tables are shown in their Excel formatting', () => {
-        excelFormattingSetting.write(true)
-
-        expect(localStorage.getItem(THEME_EXCEL_FORMATTING_KEY)).toBe('true')
-        expect(excelFormattingSetting.read()).toBe(true)
-
-        excelFormattingSetting.write(false)
-
-        expect(excelFormattingSetting.read()).toBe(false)
-        expect(localStorage.getItem(THEME_EXCEL_FORMATTING_KEY)).toBeNull()
-    })
-
-    it('keeps the table theme when the stored choice is not one it knows', () => {
-        localStorage.setItem(THEME_EXCEL_FORMATTING_KEY, 'yes')
-
-        expect(excelFormattingSetting.read()).toBe(false)
     })
 
     it('starts in the standard theme until the user picks another', () => {

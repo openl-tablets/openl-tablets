@@ -9,9 +9,9 @@ import { ModuleWorkspace } from './ModuleWorkspace'
 import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
-import { renderInTheme, tokenFor } from '../testing/theme'
+import { NOT_FORMATTING_ON_SAVE, renderInTheme, tokenFor } from '../testing/theme'
 import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
-import { useAppTheme } from '../providers/AppThemeProvider'
+import { SystemContext } from '../contexts/SystemContext'
 import { App as AntApp, ConfigProvider } from 'antd'
 import { forgetKeptReads } from '../services/keptReads'
 
@@ -521,11 +521,14 @@ describe('ModuleWorkspace', () => {
     })
 
     describe('the roles of the cells of the table', () => {
-        /** Shows Excel Formatting on, as the switch of the theme menu does. */
-        const ExcelFormattingSwitch = () => {
-            const { setExcelFormatting } = useAppTheme()
-            return <button data-testid="excel-formatting" onClick={() => setExcelFormatting(true)} type="button" />
-        }
+        /** Shows Excel Formatting on, as the switch of My Settings does. */
+        const ExcelFormattingSwitch = () => (
+            <button
+                data-testid="excel-formatting"
+                onClick={() => useSettingsStore.getState().setSetting('excelFormatting', true)}
+                type="button"
+            />
+        )
 
         beforeEach(() => {
             workspace.opened = true
@@ -545,7 +548,12 @@ describe('ModuleWorkspace', () => {
         })
 
         it('reads nothing again when the reader shows the formatting of the workbook', async () => {
-            renderInTheme(<><ModuleWorkspace /><ExcelFormattingSwitch /></>)
+            renderInTheme(
+                <SystemContext.Provider value={NOT_FORMATTING_ON_SAVE}>
+                    <ModuleWorkspace />
+                    <ExcelFormattingSwitch />
+                </SystemContext.Provider>
+            )
             await waitFor(() => expect(screen.getByTestId('module-table')).toHaveAttribute('data-roles', '1'))
 
             await userEvent.click(screen.getByTestId('excel-formatting'))

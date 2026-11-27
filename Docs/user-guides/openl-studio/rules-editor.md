@@ -349,8 +349,10 @@ The tables that correspond to none of these types — the utility tables — are
 
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
-OpenL Studio draws a table in one of two looks, selected by the **Excel Formatting** switch of the theme menu, as
-described in [Switching the Theme](getting-started.md#switching-the-theme):
+OpenL Studio draws a table in one of two looks, selected by the **Excel Formatting** switch of **My Settings**, as
+described in [Modifying My Settings](getting-started.md#modifying-my-settings). The switch is offered only while
+**Format tables on save** is cleared in [System Settings](administration/02-system-settings.md); while it is
+selected, as by default, a table is always drawn in the colours of the OpenL Studio theme:
 
 -   **Excel Formatting off**, the default — the table is drawn by what its cells mean, in the colours of the OpenL Studio
     theme, light or dark. The formatting of the Excel file is not drawn, except the indent, which carries the

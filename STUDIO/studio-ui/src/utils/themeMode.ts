@@ -45,18 +45,6 @@ export const THEME_COMPACT_KEY = 'openl.theme.compact'
  */
 export const compactModeSetting = storedSetting(THEME_COMPACT_KEY, false, booleanText)
 
-/** Where the choice to show the tables in the formatting of their Excel files is remembered between visits. */
-export const THEME_EXCEL_FORMATTING_KEY = 'openl.theme.excelFormatting'
-
-/**
- * Whether the tables are shown in the formatting of their Excel files (**Excel Formatting** in the theme menu).
- *
- * The tables are drawn in the colours of the theme by default, so anything but a stored `true` — nothing picked
- * yet, a browser that refuses storage, a value this version does not know — draws them so, and going back to them
- * stores nothing.
- */
-export const excelFormattingSetting = storedSetting(THEME_EXCEL_FORMATTING_KEY, false, booleanText)
-
 /** Where the picked theme is remembered between visits. */
 export const THEME_NAME_KEY = 'openl.theme.name'
 
