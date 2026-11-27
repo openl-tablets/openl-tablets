@@ -8,6 +8,7 @@ import {
     updateProjectFromZip,
 } from 'services/projects'
 import apiCall from 'services/apiCall'
+import { recentProjects } from 'utils/recentChoices'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 
@@ -65,6 +66,20 @@ describe('projects service', () => {
             { method: 'DELETE' },
             { throwError: true, suppressErrorPages: true }
         )
+    })
+
+    it('forgets a project deleted among the recent ones, and one not deleted stays', async () => {
+        localStorage.clear()
+        recentProjects.remember('kept')
+        recentProjects.remember('proj-id')
+        mockApiCall.mockRejectedValueOnce(new Error('Project is locked.'))
+        await deleteProject('proj-id', 'My Project')
+        expect(recentProjects.read()).toEqual(['proj-id', 'kept'])
+
+        mockApiCall.mockResolvedValueOnce(true)
+        await deleteProject('proj-id', 'My Project')
+
+        expect(recentProjects.read()).toEqual(['kept'])
     })
 
     it('surfaces the backend error message and reports failure', async () => {

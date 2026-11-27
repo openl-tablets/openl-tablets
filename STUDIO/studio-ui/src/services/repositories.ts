@@ -5,6 +5,7 @@ import type { Repository, RepositoryConfig } from '../types/repositories'
 import type { Project, ProjectsPage, TagFacetSummary } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectStatus } from '../constants/project'
+import { recentBranches } from '../utils/recentChoices'
 import type { ProjectFileChange } from './projectStatus'
 
 const THROW_API_OPTIONS = { throwError: true } satisfies ApiCallOptions
@@ -320,14 +321,19 @@ export async function getProjectTemplates(): Promise<ProjectTemplateGroup[]> {
     return asArray(response)
 }
 
-/** List the actual Git branches of a design repository. */
+/**
+ * List the actual Git branches of a design repository. A recent branch of the repository the list no longer holds,
+ * one removed, is forgotten.
+ */
 export async function getDesignRepositoryBranches(repositoryId: string): Promise<string[]> {
     const response = await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/branches`,
         undefined,
         THROW_API_OPTIONS
     )
-    return asArray(response)
+    const branches = asArray<string>(response)
+    recentBranches.keepOnly(branches, repositoryId)
+    return branches
 }
 
 /**

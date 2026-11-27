@@ -37,6 +37,8 @@ The breadcrumb reads **Projects / Example 1 - Bank Rating / master / Bank Rating
 
 To get a full list of projects or modules, delete the filter text in the field.
 
+The lists of projects and of branches start with the ten used most recently in this web browser, the latest first, and go on with the others by name after a line. A project counts as used once its page or one of its modules is opened. A branch counts as used in its repository once any project of the repository is read on it or switched to it, so the branch list of every project of that repository starts with it, when the project is on that branch too. A project or a branch that is deleted leaves the list.
+
 ### Viewing a Project
 
 Rules Editor allows a user to work with one project at a time. To view a project, select it on the **Projects** page. The project page with general information about the project and configuration details appears on its **Overview** tab, as described in [Viewing the Project Overview](repository-editor.md#viewing-the-project-overview).

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ConfirmDiscard } from '../modules/useDiscardConfirm'
 import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { App } from 'antd'
@@ -11,11 +11,15 @@ import {
     type ProjectBranch,
 } from '../../services/repositories'
 import { DiscardChangesModal } from '../DiscardChangesModal'
+import { recentBranches } from '../../utils/recentChoices'
+import { useRecentChoices } from '../../hooks/useRecentChoices'
 import { BranchLabel, type BranchTone } from './BranchLabel'
-import { CrumbSwitcher } from './CrumbSwitcher'
+import { CrumbSwitcher } from '../../components/CrumbSwitcher'
 
 interface BranchSwitcherProps {
     projectId: string
+    /** The repository the project is stored in, whose recent branches the list leads with. */
+    repositoryId: string
     currentBranch: string
     /** Marks of the current branch, known from the project itself without listing the branches. */
     currentBranchProtected?: boolean | undefined
@@ -56,9 +60,13 @@ interface BranchSwitcherProps {
  *
  * A switch takes seconds on a slow environment, so the trigger says so for as long as it runs — through
  * the request and through the reload that follows it, since only then does the screen show the new branch.
+ *
+ * The list leads with the branches of the repository used most recently in this browser, by any of its projects,
+ * then lists the others by name. A branch switched to counts as used.
  */
 export const BranchSwitcher = ({
     projectId,
+    repositoryId,
     currentBranch,
     currentBranchProtected,
     currentBranchDefault,
@@ -76,6 +84,7 @@ export const BranchSwitcher = ({
     const [switching, setSwitching] = useState(false)
     const [discardSwitchBranch, setDiscardSwitchBranch] = useState<string | null>(null)
     const projectIdRef = useRef(projectId)
+    const recent = useRecentChoices(recentBranches, repositoryId)
 
     useEffect(() => {
         projectIdRef.current = projectId
@@ -114,6 +123,7 @@ export const BranchSwitcher = ({
         onBusyChange?.(true)
         try {
             await switchProjectBranch(projectId, branch, discardChanges ? { discardChanges: true } : {})
+            recentBranches.remember(branch, repositoryId)
             // The reload is part of the switch: until it lands the screen still shows the branch the user
             // switched away from, so the busy state has to outlive the request that started it.
             await onSwitched()
@@ -140,15 +150,13 @@ export const BranchSwitcher = ({
             : {}
     }
 
-    const branchLabel = (branch: string) => <BranchLabel name={branch} {...marksOf(branch)} />
-
     const current = <BranchLabel withIcon name={currentBranch} testId={testId} tone={tone} {...marksOf(currentBranch)} />
 
-    const items = branchInfo === null ? null : branchInfo.map(branch => ({
+    const items = useMemo(() => branchInfo?.map(branch => ({
         key: branch.name,
-        label: branchLabel(branch.name),
+        label: <BranchLabel isDefault={branch.base} isProtected={branch.protected} name={branch.name} />,
         search: branch.name,
-    }))
+    })) ?? null, [branchInfo])
 
     const discardModal = (
         <DiscardChangesModal
@@ -179,6 +187,7 @@ export const BranchSwitcher = ({
                 loading={loading}
                 onOpen={() => void loadBranches()}
                 onSelect={branch => (beforeSwitch ?? GO_AHEAD)(() => void switchTo(branch))}
+                recent={recent}
                 searchPlaceholder={t('browser.branch.filter')}
                 selectedKey={currentBranch}
                 testId={testId}

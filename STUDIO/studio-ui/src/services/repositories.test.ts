@@ -24,6 +24,7 @@ import {
     unlockProject,
 } from './repositories'
 import { ProjectStatus } from '../constants/project'
+import { recentBranches } from '../utils/recentChoices'
 
 vi.mock('./apiCall', async importOriginal => ({
     ...await importOriginal<typeof import('./apiCall')>(),
@@ -380,10 +381,17 @@ describe('getProjects', () => {
         await expect(getTagTypes()).resolves.toEqual([{ name: 'Team', extensible: true, nullable: false, values: [] }])
     })
 
-    it('lists actual design-repository branches', async () => {
+    it('lists actual design-repository branches, forgetting the recent ones the repository no longer holds', async () => {
+        localStorage.clear()
+        recentBranches.remember('removed', 'design repo')
+        recentBranches.remember('main', 'design repo')
+        recentBranches.remember('removed', 'other repo')
         vi.mocked(apiCall).mockResolvedValue(['main', 'feature/rates'])
 
         await expect(getDesignRepositoryBranches('design repo')).resolves.toEqual(['main', 'feature/rates'])
+
+        expect(recentBranches.read('design repo')).toEqual(['main'])
+        expect(recentBranches.read('other repo')).toEqual(['removed'])
 
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/design%20repo/branches',

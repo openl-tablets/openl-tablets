@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Project } from '../../types/projects'
 import { getProjects } from '../../services/repositories'
 import { ProjectSwitcher } from './ProjectSwitcher'
+import { recentProjects } from '../../utils/recentChoices'
 
 vi.mock('../../services/repositories', () => ({ getProjects: vi.fn() }))
 
@@ -40,21 +41,26 @@ const listed = (...names: string[]) => ({
     total: names.length,
 })
 
-const draw = (onSelect = vi.fn()) => {
+const draw = (onSelect = vi.fn(), withLink = true) => {
     render(
         <ProjectSwitcher
             currentName="Bank Rating"
             currentProjectId="p0"
             onSelect={onSelect}
             testId="crumb-project"
+            withLink={withLink}
         />
     )
     return onSelect
 }
 
+/** The names the list offers, in its order. */
+const offered = () => screen.getAllByRole('menuitem').map(item => item.textContent)
+
 describe('ProjectSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        localStorage.clear()
         vi.mocked(getProjects).mockResolvedValue(listed('Bank Rating', 'Car Rating'))
     })
 
@@ -112,5 +118,50 @@ describe('ProjectSwitcher', () => {
         await userEvent.type(screen.getByTestId('crumb-project-search'), 'nothing')
 
         expect(screen.getByText('browser.module.project_no_match')).toBeInTheDocument()
+    })
+
+    it('leads with the projects opened most recently, then lists the others by name', async () => {
+        vi.mocked(getProjects).mockResolvedValue(listed('Delta', 'alpha', 'Charlie', 'Bravo'))
+        recentProjects.remember('p2')
+        recentProjects.remember('p0')
+        draw()
+
+        await userEvent.click(screen.getByTestId('crumb-project-trigger'))
+        await screen.findByText('alpha')
+
+        expect(offered()).toEqual(['Delta', 'Charlie', 'alpha', 'Bravo'])
+        expect(document.querySelectorAll('.ant-dropdown-menu-item-divider')).toHaveLength(1)
+    })
+
+    it('narrows the recent projects and the others alike', async () => {
+        vi.mocked(getProjects).mockResolvedValue(listed('Delta', 'Alpha Rating', 'Charlie Rating'))
+        recentProjects.remember('p2')
+        draw()
+
+        await userEvent.click(screen.getByTestId('crumb-project-trigger'))
+        await screen.findByText('Delta')
+        await userEvent.type(screen.getByTestId('crumb-project-search'), 'rating')
+
+        expect(offered()).toEqual(['Charlie Rating', 'Alpha Rating'])
+    })
+
+    it('forgets a recent project the list no longer holds', async () => {
+        recentProjects.remember('gone')
+        recentProjects.remember('p1')
+        draw()
+
+        await userEvent.click(screen.getByTestId('crumb-project-trigger'))
+        await screen.findByText('Car Rating')
+
+        expect(recentProjects.read()).toEqual(['p1'])
+    })
+
+    it('opens the list from the name itself where the name leads nowhere', async () => {
+        draw(vi.fn(), false)
+
+        expect(screen.queryByTestId('crumb-project-follow')).toBeNull()
+        await userEvent.click(screen.getByTestId('crumb-project'))
+
+        expect(await screen.findByText('Car Rating')).toBeInTheDocument()
     })
 })

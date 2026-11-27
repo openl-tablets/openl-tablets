@@ -78,7 +78,9 @@ contain the project when it is opened. Proceed as follows:
     *Switching between branches*
 
     The menu lists only the branches whose current content contains the project. Membership is read-only
-    because it is discovered from Git content. The **Filter branches** field narrows a long list down.
+    because it is discovered from Git content. The **Filter branches** field narrows a long list down. The menu
+    starts with the ten branches of the repository used most recently in this web browser, by any of its projects,
+    the latest first, and goes on with the others by name after a line. A branch that is deleted leaves the list.
 
     If the project has unsaved changes, switching the branch asks to confirm that they are lost.
 

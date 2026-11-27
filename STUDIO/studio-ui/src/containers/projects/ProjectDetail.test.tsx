@@ -9,6 +9,7 @@ import type { RepositoryFeatures } from '../../types/repositories'
 import { SystemContext } from '../../contexts'
 import { ProjectDetail } from './ProjectDetail'
 import { hasSearchScope } from '../../testing/search'
+import { recentBranches, recentProjects } from '../../utils/recentChoices'
 
 const {
     addFilesDialogsMock,
@@ -190,6 +191,19 @@ vi.mock('./BranchSwitcher', () => ({
         return <div data-testid="crumb-branch-switcher" />
     },
 }))
+// The switcher itself is tested elsewhere; here it only names the project and opens the one picked.
+vi.mock('./ProjectSwitcher', () => ({
+    ProjectSwitcher: ({ currentName, onSelect, withLink }: {
+        currentName: string
+        onSelect: (projectId: string) => void
+        withLink?: boolean
+    }) => (
+        <span data-link={String(withLink)} data-testid="crumb-project">
+            {currentName}
+            <button data-testid="crumb-project-pick" onClick={() => onSelect('other-project')} type="button" />
+        </span>
+    ),
+}))
 vi.mock('../maven/mavenProject', () => ({
     ReadOnlyTag: ({ projectId }: { projectId: string }) => <span data-testid="read-only-tag">{projectId}</span>,
 }))
@@ -301,6 +315,7 @@ const latestFilePreviewProps = () => filePreviewMock.mock.lastCall?.[0] as {
 
 describe('ProjectDetail', () => {
     beforeEach(() => {
+        localStorage.clear()
         setParams('tab=overview')
         addFilesDialogsMock.mockClear()
         filePreviewMock.mockClear()
@@ -326,6 +341,17 @@ describe('ProjectDetail', () => {
         const name = screen.getByRole('heading', { name: 'Alpha' })
         expect(name.compareDocumentPosition(screen.getByTestId('crumb-branch-switcher')) & Node.DOCUMENT_POSITION_FOLLOWING)
             .toBeTruthy()
+    })
+
+    it('opens another project from the name of the project, which leads nowhere itself, and remembers this one', async () => {
+        renderProjectDetail()
+
+        expect(screen.getByTestId('crumb-project')).toHaveAttribute('data-link', 'false')
+        await userEvent.click(screen.getByTestId('crumb-project-pick'))
+
+        expect(navigateMock).toHaveBeenCalledWith('/projects/other-project')
+        expect(recentProjects.read()[0]).toBe(PROJECT.id)
+        expect(recentBranches.read('design')).toEqual(['main'])
     })
 
     it('offers no Files tab: the files are reached from the projects tree', () => {

@@ -85,6 +85,7 @@ export const ProjectBranchSwitch = ({ project, supportsBranches, busy, onSwitche
             onBusyChange={switching => onSwitching?.(project, switching)}
             onSwitched={onSwitched}
             projectId={project.id}
+            repositoryId={project.repository}
         />
     )
 }

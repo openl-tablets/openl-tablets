@@ -1566,6 +1566,7 @@ const MetaColumn = ({ project, repoLabel, repoType, supportsBranches, canEditTag
                         onBusyChange={onBranchSwitching}
                         onSwitched={onChanged}
                         projectId={project.id}
+                        repositoryId={project.repository}
                     />
                 ))}
                 {project.revision && metaRow(

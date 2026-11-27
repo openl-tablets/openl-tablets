@@ -1,8 +1,9 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { notification } from 'antd'
 import { BranchSwitcher } from './BranchSwitcher'
+import { recentBranches } from '../../utils/recentChoices'
 import { getProjectBranches, switchProjectBranch, type ProjectBranch } from '../../services/repositories'
 
 vi.mock('../../services/repositories', () => ({
@@ -93,6 +94,7 @@ vi.mock('antd', async () => {
 
 const props = {
     projectId: 'p1',
+    repositoryId: 'design',
     currentBranch: 'main',
     onSwitched: vi.fn(),
 }
@@ -100,6 +102,7 @@ const props = {
 describe('BranchSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        localStorage.clear()
         vi.mocked(getProjectBranches).mockResolvedValue([
             { name: 'main', protected: true, base: true },
             { name: 'dev' },
@@ -216,6 +219,62 @@ describe('BranchSwitcher', () => {
         // The default branch wears the house, named for a screen reader as the Default branch.
         await waitFor(() => expect(within(screen.getByTestId('option-main')).getByLabelText('browser.branch.default_tag'))
             .toBeInTheDocument())
+    })
+
+    it('leads with the branches of the repository used most recently, then lists the others by name', async () => {
+        vi.mocked(getProjectBranches).mockResolvedValue([
+            { name: 'main', base: true },
+            { name: 'zeta' },
+            { name: 'Beta' },
+            { name: 'alpha' },
+            { name: 'release-2' },
+        ])
+        // A branch used by another project of the repository counts as well.
+        recentBranches.remember('zeta', 'design')
+        recentBranches.remember('main', 'design')
+        // The branches of another repository count for that repository alone.
+        recentBranches.remember('alpha', 'other')
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-alpha')
+
+        const options = screen.getAllByTestId(/^option-/).map(option => option.dataset['testid'])
+        expect(options).toEqual([
+            'option-main',
+            'option-zeta',
+            'option-alpha-divider',
+            'option-alpha',
+            'option-Beta',
+            'option-release-2',
+        ])
+    })
+
+    it('shows at once a branch another switcher of the repository was just used on, in a list read before', async () => {
+        render(<BranchSwitcher {...props} />)
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+        const order = () => screen.getAllByTestId(/^option-/).map(option => option.dataset['testid'])
+        expect(order()).toEqual(['option-dev', 'option-main'])
+
+        // The switcher of another project of the repository switches it to dev.
+        act(() => recentBranches.remember('dev', 'design'))
+
+        expect(order()).toEqual(['option-dev', 'option-main-divider', 'option-main'])
+        expect(getProjectBranches).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps the recent branches the project is not on, and remembers the one switched to', async () => {
+        // The list of the project holds the branches holding it; another project of the repository may be elsewhere.
+        recentBranches.remember('elsewhere', 'design')
+        render(<BranchSwitcher {...props} />)
+
+        await userEvent.click(screen.getByTestId('branch-switcher-trigger'))
+        await screen.findByTestId('option-dev')
+        expect(screen.queryByTestId('option-elsewhere')).toBeNull()
+        await userEvent.click(screen.getByTestId('option-dev'))
+
+        await waitFor(() => expect(recentBranches.read('design')).toEqual(['dev', 'elsewhere']))
     })
 
     it('switches the project to the chosen branch', async () => {
