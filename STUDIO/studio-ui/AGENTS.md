@@ -648,6 +648,10 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   the levels read of them come back as the reader left them. Only a change is remembered, the moment it is made, so a
   read that comes back after its part went out of sight is kept too. Where a list begins in what scrolls it — under the
   headings of the grid, under the options of the results window — is measured by `useScrollMargin` of `hooks/`.
+  The compilation messages of the problems panel of a project and of the **Problems** block of a table are one list,
+  the errors first and the information messages last, drawn as the panel scrolls to them (`CompileMessages`, handed
+  the element it scrolls in), each measured as it is drawn: a project can raise thousands of them. A message opened in
+  full and a stack trace read are kept by the list (`ScreenMemory`) while they are out of sight.
 - **A component drawn many times over reads no styles of its own.** antd-style's `useStyles()` copies the whole
   theme for every component that calls it, about 40 KB each: a table of test results with a hook in every cell
   ran the browser out of memory. Whatever draws the many — a list, a table, a tree — reads the styles once and

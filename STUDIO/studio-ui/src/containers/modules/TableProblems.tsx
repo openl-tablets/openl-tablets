@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
@@ -128,11 +128,15 @@ export const TableProblems = ({
     const [open, setOpen] = useStoredSetting(openSetting)
     const { size: height, startResize } = useDragSize(HEIGHT_STORAGE_KEY, 'bottom', HEIGHT)
 
-    // Filtered once per read: a fresh array on every render would send the "show more" of the list below
-    // back to its first page every time the screen redraws — which a compilation makes it do often.
-    const errors = useMemo(() => messages.filter(message => message.severity === 'ERROR'), [messages])
-    const warnings = useMemo(() => messages.filter(message => message.severity === 'WARN'), [messages])
-    const infos = useMemo(() => messages.filter(message => message.severity === 'INFO'), [messages])
+    // The element the messages scroll in, which the list draws the messages in sight of.
+    const [body, setBody] = useState<HTMLDivElement | null>(null)
+    // Counted once per read, as the screen redraws often while the project compiles. The server lists the messages
+    // the errors first and the information messages last.
+    const counts = useMemo(() => ({
+        errors: messages.filter(message => message.severity === 'ERROR').length,
+        warnings: messages.filter(message => message.severity === 'WARN').length,
+        infos: messages.filter(message => message.severity === 'INFO').length,
+    }), [messages])
 
     if (messages.length === 0 && !partial) {
         return null
@@ -148,22 +152,22 @@ export const TableProblems = ({
                 type="button"
             >
                 <span className={styles.title}>{t('browser.module.problems')}</span>
-                {errors.length > 0 && (
+                {counts.errors > 0 && (
                     <span className={cx(styles.count, styles.errorMark)} data-testid="table-problems-errors">
                         <CloseCircleFilled />
-                        {errors.length}
+                        {counts.errors}
                     </span>
                 )}
-                {warnings.length > 0 && (
+                {counts.warnings > 0 && (
                     <span className={cx(styles.count, styles.warningMark)} data-testid="table-problems-warnings">
                         <WarningFilled />
-                        {warnings.length}
+                        {counts.warnings}
                     </span>
                 )}
-                {infos.length > 0 && (
+                {counts.infos > 0 && (
                     <span className={cx(styles.count, styles.infoMark)} data-testid="table-problems-infos">
                         <InfoCircleFilled />
-                        {infos.length}
+                        {counts.infos}
                     </span>
                 )}
                 {/* The whole heading folds the panel, so the mark only says which way it goes. */}
@@ -173,7 +177,12 @@ export const TableProblems = ({
                 // The grip is dragged against the box it sizes: measured against the whole section, every drag
                 // would size the messages to the pointer plus the header above them.
                 <div className={styles.resizable}>
-                    <div className={styles.body} data-testid="table-problems-body" style={{ maxHeight: height }}>
+                    <div
+                        ref={setBody}
+                        className={styles.body}
+                        data-testid="table-problems-body"
+                        style={{ maxHeight: height }}
+                    >
                         {partial && (
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
@@ -182,30 +191,11 @@ export const TableProblems = ({
                         )}
                         <CompileMessages
                             cellText={cellText}
-                            messages={errors}
+                            messages={messages}
                             onEditCell={onEditCell}
                             onOpenFile={onOpenFile}
                             onStacktrace={onStacktrace}
-                            severity="error"
-                            testIdPrefix="table-message"
-                        />
-                        <CompileMessages
-                            cellText={cellText}
-                            messages={warnings}
-                            onEditCell={onEditCell}
-                            onOpenFile={onOpenFile}
-                            onStacktrace={onStacktrace}
-                            severity="warning"
-                            testIdPrefix="table-message"
-                        />
-                        {/* The information messages come last: they only point at something to tidy up. */}
-                        <CompileMessages
-                            cellText={cellText}
-                            messages={infos}
-                            onEditCell={onEditCell}
-                            onOpenFile={onOpenFile}
-                            onStacktrace={onStacktrace}
-                            severity="info"
+                            scroller={body}
                             testIdPrefix="table-message"
                         />
                     </div>

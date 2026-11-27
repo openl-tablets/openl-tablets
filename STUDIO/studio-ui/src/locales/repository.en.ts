@@ -357,7 +357,6 @@ i18next.addResourceBundle('en', 'repository', {
             warning_count_other: '{{count}} warnings',
             info_count_one: '{{count}} information message',
             info_count_other: '{{count}} information messages',
-            show_more: 'Show {{count}} more',
             show_more_text: 'Show more',
             show_less: 'Show less',
             show_stacktrace: 'Show stack trace',

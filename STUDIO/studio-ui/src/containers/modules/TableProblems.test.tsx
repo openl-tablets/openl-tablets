@@ -56,10 +56,10 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-message-3')).toHaveTextContent('Ambiguous field')
     })
 
-    it('counts the information messages and lists them after the warnings', () => {
+    it('counts the information messages and lists them as the server does, after the warnings', () => {
         const raised = [
-            message(1, 'INFO', "Field 'premium' of datatype 'Policy' is not used in the current project."),
             message(2, 'WARN', 'Ambiguous field'),
+            message(1, 'INFO', "Field 'premium' of datatype 'Policy' is not used in the current project."),
         ]
 
         render(<TableProblems messages={raised} />)
@@ -225,17 +225,14 @@ describe('TableProblems', () => {
         expect(screen.queryByTestId('table-problems-body')).toBeNull()
     })
 
-    it('keeps the page the reader opened when the screen redraws around it', async () => {
+    it('lists every message of the table, with no page to turn', () => {
         const raised = Array.from({ length: 12 }, (_, index) => message(index + 1, 'WARN', `Warning ${index + 1}`))
-        const { rerender } = render(<TableProblems messages={raised} />)
 
-        await userEvent.click(screen.getByRole('button', { name: 'browser.compile.show_more' }))
+        render(<TableProblems messages={raised} />)
+
+        // Not laid out, the list draws every message: it draws those in sight alone only where it can measure them
         expect(screen.getByTestId('table-message-12')).toBeInTheDocument()
-
-        // The editor redraws on every status the compilation pushes; the list must not fall back to page one.
-        rerender(<TableProblems messages={raised} />)
-
-        expect(screen.getByTestId('table-message-12')).toBeInTheDocument()
+        expect(screen.queryByRole('button', { name: /show_more/ })).toBeNull()
     })
 
     it('takes the room its messages need, up to the height it was dragged to, kept for the next table', () => {

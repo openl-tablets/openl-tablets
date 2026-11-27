@@ -1,14 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Tooltip, Typography } from 'antd'
 import { EditOutlined, FileTextOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 import { basename } from '../containers/projects/projectPaths'
 import { compileColorsOf } from '../containers/projects/projectsTheme'
+import { useLaidOut } from '../hooks/useLaidOut'
+import { ScreenMemory, useRemembered } from '../hooks/useRemembered'
+import { useScrollMargin } from '../hooks/useScrollMargin'
 
-/** How many messages of one severity are listed before the reader asks for more. */
-const PAGE_SIZE = 10
+/** How tall a message is taken to be before it is drawn and measured: one line of text. */
+const MESSAGE_ESTIMATE = 30
+/** How many messages past the edges of the view are drawn, so a short scroll shows no blank. */
+const MESSAGES_AHEAD = 10
 /** How much of a long message is shown before the reader asks for the rest. */
 const PREVIEW_CHARS = 260
 const PREVIEW_LINES = 4
@@ -28,6 +34,24 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
         display: flex;
         flex-direction: column;
         gap: ${token.marginXS}px;
+    `,
+    /** The list of the messages drawn as they scroll into sight: it takes the room of all of them. */
+    scrolledList: css`
+        position: relative;
+        list-style: none;
+        margin: ${token.marginSM}px 0 0;
+        padding: 0;
+    `,
+    /** A message of the list, with the room between it and the next one. */
+    entry: css`
+        padding-bottom: ${token.marginXS}px;
+    `,
+    /** A message drawn where its place in the list puts it. */
+    scrolledEntry: css`
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
     `,
     /** One message, marked by the colour stripe of its severity — the way the legacy editor listed them. */
     message: css`
@@ -115,12 +139,10 @@ export const useCompileMessageStyles = createStyles(({ css, token }) => ({
         overflow-wrap: anywhere;
         color: ${token.colorTextSecondary};
     `,
-    pager: css`
-        display: flex;
-        gap: ${token.marginXS}px;
-        margin-top: ${token.marginXS}px;
-    `,
 }))
+
+/** The styles of the messages, read once by the list and handed to each part it draws many times. */
+type MessageStyles = ReturnType<typeof useCompileMessageStyles>['styles']
 
 /** What of a piece of text is shown, and whether the rest of it is being held back. */
 const shorten = (value: string, chars: number, lines: number): { text: string, long: boolean } => {
@@ -138,23 +160,32 @@ const shorten = (value: string, chars: number, lines: number): { text: string, l
  */
 const MessageText = ({
     value,
+    styles,
     chars = PREVIEW_CHARS,
     lines = PREVIEW_LINES,
+    rememberAs,
 }: {
     value: string
+    styles: MessageStyles
     chars?: number
     lines?: number
+    /** The key the list remembers the text opened in full by, while it is out of sight. */
+    rememberAs?: string
 }) => {
-    const { styles } = useCompileMessageStyles()
     const { t } = useTranslation('repository')
-    const [expanded, setExpanded] = useState(false)
+    const [expanded, setExpanded] = useRemembered(rememberAs, () => false)
     const shown = useMemo(() => shorten(value, chars, lines), [value, chars, lines])
     const long = shown.long
     const text = expanded || !long ? value : `${shown.text}...`
 
+    // Another text in place of this one, such as a stack trace read again, starts shortened
+    const shownValue = useRef(value)
     useEffect(() => {
-        setExpanded(false)
-    }, [value])
+        if (shownValue.current !== value) {
+            shownValue.current = value
+            setExpanded(false)
+        }
+    }, [value, setExpanded])
 
     return (
         <>
@@ -188,13 +219,14 @@ export const MessageCode = ({
     start,
     end,
     testId,
+    styles,
 }: {
     text: string
     start: number
     end: number
     testId: string
+    styles: MessageStyles
 }) => {
-    const { styles } = useCompileMessageStyles()
     return (
         <span className={styles.code} data-testid={testId}>
             {text.slice(0, start)}
@@ -262,20 +294,47 @@ const ruleOf = (
  */
 const MessageStacktrace = ({
     load,
+    rememberAs,
     testId,
+    styles,
 }: {
     load: () => Promise<string>
+    /** The key the list remembers the trace by, opened and read, while it is out of sight. */
+    rememberAs: string
     testId: string
+    styles: MessageStyles
 }) => {
-    const { styles } = useCompileMessageStyles()
     const { t } = useTranslation('repository')
-    const [open, setOpen] = useState(false)
-    const [trace, setTrace] = useState<string | null>(null)
-    // Set where the trace could not be read. Kept apart from the trace itself, so asking again asks the
-    // server again: a read that failed once — a connection dropped, a request refused — is worth retrying,
-    // while a trace already read is not.
-    const [failure, setFailure] = useState<string | null>(null)
-    const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useRemembered(rememberAs, () => false)
+    // The read of the trace, on its way or done, kept by the list: a message drawn again as the reader scrolls back to
+    // it follows the read it started, which may still be on its way.
+    const [read, setRead] = useRemembered<Promise<string> | null>(`${rememberAs} read`, () => null)
+    // What the read answered: the trace, or why it could not be read. A read that failed once — a connection dropped,
+    // a request refused — is worth retrying, so opening the trace again asks the server again; a trace read is not.
+    const [answer, setAnswer] = useState<{ of: Promise<string>, trace: string | null, failure: string | null }>()
+    const answered = answer?.of === read ? answer : undefined
+    const loading = read !== null && answered === undefined
+
+    useEffect(() => {
+        if (read === null) {
+            return undefined
+        }
+        let current = true
+        read
+            .then(trace => {
+                if (current) {
+                    setAnswer({ of: read, trace, failure: null })
+                }
+            })
+            .catch(() => {
+                if (current) {
+                    setAnswer({ of: read, trace: null, failure: t('browser.compile.stacktrace_failed') })
+                }
+            })
+        return () => {
+            current = false
+        }
+    }, [read, t])
 
     const toggle = () => {
         if (open) {
@@ -283,15 +342,9 @@ const MessageStacktrace = ({
             return
         }
         setOpen(true)
-        if (trace !== null || loading) {
-            return
+        if (read === null || answered?.failure != null) {
+            setRead(load())
         }
-        setLoading(true)
-        setFailure(null)
-        load()
-            .then(setTrace)
-            .catch(() => setFailure(t('browser.compile.stacktrace_failed')))
-            .finally(() => setLoading(false))
     }
 
     return (
@@ -311,17 +364,29 @@ const MessageStacktrace = ({
             </Button>
             {open && !loading && (
                 <div className={styles.stacktrace} data-testid={testId}>
-                    <MessageText chars={TRACE_CHARS} lines={TRACE_LINES} value={trace ?? failure ?? ''} />
+                    <MessageText
+                        chars={TRACE_CHARS}
+                        lines={TRACE_LINES}
+                        rememberAs={`${rememberAs} text`}
+                        styles={styles}
+                        value={answered?.trace ?? answered?.failure ?? ''}
+                    />
                 </div>
             )}
         </div>
     )
 }
 
+/** The colour stripe of each severity a message carries. */
+const STRIPES = { ERROR: 'error', WARN: 'warning', INFO: 'info' } as const
+
 interface CompileMessagesProps {
+    /** The messages, in the order they are listed: the errors first, the information messages last. */
     messages: ProjectStatusDetailedMessage[]
-    /** The severity these messages carry, which decides the colour of the stripe beside them. */
-    severity: 'error' | 'warning' | 'info'
+    /**
+     * The element the list scrolls in, null while it is not drawn yet. Only the messages in sight of it are drawn.
+     */
+    scroller: HTMLElement | null
     /** Prefix of the test id each message row carries, so a screen can find its own. */
     testIdPrefix?: string
     /**
@@ -330,9 +395,9 @@ interface CompileMessagesProps {
      * <p>Every message already says where it came from, so opening one costs no request of its own: a project
      * raising a thousand of them still asks the server nothing.
      */
-    onOpen?: (message: ProjectStatusDetailedMessage) => void
+    onOpen?: ((message: ProjectStatusDetailedMessage) => void) | undefined
     /** Which messages can be opened at all; the rest are read where they are. */
-    canOpen?: (message: ProjectStatusDetailedMessage) => boolean
+    canOpen?: ((message: ProjectStatusDetailedMessage) => boolean) | undefined
     /**
      * Opens the cell a message was raised against, for the reader to correct it.
      *
@@ -364,137 +429,180 @@ interface CompileMessagesProps {
 }
 
 /**
- * The compilation messages of one severity, as the legacy editor listed them: each marked by the colour stripe
- * of its severity, and paged so that a project raising hundreds of them stays responsive.
+ * The compilation messages, as the legacy editor listed them: each marked by the colour stripe of its severity.
  *
  * Both the project's problems panel and the problems of a single table are drawn through this, so a message
  * reads the same wherever it is shown.
+ *
+ * A project can raise thousands of messages, so only the messages in sight of the element the list scrolls in, and a
+ * few around them, are drawn; each keeps the room it takes, measured as it is drawn. A message the reader opened in
+ * full, and a stack trace read, stay so while the message is out of sight. Where the element has no layout to
+ * measure, every message is drawn.
  */
 export const CompileMessages = ({
     messages,
-    severity,
+    scroller,
     testIdPrefix = 'compile-message',
+    ...actions
+}: CompileMessagesProps) => {
+    const { styles, cx } = useCompileMessageStyles()
+    const list = useRef<HTMLUListElement>(null)
+    const laidOut = useLaidOut(scroller, 'height')
+    // Where the list begins in what scrolls it, under the notice and the messages listed above it.
+    const margin = useScrollMargin(list, scroller, laidOut)
+    // What the reader opened of the messages scrolled out of sight, for as long as the list is on screen
+    const [memory] = useState(() => new Map<string, unknown>())
+    const getItemKey = useCallback((index: number) => messages[index]?.id ?? index, [messages])
+    const virtualizer = useVirtualizer<HTMLElement, HTMLLIElement>({
+        count: messages.length,
+        enabled: laidOut,
+        estimateSize: () => MESSAGE_ESTIMATE,
+        getItemKey,
+        getScrollElement: () => scroller,
+        overscan: MESSAGES_AHEAD,
+        scrollMargin: margin,
+        // The messages come into sight with the next frame rather than inside the scroll itself.
+        useFlushSync: false,
+    })
+
+    if (messages.length === 0) {
+        return null
+    }
+    const row = (message: ProjectStatusDetailedMessage) => (
+        <MessageRow cx={cx} message={message} styles={styles} testIdPrefix={testIdPrefix} {...actions} />
+    )
+    return (
+        <ScreenMemory.Provider value={memory}>
+            <ul
+                ref={list}
+                className={styles.scrolledList}
+                style={laidOut ? { height: virtualizer.getTotalSize() } : undefined}
+            >
+                {laidOut
+                    ? virtualizer.getVirtualItems().map(item => {
+                        const message = messages[item.index]
+                        return message && (
+                            <li
+                                key={item.key}
+                                ref={virtualizer.measureElement}
+                                className={cx(styles.entry, styles.scrolledEntry)}
+                                data-index={item.index}
+                                style={{ transform: `translateY(${item.start - margin}px)` }}
+                            >
+                                {row(message)}
+                            </li>
+                        )
+                    })
+                    : messages.map(message => (
+                        <li key={message.id} className={styles.entry}>
+                            {row(message)}
+                        </li>
+                    ))}
+            </ul>
+        </ScreenMemory.Provider>
+    )
+}
+
+type MessageRowProps = Omit<CompileMessagesProps, 'messages' | 'scroller' | 'testIdPrefix'> & {
+    message: ProjectStatusDetailedMessage
+    testIdPrefix: string
+    /** The styles of the list, read once for all of its messages. */
+    styles: MessageStyles
+    cx: ReturnType<typeof useCompileMessageStyles>['cx']
+}
+
+/** One message, marked by the colour stripe of its severity, with the ways it offers into what it is about. */
+const MessageRow = ({
+    message,
+    testIdPrefix,
+    styles,
+    cx,
     onOpen,
     canOpen,
     onEditCell,
     onOpenFile,
     onStacktrace,
     cellText,
-}: CompileMessagesProps) => {
-    const { styles, cx } = useCompileMessageStyles()
+}: MessageRowProps) => {
     const { t } = useTranslation('repository')
-    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-
-    useEffect(() => {
-        setVisibleCount(PAGE_SIZE)
-    }, [messages])
-
-    if (messages.length === 0) {
-        return null
-    }
-    const visible = messages.slice(0, visibleCount)
-    const remaining = messages.length - visibleCount
-    return (
+    const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
+    const place = localizationPlaceOf(message)
+    const text = (
         <>
-            <ul className={styles.list}>
-                {visible.map(message => {
-                    const openable = onOpen !== undefined && (canOpen === undefined || canOpen(message))
-                    const place = localizationPlaceOf(message)
-                    const text = (
-                        <>
-                            {place !== null && (
-                                <Typography.Text data-testid={`${testIdPrefix}-${message.id}-place`} type="secondary">
-                                    {`${place}: `}
-                                </Typography.Text>
-                            )}
-                            <MessageText value={message.summary} />
-                        </>
-                    )
-                    const file = fileOf(message)
-                    // A message about the text of a file is read there: the cell shows nothing of it.
-                    const cell = message.location?.type === 'table' && file === null ? message.location.cell : undefined
-                    const rule = file === null ? ruleOf(message, cellText) : null
-                    return (
-                        <li
-                            key={message.id}
-                            className={cx(styles.message, styles[severity], openable && styles.openable)}
-                        >
-                            {openable ? (
-                                // A message that leads to its table is a button, so the keyboard reaches
-                                // it the way the pointer does.
-                                <button
-                                    className={styles.open}
-                                    data-testid={`${testIdPrefix}-${message.id}`}
-                                    onClick={() => onOpen(message)}
-                                    type="button"
-                                >
-                                    {text}
-                                </button>
-                            ) : (
-                                <span data-testid={`${testIdPrefix}-${message.id}`}>{text}</span>
-                            )}
-                            {rule !== null && (
-                                <MessageCode
-                                    end={rule.end}
-                                    start={rule.start}
-                                    testId={`${testIdPrefix}-${message.id}-code`}
-                                    text={rule.text}
-                                />
-                            )}
-                            {message.stacktrace && onStacktrace !== undefined && (
-                                <MessageStacktrace
-                                    load={() => onStacktrace(message)}
-                                    testId={`${testIdPrefix}-${message.id}-stacktrace`}
-                                />
-                            )}
-                            {onOpenFile !== undefined && file !== null && (
-                                <Tooltip
-                                    title={t('browser.module.open_file_line', {
-                                        file: basename(file.path),
-                                        line: file.line,
-                                    })}
-                                >
-                                    <Button
-                                        className={styles.editCell}
-                                        data-testid={`${testIdPrefix}-${message.id}-file`}
-                                        icon={<FileTextOutlined />}
-                                        onClick={() => onOpenFile(file.path, file.line)}
-                                        size="small"
-                                        type="text"
-                                    />
-                                </Tooltip>
-                            )}
-                            {onEditCell !== undefined && cell !== undefined && (
-                                <Tooltip title={t('browser.module.edit_this_cell', { cell })}>
-                                    <Button
-                                        className={styles.editCell}
-                                        data-testid={`${testIdPrefix}-${message.id}-edit`}
-                                        icon={<EditOutlined />}
-                                        onClick={() => onEditCell(cell)}
-                                        size="small"
-                                        type="text"
-                                    />
-                                </Tooltip>
-                            )}
-                        </li>
-                    )
-                })}
-            </ul>
-            {(remaining > 0 || visibleCount > PAGE_SIZE) && (
-                <div className={styles.pager}>
-                    {remaining > 0 && (
-                        <Button onClick={() => setVisibleCount(count => count + PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_more', { count: Math.min(PAGE_SIZE, remaining) })}
-                        </Button>
-                    )}
-                    {visibleCount > PAGE_SIZE && (
-                        <Button onClick={() => setVisibleCount(PAGE_SIZE)} size="small" type="link">
-                            {t('browser.compile.show_less')}
-                        </Button>
-                    )}
-                </div>
+            {place !== null && (
+                <Typography.Text data-testid={`${testIdPrefix}-${message.id}-place`} type="secondary">
+                    {`${place}: `}
+                </Typography.Text>
             )}
+            <MessageText rememberAs={`${message.id} text`} styles={styles} value={message.summary} />
         </>
+    )
+    const file = fileOf(message)
+    // A message about the text of a file is read there: the cell shows nothing of it.
+    const cell = message.location?.type === 'table' && file === null ? message.location.cell : undefined
+    const rule = file === null ? ruleOf(message, cellText) : null
+    return (
+        <div className={cx(styles.message, styles[STRIPES[message.severity]], openable && styles.openable)}>
+            {openable ? (
+                // A message that leads to its table is a button, so the keyboard reaches it the way the pointer does.
+                <button
+                    className={styles.open}
+                    data-testid={`${testIdPrefix}-${message.id}`}
+                    onClick={() => onOpen(message)}
+                    type="button"
+                >
+                    {text}
+                </button>
+            ) : (
+                <span data-testid={`${testIdPrefix}-${message.id}`}>{text}</span>
+            )}
+            {rule !== null && (
+                <MessageCode
+                    end={rule.end}
+                    start={rule.start}
+                    styles={styles}
+                    testId={`${testIdPrefix}-${message.id}-code`}
+                    text={rule.text}
+                />
+            )}
+            {message.stacktrace && onStacktrace !== undefined && (
+                <MessageStacktrace
+                    load={() => onStacktrace(message)}
+                    rememberAs={`${message.id} trace`}
+                    styles={styles}
+                    testId={`${testIdPrefix}-${message.id}-stacktrace`}
+                />
+            )}
+            {onOpenFile !== undefined && file !== null && (
+                <Tooltip
+                    title={t('browser.module.open_file_line', {
+                        file: basename(file.path),
+                        line: file.line,
+                    })}
+                >
+                    <Button
+                        className={styles.editCell}
+                        data-testid={`${testIdPrefix}-${message.id}-file`}
+                        icon={<FileTextOutlined />}
+                        onClick={() => onOpenFile(file.path, file.line)}
+                        size="small"
+                        type="text"
+                    />
+                </Tooltip>
+            )}
+            {onEditCell !== undefined && cell !== undefined && (
+                <Tooltip title={t('browser.module.edit_this_cell', { cell })}>
+                    <Button
+                        className={styles.editCell}
+                        data-testid={`${testIdPrefix}-${message.id}-edit`}
+                        icon={<EditOutlined />}
+                        onClick={() => onEditCell(cell)}
+                        size="small"
+                        type="text"
+                    />
+                </Tooltip>
+            )}
+        </div>
     )
 }
 

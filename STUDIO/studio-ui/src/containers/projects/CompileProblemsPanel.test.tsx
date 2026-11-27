@@ -157,7 +157,7 @@ describe('CompileProblemsPanel', () => {
         expect(screen.getByText('Broken table syntax')).toBeInTheDocument()
     })
 
-    it('paginates the messages and expands long message text', () => {
+    it('lists every message, and expands a long one', () => {
         const longSummary = `${'Long warning text '.repeat(20)}\nline 2\nline 3\nline 4\nline 5`
         render(<CompileProblemsPanel
             project={{
@@ -171,18 +171,15 @@ describe('CompileProblemsPanel', () => {
             }}
         />)
 
-        expect(screen.getByTestId('compile-message-1').textContent).not.toContain('line 5')
-        expect(screen.queryByText('Warning 12')).toBeNull()
-
-        fireEvent.click(screen.getByRole('button', { name: 'browser.compile.show_more:2' }))
+        // Not laid out, the list draws every message: it draws those in sight alone only where it can measure them
         expect(screen.getByText('Warning 12')).toBeInTheDocument()
+        expect(screen.getByTestId('compile-message-1').textContent).not.toContain('line 5')
 
         fireEvent.click(screen.getByRole('button', { name: 'browser.compile.show_more_text' }))
         expect(screen.getByTestId('compile-message-1').textContent).toContain('line 5')
 
-        const showLessButtons = screen.getAllByRole('button', { name: 'browser.compile.show_less' })
-        fireEvent.click(showLessButtons.at(-1)!)
-        expect(screen.queryByText('Warning 12')).toBeNull()
+        fireEvent.click(screen.getByRole('button', { name: 'browser.compile.show_less' }))
+        expect(screen.getByTestId('compile-message-1').textContent).not.toContain('line 5')
     })
 
     it('opens the table a problem was raised against, without asking the server for it', () => {
@@ -357,18 +354,18 @@ describe('CompileProblemsPanel', () => {
         expect(screen.queryByTestId('compile-problems-infos')).toBeNull()
     })
 
-    it('counts the information messages and lists them after the warnings', () => {
+    it('counts the information messages and lists them as the server does, after the warnings', () => {
         render(<CompileProblemsPanel
             project={{
                 ...base,
                 compileStatus: status([
+                    { id: 2, severity: 'WARN', summary: 'Deprecated spreadsheet pattern', stacktrace: false },
                     {
                         id: 1,
                         severity: 'INFO',
                         summary: "Datatype 'Discount' is not used in the current project.",
                         stacktrace: false,
                     },
-                    { id: 2, severity: 'WARN', summary: 'Deprecated spreadsheet pattern', stacktrace: false },
                 ]),
             }}
         />)
