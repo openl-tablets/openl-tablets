@@ -28,14 +28,20 @@ const keyBelongsElsewhere = (target: EventTarget | null): boolean =>
 
 interface ActionControlProps {
     action: SearchAction
-    /** The class of a control whose choice narrows the search. */
-    narrowedClass: string
+    /** The class of a control whose choice is other than the usual one. */
+    changedClass: string
 }
 
 /** The control a screen adds to the field: opened to choose where to look. */
-const ActionControl = ({ action, narrowedClass }: ActionControlProps) => {
+/** The usual choice of the control, the first one, when another is in force; nothing while the usual one is. */
+const usualOnceChanged = (action: SearchAction | undefined): string | undefined => {
+    const usual = action?.choices[0]?.value
+    return action?.choice !== undefined && action.choice !== usual ? usual : undefined
+}
+
+const ActionControl = ({ action, changedClass }: ActionControlProps) => {
     const { choices, choice } = action
-    const narrowed = choice !== undefined && choice !== choices[0]?.value
+    const changed = usualOnceChanged(action) !== undefined
     return (
         <Tooltip title={action.label}>
             <Dropdown
@@ -49,7 +55,7 @@ const ActionControl = ({ action, narrowedClass }: ActionControlProps) => {
             >
                 <Button
                     aria-label={action.label}
-                    className={narrowed ? narrowedClass : ''}
+                    className={changed ? changedClass : ''}
                     data-testid="header-search-action"
                     icon={action.icon}
                     // The field keeps the caret, and the text just typed, while the control is opened.
@@ -67,11 +73,14 @@ const ActionControl = ({ action, narrowedClass }: ActionControlProps) => {
  *
  * It searches what the screen shows: a screen hands it a scope through `useSearchScope` — the projects, the files
  * of a project, the tables of a module, the users — and the field names that scope before the text, filters as
- * the reader types, and shows the control the screen adds: the guide to search in. A screen may also act on Enter:
- * a module then searches every cell of its tables. A screen with several things to search lists them under the name.
- * A screen with none searches the projects: Enter opens their list with the text.
+ * the reader types, and shows the control the screen adds: the guide to search in, how far a search of the cells
+ * reaches. A screen may also act on Enter: a module then searches every cell of the project. A screen with several
+ * things to search lists them under the name. A screen with none searches the projects: Enter opens their list with
+ * the text.
  *
- * `/` brings the caret here from anywhere outside a text field, and Escape clears the text, then leaves the field.
+ * `/` brings the caret here from anywhere outside a text field. Escape puts the field back as it was at first — no text,
+ * and the usual choice of the control of the screen — then leaves the field.
+ * The field shows the Enter key while Enter has a text to send, and no key otherwise.
  */
 export const HeaderSearch = memo(() => {
     const { t } = useTranslation()
@@ -144,22 +153,25 @@ export const HeaderSearch = memo(() => {
             return
         }
         if (event.key === 'Escape') {
-            if (text === '') {
+            const usual = usualOnceChanged(scope.action)
+            if (text === '' && usual === undefined) {
                 inputRef.current?.blur()
             } else {
-                write('')
+                if (text !== '') {
+                    write('')
+                }
+                if (usual !== undefined) {
+                    scope.action?.onChoice(usual)
+                }
             }
         } else if (event.key === 'Enter' && scope.onEnter && text.trim() !== '') {
             scope.onEnter(text.trim())
         }
     }
 
-    const keyHint = () => {
-        if (scope.onEnter && text.trim() !== '') {
-            return <kbd aria-hidden className={styles.key}>↵</kbd>
-        }
-        return !focused && text === '' ? <kbd aria-hidden className={styles.key}>/</kbd> : undefined
-    }
+    const keyHint = scope.onEnter && text.trim() !== ''
+        ? <kbd aria-hidden className={styles.key}>↵</kbd>
+        : undefined
 
     const name = <span className={styles.nameText}>{scope.label}</span>
 
@@ -209,7 +221,7 @@ export const HeaderSearch = memo(() => {
                 onKeyDown={onKeyDown}
                 placeholder={scope.placeholder}
                 spellCheck={false}
-                suffix={keyHint()}
+                suffix={keyHint}
                 value={text}
                 variant="borderless"
                 onFocus={() => {
@@ -220,7 +232,7 @@ export const HeaderSearch = memo(() => {
             />
             {scope.action && (
                 <span className={styles.action}>
-                    <ActionControl action={scope.action} narrowedClass={styles.narrowed} />
+                    <ActionControl action={scope.action} changedClass={styles.changed} />
                 </span>
             )}
         </div>

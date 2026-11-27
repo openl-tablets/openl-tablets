@@ -9,14 +9,14 @@ export interface SearchChoice {
 
 /**
  * The control a screen adds to the search of the header, as an icon at its right end: a list of places to look in,
- * such as the guide to search in.
+ * such as the guide to search in, or how far a search of the cells reaches.
  */
 export interface SearchAction {
     /** What the control does, shown as its tooltip and read as its name. */
     label: string
     icon: ReactNode
     choices: SearchChoice[]
-    /** The choice in force. The first one is the widest, so any other marks the control as narrowing the search. */
+    /** The choice in force. The first one is the usual one, so any other marks the control as changed. */
     choice?: string
     onChoice: (value: string) => void
 }

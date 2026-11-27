@@ -372,13 +372,13 @@ export const getTableTargets = async (
     ) as TableTarget[] | null)
 
 /**
- * How far a search reaches, as the Tables API names it: the module, the whole project, or the project and the
- * projects it depends on.
+ * How far a search of every cell reaches, as the Tables API names it: the whole project, or the project and the
+ * projects it depends on. Such a search never stops at one module; a search that names no scope keeps to the module.
  */
-export type TableSearchScope = 'module' | 'project' | 'all'
+export type CellSearchScope = 'project' | 'all'
 
-/** How far a search reaches once Enter is pressed again on the same text: the project, then its dependencies. */
-export const WIDER: Readonly<Record<TableSearchScope, TableSearchScope>> = { module: 'project', project: 'all', all: 'all' }
+/** The reach a text names: the projects it depends on for `all`, the project for anything else. */
+export const cellScopeOf = (named: string | null): CellSearchScope => (named === 'all' ? 'all' : 'project')
 
 /**
  * The order the tables are answered in: by name, or the order the modules hold them in — workbook by workbook,
@@ -391,7 +391,7 @@ export interface TableSearchCriteria {
     /** The module the search is made through, and the one it covers unless the scope says wider. */
     module?: string | undefined
     /** How far the search reaches; the module named unless said otherwise. */
-    scope?: TableSearchScope | undefined
+    scope?: CellSearchScope | undefined
     /** Text written in any cell of the table, its header included, whatever the case of its letters. */
     text?: string | undefined
     /**

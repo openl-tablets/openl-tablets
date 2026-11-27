@@ -5,7 +5,7 @@ import { CloseOutlined, FileExcelOutlined, RightOutlined, SearchOutlined } from 
 import type { ModuleTable, RawTableCell, RawTableView } from 'types/tables'
 import { RawTableGrid } from '../../components/RawTableGrid'
 import { onPaper, rolesOf, type TableRoles } from '../../components/tableRoles'
-import { searchTables, type TableSearchScope, WIDER } from '../../services/modules'
+import { type CellSearchScope, searchTables } from '../../services/modules'
 import { readTableWindow } from '../../services/keptReads'
 import { isApiHttpError } from '../../services/apiCall'
 import { useAppTheme } from '../../providers/AppThemeProvider'
@@ -63,27 +63,17 @@ interface Place {
 }
 
 /**
- * The group a table found is listed under: its sheet in a search of the module, its module in a search of the
- * project, its project and module in a search reaching the projects it depends on.
+ * The group a table found is listed under: its module in a search of the project, its project and module in a search
+ * reaching the projects it depends on.
  */
-const groupOf = (table: ModuleTable, scope: TableSearchScope, place: Place): string => {
-    switch (scope) {
-        case 'module':
-            return table.sheet ?? ''
-        case 'project':
-            return table.module ?? place.module
-        default:
-            return `${table.project ?? place.project} / ${table.module ?? place.module}`
-    }
-}
+const groupOf = (table: ModuleTable, scope: CellSearchScope, place: Place): string =>
+    (scope === 'project'
+        ? table.module ?? place.module
+        : `${table.project ?? place.project} / ${table.module ?? place.module}`)
 
-/** Where a table sits: its range, after its sheet where the tables are not grouped by sheet, as Excel names it. */
-const positionOf = (table: ModuleTable, scope: TableSearchScope): string | undefined => {
-    if (scope === 'module' || table.sheet === undefined || table.pos === undefined) {
-        return table.pos
-    }
-    return `${table.sheet}!${table.pos}`
-}
+/** Where a table sits: its sheet and range, as Excel names them. */
+const positionOf = (table: ModuleTable): string | undefined =>
+    (table.sheet === undefined || table.pos === undefined ? table.pos : `${table.sheet}!${table.pos}`)
 
 /** Where the body of a table opened under its line has got to. */
 type Body =
@@ -134,10 +124,10 @@ interface ModuleSearchResultsProps {
     projectId: string
     /** The name of the project, which a search of it is said to look through. */
     projectName: string
-    /** The module the search is made through: its tables are the ones looked through, unless the scope is wider. */
+    /** The module the search is made through: its tables are answered first. */
     moduleName: string
-    /** How far the search reaches: the module, the whole project, or the projects it depends on too. */
-    scope: TableSearchScope
+    /** How far the search reaches: the whole project, or the projects it depends on too. */
+    scope: CellSearchScope
     /** What is looked for in the cells, as the reader sent it with Enter. */
     text: string
     /** Whether the type filter of the tree lists the free-form tables, the kind Other. */
@@ -151,14 +141,14 @@ interface ModuleSearchResultsProps {
 }
 
 /**
- * What a search of every cell of the module found, in place of the table, where the reader reads tables.
+ * What a search of every cell of the project found, in place of the table, where the reader reads tables.
  *
- * <p>The search looks for the text in every cell of every table of the module, the header included, whatever the
- * case of its letters, as the server matches it; of the whole project, or of the projects it depends on too, as the
- * scope says. The band says what Enter pressed again reaches. The tables found are listed in the order the server
- * answers them — the module first, then the rest of the project, then the rest — by the sheet they are written on in
- * a search of the module, by their module or by their project and module in a wider one. A line opens its table in the
- * editor, where it is written; the arrow before it opens the table under it, a window of its rows deep, the cells
+ * <p>The search looks for the text in every cell of every table of the project, the header included, whatever the
+ * case of its letters, as the server matches it; of the projects it depends on too, as the scope says. In a search of
+ * the project, the band says that Enter pressed again reaches the projects it depends on. The tables found are listed
+ * in the order the server answers them — the module first, then the rest of the project, then the rest — by their
+ * module, or by their project and module in a search reaching the projects it depends on. A line opens its table in
+ * the editor, where it is written; the arrow before it opens the table under it, a window of its rows deep, the cells
  * holding the text marked. A table is read only once it is asked for: a search can find hundreds.
  *
  * <p>The search follows the type filter of the tree: while the filter hides the free-form tables, they are left out
@@ -249,7 +239,7 @@ export const ModuleSearchResults = memo(({
 
     const line = (table: ModuleTable) => {
         const body = bodies[keyOf(table)]
-        const position = positionOf(table, scope)
+        const position = positionOf(table)
         // The mark of a cell lies on the paper the table is drawn on.
         const paper = onPaper(body?.state === 'read' ? body.roles : undefined, excelFormatting)
         const foundCell = (paper ? onWorkbook : onTheme).foundCell
@@ -296,8 +286,8 @@ export const ModuleSearchResults = memo(({
         if (answer === null) {
             return (
                 <>
-                    {/* A wider search waits for the project, and the projects it depends on, to be compiled. */}
-                    {scope !== 'module' && <span className={styles.part}>{t('browser.module.found_waiting')}</span>}
+                    {/* The search waits for the project, and the projects it depends on, to be compiled. */}
+                    <span className={styles.part}>{t('browser.module.found_waiting')}</span>
                     <Skeleton active className={styles.preview} paragraph={{ rows: 6 }} title={false} />
                 </>
             )
@@ -353,13 +343,13 @@ export const ModuleSearchResults = memo(({
                             : t('browser.module.found', { count: listed.length, text })}
                     </span>
                     <span className={styles.scope}>
-                        {t(`browser.module.found_scope_${scope}`, { module: moduleName, project: projectName })}
+                        {t(`browser.module.found_scope_${scope}`, { project: projectName })}
                     </span>
-                    {/* What Enter pressed again reaches, while there is something wider. */}
-                    {WIDER[scope] !== scope && (
+                    {/* Enter pressed again on the text the project was searched for reaches the projects it depends on. */}
+                    {scope === 'project' && (
                         <span className={styles.hint} data-testid="module-found-wider">
                             <kbd className={styles.key}>↵</kbd>
-                            {t(`browser.module.found_wider_${WIDER[scope]}`)}
+                            {t('browser.module.found_wider_all')}
                         </span>
                     )}
                 </span>

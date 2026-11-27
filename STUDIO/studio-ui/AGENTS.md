@@ -333,7 +333,7 @@ The build writes two pages (`build.rollupOptions.input`):
       | Deployments | `deployments` | The deployments of the repository |
       | A project, **Revisions** | `revisions` | The history, on the server |
       | A project, its tree of projects | `projects-tree` | The tree, and the files of the projects unfolded in it; a panel, see below |
-      | A module | `tables` | The tables of the module, by name; Enter searches every cell, wider each time, see below |
+      | A module | `tables` | The tables of the module, by name; Enter searches every cell of the project, see below |
       | Localization | `messages` | The keys of the rail |
       | User guides | `guides` | The text of the guides; the results take the place of the contents |
       | Users, Groups | `users`, `groups` | The table |
@@ -345,29 +345,33 @@ The build writes two pages (`build.rollupOptions.input`):
       project by its name, author, branch and tags (`projectMatches`), and the tree keeps a group whole when its
       own name holds the text.
     - **The control of the screen** is one icon at the end of the field (`action` of the scope): a list of places
-      to look in — the guide to search. The first place of the list is the widest; any other colours the icon, and
-      the scope names it in the name box, so a narrowed search is told at a glance.
+      to look in — the guide to search, how far a module searches the cells. The first place of the list is the usual
+      one; any other colours the icon, so a changed search is told at a glance, and the guides name it in the name
+      box.
       What a screen filters by besides the text — the grouping of a tree, the technical revisions — stays on the
       screen, beside what it filters.
     - **Enter sends the text off** where a scope asks for it (`onEnter`), trimmed; the field shows the Enter key
       once there is a text to send, and keeps the text. A module filters its tree by name as the reader types, and
-      Enter searches every cell of its tables on the server (the `text` of the Tables API, whatever the case of the
-      letters). Enter pressed again on the same text reaches further, as the `scope` of the API: the whole project,
-      then the projects it depends on too, and another text starts from the module again. The text and the scope go
-      into the address (`find`, `scope`), so Back returns to what it found, and
-      `ModuleSearchResults` lists the tables found in place of the table and its properties, by sheet, a table
-      opened under its line with the cells holding the text marked. Opening a table found, or one of the tree,
+      Enter searches every cell of the tables of the project on the server (the `text` of the Tables API, whatever
+      the case of the letters), never one module alone. The control of the field chooses how far, as the `scope` of
+      the API: **This Project** (`project`, the usual) or **This project and the projects it depends on** (`all`); a
+      choice made while results are shown searches their text again. Enter pressed again on the same text reaches
+      the projects it depends on too, and another text goes as far as the control says. The text and the scope go
+      into the address (`find`, `scope` — `all` only), so Back returns to what it found, and
+      `ModuleSearchResults` lists the tables found in place of the table and its properties, by module or by project
+      and module, a table opened under its line with the cells holding the text marked. Opening a table found, or one of the tree,
       takes `find` out of the address; a search asks before it puts edits on screen away. The tree keeps the text it
       is filtered by, so a key typed redraws the tree alone; the screen clears it (`filterResets` of
       `ModuleTablesTree`) once the results go away by anything but a table picked in the tree — a table opened from
-      them, **Close Results**, Back — so the reader lands on the whole tree; a table picked in the filtered tree keeps
-      the filter that led to it. Following a link in a table clears it too. A table found in another module or project opens on the screen of its own module.
+      them, **Close Results**, Back — so the reader lands on the whole tree, and the reach of the search goes back to
+      the project with it; a table picked in the filtered tree keeps the filter that led to it, and the reach. Following a link in a table clears it too. A table found in another module or project opens on the screen of its own module.
     - **A screen with nothing to search** searches the projects: the field is never missing and never disabled.
       Nothing happens until Enter, which opens the projects list with the text (`/projects?q=…`) and lets the text
       go. The field knows the fallback by what it does, not by its id.
-    - **Keys.** `/` brings the caret to the field from anywhere outside a text field and a dialog, and the field
-      shows that key while it is empty. A `/` the screen took already (`defaultPrevented`) stays with it: typing on a
-      picked cell of a table opens the cell with that character. Escape clears the text, then leaves the field. Every
+    - **Keys.** `/` brings the caret to the field from anywhere outside a text field and a dialog; the field shows
+      no hint of that key. A `/` the screen took already (`defaultPrevented`) stays with it: typing on a
+      picked cell of a table opens the cell with that character. Escape puts the field back to its default — clears
+      the text and hands the control of the screen its first choice — then leaves the field. Every
       scope filters as the reader types, the part debouncing what costs a request; Enter acts only where a scope asks
       for it (above).
     - **What is typed wins while the caret is in the field.** The text of a scope comes back from its screen a

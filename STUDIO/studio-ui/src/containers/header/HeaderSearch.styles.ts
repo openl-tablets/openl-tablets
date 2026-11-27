@@ -91,7 +91,7 @@ export const useStyles = createStyles(({ css, token }) => ({
             color: ${token.colorTextTertiary};
         }
     `,
-    /** The key that brings the caret here, or the one that sends the text off. */
+    /** The key that sends the text off. */
     key: css`
         ${keyCap(token)}
     `,
@@ -103,8 +103,8 @@ export const useStyles = createStyles(({ css, token }) => ({
         padding-inline: ${token.paddingXXS}px;
         border-inline-start: 1px solid ${token.colorBorderSecondary};
     `,
-    /** A control whose choice narrows the search says so by its colour. */
-    narrowed: css`
+    /** A control whose choice is other than the usual one says so by its colour. */
+    changed: css`
         &.ant-btn {
             color: ${token.colorPrimary};
         }

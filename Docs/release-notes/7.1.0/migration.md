@@ -121,10 +121,11 @@ own project only, as listed for the developers.
   so it could return wrong results. Add a vertical condition, which tells the rows of the keys.
 
 * **The extended search of Rules Editor is removed.** The search field of the top bar narrows the module tree down by
-  table name as before, and **Enter** now searches the cells of every table of the module, headers included, listing
-  the tables found in place of the table; **Enter** again searches the whole project, and a third time the projects it
-  depends on too. A search by table type or by table properties is no longer offered. To find the tables of a
-  property value, search the cells for the value, since a property is written in a cell of the table that declares it.
+  table name as before, and **Enter** now searches the cells of every table of the project, headers included, listing
+  the tables found in place of the table; **Enter** again searches the projects it depends on too. A button at the end
+  of the field chooses whether **Enter** searches the project or the projects it depends on too at once. A search by
+  table type or by table properties is no longer offered. To find the tables of a property value, search the cells
+  for the value, since a property is written in a cell of the table that declares it.
 
 ## Administrators
 
