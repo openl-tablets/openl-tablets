@@ -18,6 +18,7 @@ const user = userEvent.setup({ delay: null })
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
         t: (key: string, opts?: { count?: number }) => (opts?.count !== undefined ? `${key}:${opts.count}` : key),
+        i18n: { language: 'en', resolvedLanguage: 'en' },
     }),
 }))
 
