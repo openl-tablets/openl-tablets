@@ -59,7 +59,7 @@ vi.mock('../modules/useConfirmBefore', () => ({ useConfirmBefore: () => (go: () 
 vi.mock('../modules/useOverwriteConfirm', () => ({ useOverwriteConfirm: () => (go: () => void) => go() }))
 vi.mock('../projects/CompileProblemsPanel', () => ({ CompileProblemsPanel: () => null }))
 // A switcher of the trail or the title is named by its test id: what it lists is its own test's to tell.
-vi.mock('../projects/CrumbSwitcher', () => ({ CrumbSwitcher: ({ testId }: { testId: string }) => <span data-testid={testId} /> }))
+vi.mock('../../components/CrumbSwitcher', () => ({ CrumbSwitcher: ({ testId }: { testId: string }) => <span data-testid={testId} /> }))
 // jsdom lays nothing out: the table is given the room a screen would give it.
 vi.mock('../../hooks/useElementSize', () => ({ useElementSize: () => ({ ref: vi.fn(), size: { height: 600, width: 1200 } }) }))
 

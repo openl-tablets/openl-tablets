@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
+import { recentBranches, recentProjects } from '../utils/recentChoices'
 import { ProjectStatus } from '../constants/project'
 
 // Only reads here — a project fetch and a merge check — so the merge-check POST must not drop the snapshot.
@@ -125,6 +126,12 @@ export const DeleteBranchModal: React.FC = () => {
                 // confirmation for it. The server still decides: a user without the bypass gets a 403.
                 const deleted = await deleteBranch(projectId, detail.branch, detail.branchProtected ?? false)
                 if (deleted) {
+                    // A branch removed is offered first by no switcher of its repository; nor is a project removed with
+                    // the only branch holding it.
+                    recentBranches.forget(detail.branch, detail.repositoryId)
+                    if (detail.lastBranch) {
+                        recentProjects.forget(detail.projectId)
+                    }
                     handleClose()
                     detail.onSuccess?.()
                 }

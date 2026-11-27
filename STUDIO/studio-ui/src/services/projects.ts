@@ -1,5 +1,6 @@
 import { notification } from './popups'
 import { errorMessage } from 'utils/errorMessage'
+import { recentProjects } from 'utils/recentChoices'
 import apiCall, { asArray, type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
 import { encodeProjectPath as encodePath } from './projectId'
@@ -120,6 +121,7 @@ export async function updateProjectFromFiles(
  * Shows a success notification when the project is removed, or an error notification
  * carrying the backend message on failure. Returns whether the deletion succeeded, so
  * callers can react (e.g. close a dialog and refresh) without rendering feedback themselves.
+ * A project removed leaves the recent projects of the switchers.
  *
  * @param projectId   URL-path-safe project identifier provided by the backend
  * @param projectName project name used in the notification text
@@ -130,6 +132,7 @@ export async function deleteProject(projectId: string, projectName: string, comm
     const query = comment ? `?comment=${encodeURIComponent(comment)}` : ''
     try {
         await apiCall(`/projects/${projectId}${query}`, { method: 'DELETE' }, PROJECT_API_OPTIONS)
+        recentProjects.forget(projectId)
         notification.success({
             title: i18n.t('repository:notifications.project_deleted'),
             description: i18n.t('repository:notifications.project_deleted_description', { project: projectName }),

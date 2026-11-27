@@ -310,6 +310,19 @@ The build writes two pages (`build.rollupOptions.input`):
   (`components/HeaderActions.tsx`), which draws them into the `HeaderActionsSlot` of the header through a portal, so
   they keep the state of the screen and leave the header with it. A test of the screen renders `HeaderActionsSlot`
   beside it, or the actions are not drawn.
+- **The trail switches what it names.** The project, the branch and the module in the trail of a project screen are
+  each a `CrumbSwitcher` (`components/CrumbSwitcher.tsx`): plain text with a caret, its list read when it first opens
+  and narrowed by a search box of its own. `ProjectSwitcher` and `BranchSwitcher` wrap it on the project page and on
+  the screens of a module alike. Handed `recent` keys, the list leads with those items, the latest first, and goes on
+  with the others by name after a line (`recentFirst`). The recent projects and the recent branches of each
+  repository live in `localStorage` (`recentProjects`, `recentBranches` of `utils/recentChoices.ts`, ten each): a
+  screen showing a project remembers it and its branch (`useRecentVisit`), and a branch switched to is remembered. A
+  project is forgotten once it is deleted (`deleteProject`) or the list of projects no longer holds it; a branch once it
+  is deleted (`DeleteBranchModal`) or the branches of its repository (`getDesignRepositoryBranches`) no longer hold
+  it. The branches of a project hold only the ones the project is on, so they never prune the repository's list. A
+  switcher reads its list through `useRecentChoices`, which draws it again whenever that list changes — by another
+  switcher on screen or in another tab — so a list read once never shows an order gone stale. A list stays the same
+  array until it changes, so a change in one repository draws no switcher of another.
 - **One search, in the header.** OpenL Studio has a single search field, `containers/header/HeaderSearch`, in the
   header between the name of the application and the tabs, where a reader of a mail client looks for it. Every screen
   `DefaultLayout` draws is searched from it, with the same keys and the same look; no screen has a search box of its

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { Select } from 'antd'
 import { BranchesOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
-import { ListLoading } from './ListLoading'
+import { ListLoading } from '../../components/ListLoading'
 import { BranchMarks, useBranchColor } from './BranchMarks'
 
 const useStyles = createStyles(({ css, token }) => ({
