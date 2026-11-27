@@ -159,6 +159,19 @@ describe('ProjectSwitcher', () => {
         expect(recentProjects.read()).toEqual(['p1'])
     })
 
+    it('opens nothing for the project already shown where the name leads nowhere', async () => {
+        const onSelect = draw(vi.fn(), false)
+
+        await userEvent.click(screen.getByTestId('crumb-project'))
+        await userEvent.click(await screen.findByText('Car Rating'))
+        await userEvent.click(screen.getByTestId('crumb-project'))
+        await screen.findByText('Car Rating')
+        await userEvent.click(screen.getAllByRole('menuitem').find(item => item.textContent === 'Bank Rating')!)
+
+        expect(onSelect).toHaveBeenCalledTimes(1)
+        expect(onSelect).toHaveBeenCalledWith('p1')
+    })
+
     it('opens the list from the name itself where the name leads nowhere', async () => {
         draw(vi.fn(), false)
 

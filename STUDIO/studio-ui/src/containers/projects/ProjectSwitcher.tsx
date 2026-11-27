@@ -26,7 +26,8 @@ interface ProjectSwitcherProps {
     disabled?: boolean | undefined
     /**
      * Whether the name leads to the project itself, the list opened from the caret beside it — as on the screen of a
-     * module. Without the link, on the screen of the project, the name opens the list too.
+     * module. Without the link, on the screen of the project, the name opens the list too, and picking the project
+     * already shown does nothing.
      */
     withLink?: boolean | undefined
     testId?: string
@@ -87,6 +88,9 @@ export const ProjectSwitcher = ({
     }
 
     const switchTo = async (projectId: string) => {
+        if (!withLink && projectId === currentProjectId) {
+            return
+        }
         setSwitching(true)
         try {
             await onSelect(projectId)

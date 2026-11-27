@@ -461,14 +461,10 @@ export const ProjectDetail = ({
                         currentName={project.name}
                         currentProjectId={project.id}
                         disabled={pendingId !== null}
+                        onSelect={picked => navigate(projectRoute(picked))}
                         testId="crumb-project"
                         // The page shows the project already: its name opens the list of the others.
                         withLink={false}
-                        onSelect={picked => {
-                            if (picked !== project.id) {
-                                void navigate(projectRoute(picked))
-                            }
-                        }}
                     />
                 )}
                 titleAfter={(
