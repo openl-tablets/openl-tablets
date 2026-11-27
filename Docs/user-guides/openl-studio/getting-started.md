@@ -379,7 +379,7 @@ The following table describes Rules Editor organization:
 | Left pane                | Displays the module tree providing a list of elements in the currently displayed rule module, with the view mode above it. The search field of the top bar searches the tree. The **Hide the panel** icon at the end of the view mode row folds the pane away to a narrow strip named **Tables**; clicking the strip brings it back, and so does a search typed in the top bar. |
 | Middle pane              | Displays contents of the table selected in the left pane and provides controls for modifying table data, running tests, and checking test results. |
 | Right pane               | Displays **Table Properties**, the properties of the currently displayed table. The **Hide the panel** icon in its header folds the pane away to a narrow strip named **Table Properties**; clicking the strip brings it back. |
-| Upper part <br/>of the window | Contains the breadcrumb, which ends in the module name and its compilation status, and under it the module actions as described further in this section. |
+| Upper part <br/>of the window | Contains the breadcrumb, which ends in the module name and its compilation status, and at its right end the module actions as described further in this section. |
 
 The following table describes the Rules Editor controls of the module:
 

@@ -48,7 +48,7 @@ interface ProjectScreenHeaderProps {
  * <p>The trail leads to the projects, to another project and to another branch of this one, as a project holds what
  * it shows. It ends in the name of what is on screen, which opens another module of the project, or its messages; the
  * mark after it tells what was compiled and compiles it again. A project that can only be read, such as
- * one downloaded from the Maven repository, is marked so after that name. The actions of the screen take the row under
+ * one downloaded from the Maven repository, is marked so after that name. The actions of the screen end the line of
  * the trail.
  */
 export const ProjectScreenHeader = ({

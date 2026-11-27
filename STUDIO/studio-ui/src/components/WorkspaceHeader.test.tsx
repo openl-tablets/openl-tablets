@@ -51,13 +51,17 @@ describe('WorkspaceHeader', () => {
         expect(screen.getByRole('heading', { name: 'Bank Rating' }).parentElement?.textContent).toBe('Bank Rating')
     })
 
-    it('gives the actions the row under the trail', () => {
+    it('ends the line of the trail with the actions, which take a line of their own only where it leaves them no room', () => {
         const { rerender } = render(
             <WorkspaceHeader actions={<button type="button">Save</button>} crumbs={[]} testId="header" title="Bank Rating" />
         )
 
         const header = screen.getByTestId('header')
         expect(header.children).toHaveLength(2)
+        expect(getComputedStyle(header).flexWrap).toBe('wrap')
+        const actions = header.lastElementChild as HTMLElement
+        expect(getComputedStyle(actions).justifyContent).toBe('flex-end')
+        expect(getComputedStyle(actions).flexBasis).toBe('240px')
         expect(header.lastElementChild).toContainElement(screen.getByRole('button', { name: 'Save' }))
         expect(header.firstElementChild).not.toContainElement(screen.getByRole('button', { name: 'Save' }))
 
