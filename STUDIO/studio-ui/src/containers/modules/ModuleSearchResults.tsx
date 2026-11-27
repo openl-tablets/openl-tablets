@@ -8,7 +8,7 @@ import { onPaper, rolesOf, type TableRoles } from '../../components/tableRoles'
 import { type CellSearchScope, searchTables } from '../../services/modules'
 import { readTableWindow } from '../../services/keptReads'
 import { isApiHttpError } from '../../services/apiCall'
-import { useAppTheme } from '../../providers/AppThemeProvider'
+import { useExcelFormatting } from '../../hooks/useExcelFormatting'
 import { errorMessage } from '../../utils/errorMessage'
 import { versionLabel } from '../../utils/tableVersion'
 import { useDateFormats } from '../../utils/dateFormat'
@@ -171,7 +171,7 @@ export const ModuleSearchResults = memo(({
     // The mark of a cell lies on the paper its table is drawn on: the theme's, or the workbook's.
     const { styles: onTheme } = useCellStyles(false)
     const { styles: onWorkbook } = useCellStyles(true)
-    const { excelFormatting } = useAppTheme()
+    const excelFormatting = useExcelFormatting()
     const dateFormats = useDateFormats()
     const [answer, setAnswer] = useState<Answer | null>(null)
     const [bodies, setBodies] = useState<Record<string, Body>>({})

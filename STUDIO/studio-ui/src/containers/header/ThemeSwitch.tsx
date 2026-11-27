@@ -3,7 +3,6 @@ import { Button, Dropdown, Switch, type MenuProps } from 'antd'
 import Icon, {
     BgColorsOutlined,
     CompressOutlined,
-    FileExcelOutlined,
     MoonOutlined,
     SunOutlined,
 } from '@ant-design/icons'
@@ -62,9 +61,6 @@ const APPEARANCE_KEY = 'appearance'
 /** Nor is the density entry, which carries a key of its own as well. */
 const COMPACT_KEY = 'compact'
 
-/** Nor is the entry that shows the tables in the formatting of their Excel files. */
-const EXCEL_FORMATTING_KEY = 'excelFormatting'
-
 /** A theme entry is keyed apart from the appearances and the switches, which share the same menu. */
 const themeKey = (name: ThemeName): string => `theme:${name}`
 
@@ -74,31 +70,29 @@ const themeOf = (key: string): ThemeName => key.slice('theme:'.length) as ThemeN
 
 /**
  * Picks how OpenL Studio looks: the appearance — the one the operating system asks for, or the opposite one —
- * the density it is laid out in, how the tables are formatted, and the theme its colours come from.
+ * the density it is laid out in, and the theme its colours come from.
  *
  * The button wears the icon of the appearance picked — following the system, light, or dark — and opens the menu:
- * the appearance, the density and the formatting of the tables, then the themes. The appearance is one switch,
+ * the appearance and the density, then the themes. The appearance is one switch,
  * named after the appearance the system does not ask for: **Dark** while the system is light or does not say,
  * **Light** while it is dark. Turning it on keeps that appearance even when the system later switches; turning it
  * off follows the system again, under the same name. When the system has meanwhile switched to the kept appearance,
- * a click keeps the switch on and turns it to the other appearance instead. The tables are drawn in the colours of the theme by what each of their cells means,
- * unless **Excel Formatting** shows them in the formatting of their Excel files.
+ * a click keeps the switch on and turns it to the other appearance instead.
  *
  * Picking anything applies it at once and remembers it for the next visit. The menu stays open meanwhile, so one
  * choice after another can be tried and compared on the screen behind it; it closes the way it opened, by its
  * button or a click elsewhere. The choices are independent — a theme is worn in either appearance, at either
- * density, with either formatting of the tables — so the menu offers each on its own rather than one list of
- * combinations.
+ * density — so the menu offers each on its own rather than one list of combinations.
  *
  * Each theme is shown beside a dot of its own accent, in the variant of the appearance in force, so the
- * choice is made by looking rather than by reading. The appearance, the compact and the Excel formatting rows carry
- * a switch that shows the choice rather than takes the click — the row itself is the control, so the menu stays one
- * list of choices to a keyboard and a screen reader.
+ * choice is made by looking rather than by reading. The appearance and the compact rows carry a switch that shows
+ * the choice rather than takes the click — the row itself is the control, so the menu stays one list of choices to a
+ * keyboard and a screen reader. How the tables are formatted is chosen in **My Settings**.
  */
 export const ThemeSwitch = () => {
     const { t } = useTranslation()
     const { isDarkMode, setThemeMode, themeMode } = useThemeMode()
-    const { compact, excelFormatting, setCompact, setExcelFormatting, setThemeName, themeName } = useAppTheme()
+    const { compact, setCompact, setThemeName, themeName } = useAppTheme()
     const [open, setOpen] = useState(false)
 
     const system = useSystemAppearance()
@@ -119,19 +113,13 @@ export const ThemeSwitch = () => {
             key: COMPACT_KEY,
             label: t('common:theme.compact'),
         },
-        {
-            extra: <Switch checked={excelFormatting} data-testid="theme-excel-formatting" size="small" tabIndex={-1} />,
-            icon: <FileExcelOutlined />,
-            key: EXCEL_FORMATTING_KEY,
-            label: t('common:theme.excel_formatting'),
-        },
         { type: 'divider' as const },
         ...THEME_ORDER.map(name => ({
             icon: <BgColorsOutlined style={{ color: accentOf(name, isDarkMode) }} />,
             key: themeKey(name),
             label: t(`common:theme.names.${name}`),
         })),
-    ], [compact, excelFormatting, isDarkMode, override, overridden, t])
+    ], [compact, isDarkMode, override, overridden, t])
 
     const onPick = ({ key }: { key: string }): void => {
         if (key === APPEARANCE_KEY) {
@@ -139,8 +127,6 @@ export const ThemeSwitch = () => {
             setThemeMode(themeMode === opposite(system) ? 'auto' : opposite(system))
         } else if (key === COMPACT_KEY) {
             setCompact(!compact)
-        } else if (key === EXCEL_FORMATTING_KEY) {
-            setExcelFormatting(!excelFormatting)
         } else if (isThemeKey(key)) {
             setThemeName(themeOf(key))
         }
@@ -160,7 +146,6 @@ export const ThemeSwitch = () => {
                     ...(overridden ? [APPEARANCE_KEY] : []),
                     themeKey(themeName),
                     ...(compact ? [COMPACT_KEY] : []),
-                    ...(excelFormatting ? [EXCEL_FORMATTING_KEY] : []),
                 ],
             }}
         >

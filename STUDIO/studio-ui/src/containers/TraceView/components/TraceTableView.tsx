@@ -8,7 +8,7 @@ import type { HighlightState, RawTableCell } from 'types/trace'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { joinClasses } from 'utils/joinClasses'
 import { onPaper, rolesOf } from 'components/tableRoles'
-import { useAppTheme } from 'providers/AppThemeProvider'
+import { useExcelFormatting } from 'hooks/useExcelFormatting'
 import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
@@ -28,7 +28,7 @@ interface TraceTableViewProps {
  */
 const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCell, dimOthers }) => {
     const { t } = useTranslation('trace')
-    const { excelFormatting } = useAppTheme()
+    const excelFormatting = useExcelFormatting()
     const projectId = useTraceStore(s => s.projectId)
     const stackVersion = useTraceStore(s => s.stackVersion)
     const tableId = useTraceStore(s => s.frames[frameIndex]?.tableId)

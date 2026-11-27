@@ -127,6 +127,11 @@ own project only, as listed for the developers.
   table type or by table properties is no longer offered. To find the tables of a property value, search the cells
   for the value, since a property is written in a cell of the table that declares it.
 
+* **Excel Formatting moved from the theme menu to My Settings, and starts off again.** The switch now stands in the
+  **Table Settings** group of **My Settings**, and is offered only while **Format tables on save** is cleared in the
+  system settings; while it is selected, as by default, the tables are drawn in the colours of the theme. The choice
+  made in the theme menu of an earlier version is not carried over: turn the switch on again in **My Settings**.
+
 ## Administrators
 
 * **`pom.xml` is protected rather than ignored, and the system and temporary files are ignored.** The default of

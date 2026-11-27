@@ -146,9 +146,16 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
+    -   **Excel Formatting** — draw a table as its Excel file formats it. Off, the default, a table is drawn by what
+        its cells mean, in the colours of the theme, light or dark. The switch changes only the screen: the Excel
+        files and the projects are not changed. It is offered only while **Format tables on save** is cleared in
+        [System Settings](administration/02-system-settings.md): a save that formats a table writes the OpenL table
+        style over its formatting, so while the option is selected, as by default, the tables are drawn in the
+        colours of the theme. For more information, see [Viewing Tables](rules-editor.md#viewing-tables).
 
-    Whether the tables are drawn in the colours of the OpenL Studio theme or as the Excel file formats them is chosen
-    in the theme menu, by the **Excel Formatting** switch described in [Switching the Theme](#switching-the-theme).
+    With **Excel Formatting** on, the tables keep the colours Excel shows them in, whatever the theme: black text on
+    white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark
+    theme as well.
 
 3.  In the **Files** group, turn the following option on or off:
 
@@ -239,19 +246,15 @@ Once turned on, the switch keeps its appearance even when the operating system l
 
 Under the appearance, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
 
-Under **Compact**, the **Excel Formatting** switch controls how the tables of the Excel files are drawn. Off, the default, a table is drawn by what its cells mean, in the colours of the theme, light or dark. On, a table is drawn as the Excel file formats it. The switch changes only the screen: the Excel files and the projects are not changed. For more information, see [Viewing Tables](rules-editor.md#viewing-tables).
-
 The second group selects the colour theme, shown beside a dot of its own main colour. **Standard** uses the colours of Ant Design, the component library OpenL Studio is built with. The other themes are colour flavours of popular code editors: each paints the screens, the tables, the code editor of project files, and the code samples of the user guides shown in OpenL Studio in its own colours. Every theme has a light and a dark variant, and the appearance selects between them.
 
-With **Excel Formatting** on, the tables keep the colours Excel shows them in, whatever the theme: black text on white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark theme as well.
+![Theme menu opened next to the user icon, offering the Dark and Compact switches, and the colour themes](images/theme-switcher.png)
 
-![Theme menu opened next to the user icon, offering the Dark, Compact and Excel Formatting switches, and the colour themes](images/theme-switcher.png)
+*Choosing the appearance, the density, and the theme*
 
-*Choosing the appearance, the density, the look of the tables, and the theme*
+The choices are independent: every theme is displayed in either appearance, at either density. Whether the tables are drawn in the colours of the theme or as their Excel files format them is chosen by **Excel Formatting** in [My Settings](#modifying-my-settings).
 
-The choices are independent: every theme is displayed in either appearance, at either density, with the tables in either look.
-
-New users start with the appearance of the operating system, the **Standard** theme, the comfortable density, and **Excel Formatting** off. The choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. An appearance is stored only while the appearance switch is on; with it off, nothing is stored, and OpenL Studio follows the operating system. Using a different browser or computer starts from the defaults again.
+New users start with the appearance of the operating system, the **Standard** theme, and the comfortable density. The choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. An appearance is stored only while the appearance switch is on; with it off, nothing is stored, and OpenL Studio follows the operating system. Using a different browser or computer starts from the defaults again.
 
 ### Searching in OpenL Studio
 

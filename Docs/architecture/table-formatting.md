@@ -26,7 +26,7 @@ glance: what the table is, what it takes, and what it gives.
 | Writing to Excel, always | System setting **Format tables on save**, on by default: every table saved, created, copied, uploaded or merged is formatted. |
 | Edit toolbar | Formatting buttons only with **Format tables on save** off and **Excel Formatting** on; indent always for TBasic and ColumnMatch. |
 | `.xls` files | Not formatted, ignored by every formatting path. |
-| Screen | The **Excel Formatting** switch of the theme menu, under **Compact**. Off: the Studio look. On: the Excel look. |
+| Screen | The **Excel Formatting** switch of **My Settings**, offered with **Format tables on save** off. Off or not offered: the Studio look. On: the Excel look. |
 | Switching | The switch only re-renders. Both looks are drawn from one read of the table. |
 | Studio look | Formulas and code are highlighted as CodeMirror highlights code; values are coloured by their type. |
 | Colour picker | Only the 60 theme colours and the 10 standard colours of Excel. No custom colour. |
@@ -477,8 +477,11 @@ unique header texts, which OpenL tables cannot guarantee.
 
 ## The two looks on the screen
 
-The **Excel Formatting** switch sits in the theme menu of the header, right under **Compact**. It is kept in the
-browser (`localStorage`, `openl.theme.excelFormatting`) like the other theme settings, and is off by default.
+The **Excel Formatting** switch sits in the **Table Settings** group of **My Settings**. It is kept in the browser
+(`localStorage`, `openl.settings.excelFormatting`) like the other settings, and is off by default. It is offered only
+while **Format tables on save** is off: a save would write the OpenL table style over the formatting it shows, so
+while the system setting is on the switch is hidden and the tables take the Studio look, whatever the browser keeps
+(`useExcelFormatting`).
 
 | | Studio look (switch off) | Excel look (switch on) |
 |---|---|---|
@@ -803,7 +806,7 @@ the Studio look would not show it.
 |---|---|---|---|
 | off | on | shown | every table |
 | off | off | hidden | TBasic and ColumnMatch tables only |
-| on | either | hidden | TBasic and ColumnMatch tables only |
+| on | not offered | hidden | TBasic and ColumnMatch tables only |
 
 The indent stays for TBasic and ColumnMatch tables because it is structure, not look. TBasic reads the level of a
 step from it. ColumnMatch builds its tree of conditions from it (`MatchAlgorithmCompiler`).
