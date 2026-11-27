@@ -139,7 +139,7 @@ own project only, as listed for the developers.
   is a technical revision, which the **Revisions** list hides unless it is the latest revision of the branch.
   `META-INF/MANIFEST.MF` is protected too, so a deployment archive uploaded as a project no longer brings the manifest
   of that deployment with it. The new `project.hidden-files` property hides `rules.xml`, `rules-deploy.xml` and
-  `tags.properties` in the project tree unless **Show Hidden Files** is on in **My Settings**.
+  `tags.properties` in the project tree unless **Show All Files** is on in **My Settings**.
 
   ```properties
   project.protected-files = pom.xml, META-INF/MANIFEST.MF

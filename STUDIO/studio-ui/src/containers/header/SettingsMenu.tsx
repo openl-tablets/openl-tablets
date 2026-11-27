@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import dayjs from 'dayjs'
-import { Button, Dropdown, Switch, Typography, type MenuProps } from 'antd'
+import { Button, Dropdown, Switch, Tooltip, Typography, type MenuProps } from 'antd'
 import { SettingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZES } from 'constants/tests'
@@ -14,13 +14,19 @@ type SwitchSetting = {[K in keyof UserSettings]: UserSettings[K] extends boolean
 const LABELS: Record<SwitchSetting, string> = {
     showHeader: 'common:settings.show_header',
     showFormulas: 'common:settings.show_formulas',
-    showHiddenFiles: 'common:settings.show_hidden_files',
+    showHiddenFiles: 'common:settings.show_all_files',
     testsFailuresOnly: 'execution:tests.failuresOnly',
     showComplexResult: 'execution:tests.compoundResult',
     showRealNumbers: 'common:settings.show_numbers_without_formatting',
 }
 
 const isSwitchSetting = (key: string): key is SwitchSetting => key in LABELS
+
+/**
+ * The files **Show All Files** adds to the trees of files, as the tooltip lists them: the hidden and the protected
+ * files OpenL Studio names by default, `project.hidden-files` and `project.protected-files`.
+ */
+const HIDDEN_FILES = ['rules.xml', 'rules-deploy.xml', 'tags.properties', 'pom.xml', 'META-INF/MANIFEST.MF']
 
 /** A page size is keyed apart from the switches, which share the same menu. */
 const PAGE_SIZE = 'testsPerPage:'
@@ -43,8 +49,8 @@ const pickedFormat = (key: string): [FormatSetting, string] | undefined => {
  * Picks **My Settings**: how the tables, the files, the test results and the trace are shown.
  *
  * The button opens a menu of the settings in five groups — the tables, the files, the testing, the trace and the
- * dates. **Show Hidden Files** shows the technical files of a project, such as `rules.xml`, in the trees of files. A
- * setting that is on or off is a row carrying a switch, which shows the choice rather than takes the click: the row
+ * dates. **Show All Files** shows the technical files of a project too, such as `rules.xml`, in the trees of files,
+ * and its tooltip lists them, one per line. A setting that is on or off is a row carrying a switch, which shows the choice rather than takes the click: the row
  * itself is the control. **Tests Per Page** opens the page sizes, the one in force marked.
  *
  * **Date Format** and **Time Format** each open the formats, every one shown on the same moment. The first is the
@@ -97,7 +103,23 @@ export const SettingsMenu = () => {
             type: 'group',
         },
         {
-            children: [switchItem('showHiddenFiles')],
+            children: [
+                {
+                    ...switchItem('showHiddenFiles'),
+                    label: (
+                        <Tooltip
+                            placement="left"
+                            title={(
+                                <div data-testid="settings-showHiddenFiles-files">
+                                    {HIDDEN_FILES.map(file => <div key={file}>{file}</div>)}
+                                </div>
+                            )}
+                        >
+                            <span>{t(LABELS.showHiddenFiles)}</span>
+                        </Tooltip>
+                    ),
+                },
+            ],
             key: 'files',
             label: t('common:settings.files_settings'),
             type: 'group',

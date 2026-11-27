@@ -9,7 +9,7 @@ export interface UserSettings {
     showHeader: boolean
     /** A cell holding an Excel formula shows the formula rather than its value. */
     showFormulas: boolean
-    /** The trees of files show the hidden files of a project too, such as `rules.xml` and `pom.xml`. */
+    /** The trees of files show every file of a project, `rules.xml` and `pom.xml` among them. */
     showHiddenFiles: boolean
     /** How many test tables one page of the test results holds; `-1` for all of them. */
     testsPerPage: number
