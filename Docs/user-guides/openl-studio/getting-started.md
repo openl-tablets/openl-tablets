@@ -152,9 +152,10 @@ To manage personal settings, proceed as follows:
 
 3.  In the **Files** group, turn the following option on or off:
 
-    -   **Show Hidden Files** — show the technical files of a project in the project tree: its descriptor
-        `rules.xml`, `rules-deploy.xml`, `tags.properties` and the build file `pom.xml`. They are hidden by default,
-        as a business user does not edit them there. A hidden file is still opened by a link that names it, and the
+    -   **Show All Files** — show the technical files of a project in the project tree too: its descriptor
+        `rules.xml`, `rules-deploy.xml`, `tags.properties`, the build file `pom.xml` and `META-INF/MANIFEST.MF`. The
+        tooltip of the option lists them, one per line. They are hidden by default, as a business user does not edit
+        them there. A hidden file is still opened by a link that names it, and the
         files an administrator hides are set by the `project.hidden-files` and `project.protected-files` properties
         described in [Configuration](../installation-guide/configuration.md#system).
 

@@ -54,7 +54,7 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('settings-menu'))
         await userEvent.click(await screen.findByText('common:settings.show_header'))
         await userEvent.click(screen.getByText('common:settings.show_numbers_without_formatting'))
-        await userEvent.click(screen.getByText('common:settings.show_hidden_files'))
+        await userEvent.click(screen.getByText('common:settings.show_all_files'))
 
         expect(readUserSettings()).toEqual({
             ...DEFAULT_USER_SETTINGS,
@@ -68,6 +68,17 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('elsewhere'))
 
         await waitFor(() => expect(openMenu()).toBeNull())
+    })
+
+    it('lists, one per line, the files Show All Files adds to the trees of files', async () => {
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+        await userEvent.hover(await screen.findByText('common:settings.show_all_files'))
+
+        const files = await screen.findByTestId('settings-showHiddenFiles-files')
+        expect([...files.children].map(line => line.textContent))
+            .toEqual(['rules.xml', 'rules-deploy.xml', 'tags.properties', 'pom.xml', 'META-INF/MANIFEST.MF'])
     })
 
     it('picks how many tests a page holds among the sizes offered', async () => {

@@ -19,7 +19,7 @@ apart from the rules in three ways, each set by a setting of its own:
   and imported into another would overwrite the build of the other place.
 - **Hidden files are of no use to a business user**, such as `rules.xml`, `rules-deploy.xml` and `tags.properties`,
   which other screens edit. The screens of OpenL Studio leave them out of the trees of files unless the user turns on
-  **Show Hidden Files** in **My Settings**. A protected file is hidden too. Being hidden changes nothing else: the
+  **Show All Files** in **My Settings**. A protected file is hidden too. Being hidden changes nothing else: the
   REST API and the MCP server list, read and write such a file as any other.
 
 ```properties
@@ -164,8 +164,9 @@ project is saved and deployed as the archive it is.
 
 A hidden file is a matter of the screens alone. `FileNodeMapper` marks each file and folder of a project the
 `projectFiles` bean names as hidden or protected with `"hidden": true` in the Files API, and leaves the field out
-otherwise. The project tree of OpenL Studio leaves such a file out unless the **Show Hidden Files** setting of
-**My Settings** is on, which the browser keeps (`showHiddenFiles` in `settingsStore`). A link that names a hidden file
+otherwise. The project tree of OpenL Studio leaves such a file out unless the **Show All Files** setting of
+**My Settings** is on, which the browser keeps (`showHiddenFiles` in `settingsStore`). The tooltip of the setting lists
+the default hidden and protected files, one per line. A link that names a hidden file
 opens it as any other, and the screens that read `rules.xml` read it whatever the setting.
 
 ## What is out of scope

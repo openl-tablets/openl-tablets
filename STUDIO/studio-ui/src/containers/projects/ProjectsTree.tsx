@@ -86,7 +86,7 @@ interface ProjectContents {
     /** The paths of the files of the project. */
     paths: string[]
     /**
-     * The same files without the hidden ones, such as `rules.xml`, which the tree shows only while **Show Hidden
+     * The same files without the hidden ones, such as `rules.xml`, which the tree shows only while **Show All
      * Files** is on; absent when the project has no hidden file.
      */
     withoutHidden?: ProjectContents
@@ -156,7 +156,7 @@ const readContents = async (
 }
 
 /**
- * The files of the projects as the tree shows them: the hidden ones only while **Show Hidden Files** is on.
+ * The files of the projects as the tree shows them: the hidden ones only while **Show All Files** is on.
  *
  * <p>A project keeps the same files from one call to the next, so the rows built on them are kept too.
  */
