@@ -30,8 +30,8 @@ import { CollapsingActionBar, type ActionMenu } from '../../components/Collapsin
 /** The history and the local changes are read in a window over the module, not on a screen of their own. */
 const DIALOG_BODY = { body: { maxHeight: '70vh', overflow: 'auto' } }
 
-/** The project's own actions the editor offers, in the order the old Editor kept them. */
-const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['save', 'sync', 'deploy', 'copy']
+/** The project's own actions the editor offers after Test, in the order the row shows them. */
+const PROJECT_LEVEL: Array<keyof ProjectDialogActions> = ['copy', 'sync', 'deploy']
 
 /** A button of the row, and what it runs, from the button or from the item of More it becomes. */
 interface BarAction {
@@ -181,10 +181,21 @@ export const ModuleActionBar = ({
     // Every table of every module of the project is formatted, so a dialog says so before anything is written.
     const reformat = () => confirmWrite(() => setReformatOpen(true))
 
+    // An action of the project, offered where the project says it is.
+    const projectAction = (id: keyof ProjectDialogActions): BarAction[] => (isActionAvailable(project, id) ? [{
+        key: id,
+        label: t(PROJECT_ACTIONS[id].labelKey),
+        icon: ACTION_ICONS[id],
+        disabled,
+        primary: id === 'save',
+        run: id === 'save' && beforeSave !== undefined ? () => beforeSave(actions.save) : () => actions[id](),
+    }] : [])
+
     /**
-     * The buttons of the row, in their order: what the project needs done first, then what it offers, then the history
-     * of the project and what is about its tables. A button the row has no room for is not dropped: it goes to the menu
-     * at the end of the row.
+     * The buttons of the row, in their order: what the project needs done first, which only something waiting brings;
+     * then Test, Copy, Sync, Deploy, Export and Update; then the rest — what writes tables, the history of the project
+     * and what is about its tables. A button the row has no room for is not dropped: it goes to the menu at the end of
+     * the row.
      */
     const barActions: BarAction[] = [
         // Offered only while something is waiting: with automatic compilation on there is never anything to verify,
@@ -196,24 +207,18 @@ export const ModuleActionBar = ({
             primary: true,
             run: () => onVerify?.(),
         }] : []),
-        // Saving, syncing, deploying and copying belong to the project: offered where the project says they are.
-        ...PROJECT_LEVEL.filter(id => isActionAvailable(project, id)).map((id): BarAction => ({
-            key: id,
-            label: t(PROJECT_ACTIONS[id].labelKey),
-            icon: ACTION_ICONS[id],
-            disabled,
-            primary: id === 'save',
-            run: id === 'save' && beforeSave !== undefined ? () => beforeSave(actions.save) : () => actions[id](),
-        })),
-        ...(canUpdateModule ? [{
-            key: 'update',
-            label: t('browser.module.update'),
-            icon: <UploadOutlined />,
-            disabled,
-            run: () => window.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
-                detail: { projectId: project.id, modulePath, onSuccess: () => onProjectChanged?.() },
-            })),
-        }] : []),
+        // Saving belongs to the project, and is offered only while it has something to save.
+        ...projectAction('save'),
+        {
+            key: 'test',
+            label: t('browser.module.test'),
+            icon: <ExperimentOutlined />,
+            disabled: disabled || !testCount,
+            count: testCount,
+            run: openTests,
+        },
+        // Copying, syncing and deploying belong to the project: offered where the project says they are.
+        ...PROJECT_LEVEL.flatMap(projectAction),
         ...(ofModule ? [{
             key: 'export',
             label: t('browser.module.export'),
@@ -224,14 +229,15 @@ export const ModuleActionBar = ({
                 detail: { projectId: project.id, filePath: modulePath },
             })),
         }] : []),
-        {
-            key: 'test',
-            label: t('browser.module.test'),
-            icon: <ExperimentOutlined />,
-            disabled: disabled || !testCount,
-            count: testCount,
-            run: openTests,
-        },
+        ...(canUpdateModule ? [{
+            key: 'update',
+            label: t('browser.module.update'),
+            icon: <UploadOutlined />,
+            disabled,
+            run: () => window.dispatchEvent(new CustomEvent('openUpdateModuleModal', {
+                detail: { projectId: project.id, modulePath, onSuccess: () => onProjectChanged?.() },
+            })),
+        }] : []),
         ...((canWrite || readOnly) && ofModule && !singleFile ? [{
             key: 'createTable',
             label: t('browser.module.createTable'),

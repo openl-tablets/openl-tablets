@@ -82,7 +82,7 @@ const mockSizes = (parentWidth: number, itemWidth: number) => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('ProjectActionBar', () => {
-    it('adds files at the root of a project the reader may write to, after the open and close actions', () => {
+    it('adds files at the root of a project the reader may write to, after Close and Export', () => {
         const onAddFiles = vi.fn()
         render(<ProjectActionBar
             handlers={noHandlers}
@@ -95,10 +95,40 @@ describe('ProjectActionBar', () => {
         const order = [...bar.querySelectorAll(':scope > * [data-testid], :scope > [data-testid]')]
             .map(node => node.getAttribute('data-testid'))
         expect(order.indexOf('addFiles-p1')).toBeGreaterThan(order.indexOf('close-p1'))
-        expect(order.indexOf('addFiles-p1')).toBeLessThan(order.indexOf('export-p1'))
+        expect(order.indexOf('addFiles-p1')).toBeGreaterThan(order.indexOf('export-p1'))
 
         screen.getByTestId('add-upload').click()
         expect(onAddFiles).toHaveBeenCalledWith('upload')
+    })
+
+    it('lines the actions of an open project up as Close, Copy, Sync, Deploy, Export, Add, Compare, then the rest', () => {
+        render(<ProjectActionBar
+            handlers={noHandlers}
+            onAddFiles={vi.fn()}
+            pendingId={null}
+            project={project({
+                canClose: true,
+                canWrite: true,
+                canCopy: true,
+                canMerge: true,
+                canManageBranches: true,
+                canDeploy: true,
+                canExport: true,
+                canCompare: true,
+                canViewHistory: true,
+                canDelete: true,
+            })}
+        />)
+
+        const bar = screen.getByTestId('project-actions')
+        const order = [...bar.querySelectorAll(':scope > * [data-testid], :scope > [data-testid]')]
+            .map(node => node.getAttribute('data-testid'))
+            .filter(id => id?.endsWith('-p1'))
+        const shown = ['close', 'copy', 'sync', 'deploy', 'export', 'addFiles', 'compare', 'openRevision', 'delete']
+            .map(id => `${id}-p1`)
+            .filter(id => order.includes(id))
+        expect(shown.slice(0, 7)).toEqual(['close-p1', 'copy-p1', 'sync-p1', 'deploy-p1', 'export-p1', 'addFiles-p1', 'compare-p1'])
+        expect(shown.map(id => order.indexOf(id))).toEqual([...shown.map(id => order.indexOf(id))].sort((a, b) => a - b))
     })
 
     it('offers no Add menu to a reader who may not write, nor without a way to add', () => {
