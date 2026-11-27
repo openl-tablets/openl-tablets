@@ -345,7 +345,7 @@ OpenL Tablets module tables are listed in the module tree. Table types are repre
 
 For more information on table types, see [OpenL Tablets Reference Guide > Table Types](../reference-guide/index.md#table-types). The number of errors that a table or a group of tables contains is displayed as a red badge next to its name in the tree.
 
-The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Properties** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and a search of the cells of the module, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
+The tables that correspond to none of these types — the utility tables — are hidden by default: they take no part in the rules. To list them, in the module tree, click the filter button next to the sorting mode, select **Show utility tables** in the **Advanced filter** dialog and click **Apply**. A utility table is named by whatever its first cell says, opens as the grid it is, and can be edited the same way as any other table; it carries no properties, so the **Table Properties** pane offers none for it. While the utility tables are hidden, a search by name in the tree, and a search of the cells of the project, tells how many of them it would find, such as **2 tables hidden by the type filter**, and **Show them** lists them. **Show them** selects **Show utility tables**, which the browser keeps like any other choice of the **Advanced filter** dialog: the utility tables stay listed after the page is reloaded, until it is cleared in the dialog.
 
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
@@ -908,7 +908,7 @@ the sheet it is written on. Save the project to carry the change to the Design r
 
 ### Searching for Tables
 
-In Rules Editor, the search field of the top bar is named **Tables**. Typing in it narrows the module tree down by table name, and pressing **Enter** searches the cells of every table of the module; pressing it again searches the whole project, and a third time the projects it depends on too. For more information on the search field, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
+In Rules Editor, the search field of the top bar is named **Tables**. Typing in it narrows the module tree down by table name, and pressing **Enter** searches the cells of every table of the project; pressing it again searches the projects it depends on too. For more information on the search field, see [Searching in OpenL Studio](getting-started.md#searching-in-openl-studio).
 
 #### Searching by Table Name
 
@@ -920,19 +920,19 @@ To find a table in the module tree, start typing its name in the search field of
 
 #### Searching the Cells of Tables
 
-To find every table of the module that holds a text in any of its cells, type the text in the search field of the top bar and press **Enter**. The field shows the Enter key once there is a text to search for, and keeps the text, so the module tree stays narrowed down by it while the results are shown. Opening a table from the results, closing them, going back with the browser, or following a link in a table clears the field and shows the whole tree again; selecting a table in the narrowed module tree keeps the text.
+To find every table of the project that holds a text in any of its cells, type the text in the search field of the top bar and press **Enter**. The field shows the Enter key once there is a text to search for, and keeps the text, so the module tree stays narrowed down by it while the results are shown. Opening a table from the results, closing them, going back with the browser, or following a link in a table clears the field, sets the button at the end of the field back to **This Project**, and shows the whole tree again; selecting a table in the narrowed module tree keeps the text, and how far the search reached. Esc in the field clears the text and sets the button back to **This Project** as well; when the results were found in the projects it depends on too, they are searched again in the project.
 
-To search wider, press **Enter** again with the same text: the second time searches every module of the project, and the third time the projects the project depends on too. The band of the results tells how far the search reaches and what pressing **Enter** again searches. A search wider than the module waits until the project is compiled.
+To search the projects the project depends on too, press **Enter** again with the same text. To search them with the first **Enter**, click the button at the end of the search field and select **This project and the projects it depends on**; **This Project**, the default, searches the project alone. The button is highlighted while the projects it depends on are searched too, and selecting another choice while the results are shown searches the same text again. The band of the results tells how far the search reaches and what pressing **Enter** again searches. The search waits until the project is compiled.
 
-The search looks in every cell of every table of the module, the header included, whatever the case of the letters. A date written as dates are written in tables, such as `3/12/2014` or `2014-03-12`, also finds the cells holding that day.
+The search looks in every cell of every table of the project, the header included, whatever the case of the letters. A date written as dates are written in tables, such as `3/12/2014` or `2014-03-12`, also finds the cells holding that day.
 
 The tables found take the place of the table in the middle pane, and the **Table Properties** pane is hidden meanwhile:
 
 -   The band at the top tells how many tables contain the text, such as **3 tables contain "premium"**.
--   The tables are listed by the Excel sheet they are written on, in the order the sheet holds them. Each table is
-    named by its header, with the text marked where the header holds it, and followed by its place on the sheet,
-    such as `B3:D8`. A wider search lists the tables of the module first, then the other modules, by module, or by
-    project and module, each with its sheet before its place, such as `Vehicle-Premium!D4:E9`.
+-   The tables are listed by module, the module open in the editor first, in the order the workbooks hold them, or by
+    project and module when the projects the project depends on are searched too. Each table is named by its header,
+    with the text marked where the header holds it, and followed by its sheet and its place on the sheet, such as
+    `Vehicle-Premium!D4:E9`.
 -   To open a table, click it. The results are closed, and the browser **Back** button brings them back. A table of
     another module or project opens in its own module.
 -   To see the first rows of a table right in the list, click the arrow before it. The cells holding the text are
@@ -943,7 +943,7 @@ While the utility tables are hidden, the results tell how many utility tables th
 
 The address of the page carries the text searched for, so the results can be shared as a link.
 
-![The tables of a module holding the searched text, listed by sheet, one of them shown with the found cells marked](images/search-results.png "Search results")
+![The tables of a project holding the searched text, listed by module, one of them shown with the found cells marked](images/search-results.png "Search results")
 
 *Search results with the rows of a table shown*
 

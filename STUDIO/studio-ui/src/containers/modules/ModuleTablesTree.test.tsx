@@ -19,6 +19,8 @@ const tables: ModuleTable[] = [
 const rail = (over: Partial<ComponentProps<typeof ModuleTablesTree>> = {}) => {
     const onShowOther = vi.fn()
     const props = {
+        cellScope: 'project' as const,
+        onCellScope: vi.fn(),
         onSearchCells: vi.fn(),
         onSelectTable: vi.fn(),
         onShowOther,
@@ -102,11 +104,26 @@ describe('ModuleTablesTree', () => {
         expect(screen.getByText('Premium')).toBeInTheDocument()
     })
 
-    it('offers no control beside the search: Enter is the way to search the cells', () => {
-        rail()
+    it('offers beside the search how far Enter searches the cells: the project, or its dependencies too', () => {
+        const onCellScope = vi.fn()
+        rail({ onCellScope })
 
-        expect(searchScope('tables').action).toBeUndefined()
-        expect(searchScope('tables').onEnter).toBeDefined()
+        const { action, onEnter } = searchScope('tables')
+        expect(onEnter).toBeDefined()
+        expect(action?.label).toBe('browser.module.search_scope')
+        expect(action?.choice).toBe('project')
+        expect(action?.choices).toEqual([
+            { value: 'project', label: 'browser.module.search_scope_project' },
+            { value: 'all', label: 'browser.module.search_scope_all' },
+        ])
+
+        act(() => action?.onChoice('all'))
+        expect(onCellScope).toHaveBeenLastCalledWith('all')
+        act(() => action?.onChoice('project'))
+        expect(onCellScope).toHaveBeenLastCalledWith('project')
+
+        rail.rerender({ cellScope: 'all' })
+        expect(searchScope('tables').action?.choice).toBe('all')
     })
 
     it('asks for the utility tables to be listed from the filter dialog, as the Editor\'s filter let a reader ask', async () => {

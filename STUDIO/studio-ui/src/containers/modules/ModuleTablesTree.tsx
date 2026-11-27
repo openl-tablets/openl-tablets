@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Checkbox, Empty, Modal, Select, Skeleton, Space, Spin, Tooltip, Tree, Typography } from 'antd'
-import { CheckCircleFilled, SlidersOutlined } from '@ant-design/icons'
+import { ApartmentOutlined, CheckCircleFilled, SlidersOutlined } from '@ant-design/icons'
 import { createStyles, useTheme } from 'antd-style'
 import type { ModuleTable } from 'types/tables'
+import { type CellSearchScope, cellScopeOf } from '../../services/modules'
 import { compileColorsOf } from '../projects/projectsTheme'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { useSharedStyles } from '../projects/sharedStyles'
@@ -183,8 +184,12 @@ interface ModuleTablesTreeProps {
      * this changes.
      */
     filterResets?: number
-    /** Searches every cell of the module for the text the reader sent with Enter. */
+    /** Searches every cell of the project for the text the reader sent with Enter, as far as {@link cellScope} says. */
     onSearchCells: (text: string) => void
+    /** How far a search of the cells reaches: the project, or the projects it depends on too. */
+    cellScope: CellSearchScope
+    /** Chooses how far a search of the cells reaches, as the control of the search field offers. */
+    onCellScope: (scope: CellSearchScope) => void
     /** Whether the free-form tables — the ones OpenL does not recognize — are listed with the rest. */
     showOther: boolean
     /** Asks for the free-form tables to be listed, or to be left out again. */
@@ -223,6 +228,8 @@ export const ModuleTablesTree = ({
     onSelectTable,
     filterResets = 0,
     onSearchCells,
+    cellScope,
+    onCellScope,
     showOther,
     onShowOther,
     onFindAll,
@@ -246,9 +253,15 @@ export const ModuleTablesTree = ({
     // The filter dialog works on a copy of the choice, applied or thrown away when it closes, as the Editor's did.
     const [filterOpen, setFilterOpen] = useState(false)
     const [draftOther, setDraftOther] = useState(showOther)
+    // The control of the field chooses how far Enter searches: one list for every drawing, as the field compares it.
+    const cellScopes = useMemo(() => [
+        { value: 'project', label: t('browser.module.search_scope_project') },
+        { value: 'all', label: t('browser.module.search_scope_all') },
+    ], [t])
     // The header searches what the rail shows, by name, as the reader types: the tables of this module are already in
-    // the browser, so the filter costs no request. Enter asks the server for every table of the module holding the
-    // text in any cell, which the screen lists where the table is read; the text stays, and the rail filtered by it.
+    // the browser, so the filter costs no request. Enter asks the server for every table of the project holding the
+    // text in any cell — or of the projects it depends on too, as the control of the field says — which the screen
+    // lists where the table is read; the text stays, and the rail filtered by it.
     useSearchScope({
         id: 'tables',
         label: t('common:search.scopes.tables'),
@@ -262,6 +275,13 @@ export const ModuleTablesTree = ({
         placeholder: t('browser.module.search_placeholder'),
         value: search,
         onEnter: onSearchCells,
+        action: {
+            choice: cellScope,
+            choices: cellScopes,
+            icon: <ApartmentOutlined />,
+            label: t('browser.module.search_scope'),
+            onChoice: choice => onCellScope(cellScopeOf(choice)),
+        },
     })
     // A version is labelled by the dates it is told by, in the formats of the reader.
     const dateFormats = useDateFormats()

@@ -140,7 +140,7 @@ describe('HeaderSearch', () => {
 
         expect(onChoice).toHaveBeenCalledWith('studio/')
 
-        // The screen takes the choice: the control wears another colour while the search is narrowed.
+        // The screen takes the choice: the control wears another colour while the choice is not the usual one.
         mount('guides', { action: { ...action, choice: 'studio/' }, label: 'Studio Guide' })
         expect(name()).toHaveTextContent('Studio Guide')
         expect(screen.getByTestId('header-search-action').className).not.toBe(wide)
@@ -160,8 +160,8 @@ describe('HeaderSearch', () => {
                 <textarea data-testid="elsewhere" />
             </>
         )
-        // The key is offered while the field is empty and the caret is elsewhere.
-        expect(field()).toHaveTextContent('/')
+        // The key works unseen: the field shows no hint of it.
+        expect(field()).not.toHaveTextContent('/')
 
         fireEvent.keyDown(screen.getByTestId('elsewhere'), { key: '/' })
         expect(input()).not.toHaveFocus()
@@ -210,6 +210,32 @@ describe('HeaderSearch', () => {
         expect(input()).toHaveFocus()
 
         await userEvent.keyboard('{Escape}')
+        expect(input()).not.toHaveFocus()
+    })
+
+    it('puts the control back to its usual choice on Escape, with the text, then leaves the field', async () => {
+        const onChoice = vi.fn()
+        const choices = [{ value: 'project', label: 'This Project' }, { value: 'all', label: 'With dependencies' }]
+        render(<HeaderSearch />)
+        const tables = mount('tables', { action: { choice: 'all', choices, icon: <span />, label: 'Search cells in', onChoice } })
+
+        await userEvent.type(input(), 'premium')
+        await userEvent.keyboard('{Escape}')
+
+        expect(tables.onChange).toHaveBeenLastCalledWith('')
+        expect(onChoice).toHaveBeenCalledWith('project')
+        expect(input()).toHaveFocus()
+
+        // A choice left changed with no text is put back too, before the field is left.
+        onChoice.mockClear()
+        await userEvent.keyboard('{Escape}')
+        expect(onChoice).toHaveBeenCalledWith('project')
+        expect(input()).toHaveFocus()
+
+        mount('tables', { action: { choice: 'project', choices, icon: <span />, label: 'Search cells in', onChoice } })
+        onChoice.mockClear()
+        await userEvent.keyboard('{Escape}')
+        expect(onChoice).not.toHaveBeenCalled()
         expect(input()).not.toHaveFocus()
     })
 

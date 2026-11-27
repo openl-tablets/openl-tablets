@@ -14,9 +14,9 @@ import {
     isTableNotFound,
     stopEditingTable,
     TABLE_PAGE_ROWS,
+    type CellSearchScope,
+    cellScopeOf,
     type ModuleInfo,
-    type TableSearchScope,
-    WIDER,
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
@@ -109,15 +109,21 @@ const rowsReaching = (table: Pick<RawTableView, 'pos'>, address: string | null):
     return rows > 0 ? rows : undefined
 }
 
-/** How far the search of the address reaches: the module unless it names a wider scope. */
-const scopeOf = (named: string | null): TableSearchScope =>
-    (named === 'project' || named === 'all' ? named : 'module')
+/** The parameters of the address with the search reaching as far as said: the project is not named, being the usual. */
+const reaching = (params: URLSearchParams, reach: CellSearchScope): URLSearchParams => {
+    const next = new URLSearchParams(params)
+    if (reach === 'all') {
+        next.set('scope', reach)
+    } else {
+        next.delete('scope')
+    }
+    return next
+}
 
 /** The parameters of the address without the results of a search: what it looked for and how far. */
 const withoutResults = (params: URLSearchParams): URLSearchParams => {
-    const next = new URLSearchParams(params)
+    const next = reaching(params, 'project')
     next.delete('find')
-    next.delete('scope')
     return next
 }
 
@@ -169,11 +175,17 @@ export const ModuleWorkspace = () => {
     // The text Enter searched every cell of the module for, in the address so Back returns to what it found: the results
     // take the place of the table while it is there.
     const finding = search.get('find')
-    const findingScope = scopeOf(search.get('scope'))
+    const findingScope = cellScopeOf(search.get('scope'))
+    // How far the next search reaches, as chosen in the search field; while results are shown, how far theirs did.
+    const [chosenScope, setChosenScope] = useState<CellSearchScope>('project')
+    const cellScope = finding === null ? chosenScope : findingScope
     // How many times the filter of the tree was cleared: the tree keeps the text it is filtered by, and clears it when
-    // this changes, so a key typed redraws the tree alone.
+    // this changes, so a key typed redraws the tree alone. The reach of the search goes back to the project with it.
     const [filterResets, setFilterResets] = useState(0)
-    const clearTreeFilter = useCallback(() => setFilterResets(count => count + 1), [])
+    const clearTreeFilter = useCallback(() => {
+        setFilterResets(count => count + 1)
+        setChosenScope('project')
+    }, [])
     // Whether the results of a search were put away by a table picked in the tree, which the filter of the tree led to.
     const pickedInTree = useRef(false)
 
@@ -674,26 +686,32 @@ export const ModuleWorkspace = () => {
         })
     }, [setSearch])
 
-    // A search of the cells takes the place of the table, so the edits on screen are asked about first. Enter pressed
-    // again on the text searched reaches further: the whole project, then the projects it depends on too.
+    // A search of the cells takes the place of the table, so the edits on screen are asked about first. It reaches as
+    // far as chosen in the search field; Enter pressed again on the text searched reaches the projects it depends on.
     const searchCells = useCallback((text: string) => confirmDiscard(() => setSearch(params => {
         const next = new URLSearchParams(params)
-        const reach = params.get('find') === text ? WIDER[scopeOf(params.get('scope'))] : 'module'
         next.set('find', text)
-        if (reach === 'module') {
-            next.delete('scope')
-        } else {
-            next.set('scope', reach)
+        return reaching(next, params.get('find') === text ? 'all' : cellScope)
+    })), [cellScope, confirmDiscard, setSearch])
+
+    // A reach chosen while results are on screen searches the same text again that far.
+    const chooseCellScope = useCallback((reach: CellSearchScope) => {
+        setChosenScope(reach)
+        if (finding !== null) {
+            setSearch(params => reaching(params, reach))
         }
-        return next
-    })), [confirmDiscard, setSearch])
+    }, [finding, setSearch])
 
     const closeResults = useCallback(() => setSearch(withoutResults), [setSearch])
 
+    // A table picked in the tree filtered by a search keeps the text, and how far the search reached with it.
     const openTable = useCallback((picked: ModuleTable) => {
         pickedInTree.current = finding !== null
+        if (finding !== null) {
+            setChosenScope(findingScope)
+        }
         openTableById(picked.id)
-    }, [finding, openTableById])
+    }, [finding, findingScope, openTableById])
 
     // The results of a search put away any other way — a table opened from them, Close Results, Back — leave the search
     // behind: the tree is filtered by it no more. A table picked in the tree keeps the filter that led to it.
@@ -1081,7 +1099,9 @@ export const ModuleWorkspace = () => {
         <div className={shared.workspacePage} data-testid="module-workspace">
             <div className={shared.workspaceBody}>
                 <ModuleTablesTree
+                    cellScope={cellScope}
                     filterResets={filterResets}
+                    onCellScope={chooseCellScope}
                     onFindAll={findAllTables}
                     onSearchCells={searchCells}
                     onSelectTable={openTable}
