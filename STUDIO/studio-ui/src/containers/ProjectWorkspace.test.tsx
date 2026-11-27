@@ -876,15 +876,14 @@ describe('ProjectWorkspace', () => {
         expect(screen.getByTestId('copy-modal-open').textContent).toBe('design')
     })
 
-    it('leads with Open Revision once the project is already open, leaving Close the primary action', async () => {
+    it('offers Open Revision among the rest once the project is already open, Close leading as the primary action', async () => {
         vi.mocked(getProject).mockResolvedValue(project({
             capabilities: { canViewHistory: true, canClose: true },
         }) as never)
         await renderWorkspace()
 
-        // It takes the Open slot, so it comes before every other action — but it never takes the blue.
-        expect(screen.getByTestId('project-actions').firstElementChild)
-            .toHaveAttribute('data-testid', 'openRevision-p1')
+        // It comes after the everyday actions of an open project, and never takes the blue.
+        expect(screen.getByTestId('project-actions').firstElementChild).toHaveAttribute('data-testid', 'close-p1')
         expect(primaryActionId()).toBe('close-p1')
 
         await userEvent.click(screen.getByTestId('openRevision-p1'))

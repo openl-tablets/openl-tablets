@@ -100,13 +100,14 @@ describe('ModuleActionBar', () => {
             await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true })
 
             expect(screen.getByTestId('module-save')).toBeInTheDocument()
-            expect(screen.getByTestId('module-sync')).toBeInTheDocument()
-            expect(screen.queryByTestId('module-deploy')).toBeNull()
+            expect(screen.getByTestId('module-test')).toBeInTheDocument()
+            expect(screen.queryByTestId('module-sync')).toBeNull()
             expect(screen.queryByTestId('module-copy')).toBeNull()
 
             // The menu at the end of the row holds the same buttons.
             await userEvent.click(screen.getByTestId('module-actions-more'))
             expect(await screen.findByTestId('module-deploy')).toBeInTheDocument()
+            expect(screen.getByTestId('module-sync')).toBeInTheDocument()
             expect(screen.getByTestId('module-actions-overflow')).toContainElement(screen.getByTestId('module-copy'))
             await userEvent.click(screen.getByTestId('module-copy'))
             expect(await screen.findByTestId('copy-project-modal')).toBeInTheDocument()
@@ -114,6 +115,42 @@ describe('ModuleActionBar', () => {
             widths.mockRestore()
             room.mockRestore()
         }
+    })
+
+    it('lines the buttons up as Test, Copy, Sync, Deploy, Export and Update, Save leading while there is something to save', async () => {
+        render(
+            <ModuleActionBar
+                moduleName="Claims"
+                modulePath="rules/Claims.xlsx"
+                testCount={2}
+                project={project({
+                    canSave: true,
+                    canMerge: true,
+                    canDeploy: true,
+                    canCopy: true,
+                    canWrite: true,
+                    canExport: true,
+                    canViewHistory: true,
+                })}
+            />
+        )
+        await act(async () => {
+            await Promise.resolve()
+        })
+
+        const order = [...screen.getByTestId('module-actions').children]
+            .map(button => button.getAttribute('data-testid') ?? button.querySelector('[data-testid]')?.getAttribute('data-testid'))
+            .filter(id => id?.startsWith('module-') && !id.startsWith('module-actions'))
+        expect(order.slice(0, 7)).toEqual([
+            'module-save',
+            'module-test',
+            'module-copy',
+            'module-sync',
+            'module-deploy',
+            'module-export',
+            'module-update',
+        ])
+        expect(order.slice(7, 8)).toEqual(['module-createTable'])
     })
 
     it('withholds what the project does not allow', async () => {

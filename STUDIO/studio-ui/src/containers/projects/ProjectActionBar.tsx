@@ -15,22 +15,24 @@ import { CollapsingActionBar, type ActionMenu } from '../../components/Collapsin
 type BarActionId = ActionId | 'addFiles'
 
 /**
- * Every action in display order. Opening leads, then what changes the project, then the read-only
- * operations. Opening an earlier revision is not a button of its own: it hangs off Open while the project
- * can still be opened, and replaces it once it is already open.
+ * Every action in display order: Save while there is something to save, then Close — or Open, in its place, on a
+ * project that is not open — Copy, Sync, Deploy, Export, Add and Compare, then the rest. Opening an earlier revision
+ * is not a button of its own while the project can still be opened: it hangs off Open. Once the project is open it
+ * is a button of the rest.
  */
 const ORDER: BarActionId[] = [
     'save',
-    'open',
     'close',
-    'addFiles',
-    'sync',
+    'open',
     'copy',
+    'sync',
+    'deploy',
+    'export',
+    'addFiles',
+    'compare',
+    'openRevision',
     'deleteBranch',
     'delete',
-    'deploy',
-    'compare',
-    'export',
     'unlock'
 ]
 
@@ -109,17 +111,17 @@ export const ProjectActionBar = ({ project, pendingId, handlers, onAddFiles }: P
             ...(id === 'unlock' ? { confirm: t(`browser.${id}_confirm`) } : {}),
         })
 
-        // Opening a revision never takes a slot of its own: it rides in the Open menu, and takes the Open
-        // slot itself once the project is already open.
-        const openSlot = (['open', 'openRevision'] as const).find(isAvailable) ?? null
+        // Opening a revision rides in the Open menu while the project can be opened, and stands as a button of its own
+        // once the project is already open.
+        const canOpen = isAvailable('open')
         return {
             actions: ORDER.flatMap((id): ActionDesc[] => {
                 if (id === 'addFiles') {
                     // Writing files is what the Add menu needs, the same right the files of a folder are added with.
                     return onAddFiles && project.capabilities?.canWrite ? [addFiles(onAddFiles)] : []
                 }
-                if (id === 'open') {
-                    return openSlot ? [buildDesc(openSlot)] : []
+                if (id === 'openRevision') {
+                    return !canOpen && isAvailable(id) ? [buildDesc(id)] : []
                 }
                 return isAvailable(id) ? [buildDesc(id)] : []
             }),

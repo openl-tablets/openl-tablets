@@ -381,6 +381,8 @@ The following table describes Rules Editor organization:
 | Right pane               | Displays **Table Properties**, the properties of the currently displayed table. The **Hide the panel** icon in its header folds the pane away to a narrow strip named **Table Properties**; clicking the strip brings it back. |
 | Upper part <br/>of the window | Contains the breadcrumb, which ends in the module name and its compilation status, and at its right end the module actions as described further in this section. |
 
+The buttons of the module stand in this order: **Test**, **Copy**, **Sync**, **Deploy**, **Export**, **Update**, then **Create Table**, **Revisions**, **Local Changes**, **Table Dependencies**, **Compare Excel files** and **Reformat Excel files**. **Verify** and **Save** lead the row while there is something to verify or to save. A button shows only when it is available for the module, and the ones the row has no room for move to the **⋮** menu at its end.
+
 The following table describes the Rules Editor controls of the module:
 
 | Control                                                                                                                           | Description                                                                                                                                                                                                                                                                                                            |
