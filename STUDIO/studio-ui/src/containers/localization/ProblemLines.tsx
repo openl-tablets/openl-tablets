@@ -53,6 +53,7 @@ export const ProblemLines = ({ problems, text }: {
                             .map(spot => (
                                 <MessageCode
                                     key={spot.start}
+                                    styles={message}
                                     testId="localization-cell-problem-code"
                                     {...excerptOf(text, spot)}
                                 />

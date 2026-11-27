@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
@@ -89,15 +89,6 @@ const buildStatus = (project: Project, state: ProjectCompileState, supportsBranc
     compileState: state,
 })
 
-const errorMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
-    (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'ERROR')
-
-const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
-    (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
-
-const infoMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMessage[] =>
-    (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'INFO')
-
 /**
  * Where a message leads, from the place it names: the line of the file it points to, the cell of its table, or else
  * its module, in the project it is of. A message about a Markdown file that breaks the format leads to the line of the
@@ -155,19 +146,18 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     )
     const status = liveStatus ?? buildStatus(project, 'idle', supportsBranches)
 
-    // Filtered once per status: a fresh array on every render would reset the "show more" pager below on
-    // every compile-status push.
-    const errors = useMemo(() => errorMessagesOf(status), [status])
-    const warnings = useMemo(() => warningMessagesOf(status), [status])
-    const infos = useMemo(() => infoMessagesOf(status), [status])
+    // The element the messages scroll in, which the list draws the messages in sight of.
+    const [body, setBody] = useState<HTMLDivElement | null>(null)
+    // The messages as the server lists them: the errors first, the information messages last.
+    const counted = status.compilation?.messages
+    const items = useMemo(() => counted?.items ?? [], [counted])
     // A running compilation reports how many problems it has raised, not which — resolving each to its table
     // is work it does not do while it runs. The panel stands on those counts, so it does not disappear under
     // a reader the moment a compilation starts and return only when it ends.
-    const errorCount = status.compilation?.messages?.errors ?? errors.length
-    const warningCount = status.compilation?.messages?.warnings ?? warnings.length
+    const errorCount = counted?.errors ?? 0
+    const warningCount = counted?.warnings ?? 0
     // The counts name no information messages: they are what the total leaves
-    const counted = status.compilation?.messages
-    const infoCount = counted ? Math.max(counted.total - counted.errors - counted.warnings, 0) : infos.length
+    const infoCount = counted ? Math.max(counted.total - counted.errors - counted.warnings, 0) : 0
 
     // Every message already says where it came from — the project, the module and the table — so opening one
     // costs no request: a project raising a thousand messages still asks the server nothing to be read.
@@ -184,7 +174,7 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
         status.compileState !== 'compiling' && routeOf(project.id, message.location) !== null,
     [status.compileState, project.id])
 
-    if (errorCount + warningCount + infoCount + errors.length + warnings.length + infos.length === 0) {
+    if (errorCount + warningCount + infoCount === 0 && items.length === 0) {
         return null
     }
     const ToggleIcon = collapsed ? UpOutlined : DownOutlined
@@ -229,25 +219,8 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
                 <ToggleIcon aria-hidden className={styles.toggle} />
             </button>
             {!collapsed && (
-                <div className={styles.body} data-testid="compile-problems-body">
-                    <CompileMessages
-                        canOpen={canOpen}
-                        messages={errors}
-                        onOpen={open}
-                        severity="error"
-                    />
-                    <CompileMessages
-                        canOpen={canOpen}
-                        messages={warnings}
-                        onOpen={open}
-                        severity="warning"
-                    />
-                    <CompileMessages
-                        canOpen={canOpen}
-                        messages={infos}
-                        onOpen={open}
-                        severity="info"
-                    />
+                <div ref={setBody} className={styles.body} data-testid="compile-problems-body">
+                    <CompileMessages canOpen={canOpen} messages={items} onOpen={open} scroller={body} />
                 </div>
             )}
         </section>
