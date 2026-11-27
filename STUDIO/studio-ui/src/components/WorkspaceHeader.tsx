@@ -2,10 +2,26 @@ import { Children, type ReactNode } from 'react'
 import { Typography } from 'antd'
 import { createStyles } from 'antd-style'
 
+/**
+ * The least room the actions take beside the trail, in px: a few buttons and the menu of the rest. With less left on
+ * the line of the trail, they go to a line of their own.
+ */
+const ACTIONS_MIN_WIDTH = 240
+
 const useStyles = createStyles(({ css, token }) => ({
+    /*
+     * The trail and the actions share one line: the trail as wide as its steps, the actions taking the rest of the
+     * line at its right end. Where less than the room of a few buttons is left beside the trail, the actions go to a
+     * line of their own under it.
+     */
     header: css`
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: ${token.marginLG}px;
+        row-gap: ${token.marginXS}px;
         min-width: 0;
-        padding: ${token.paddingSM}px ${token.padding}px;
+        padding: ${token.paddingXS}px ${token.padding}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     /*
@@ -14,6 +30,8 @@ const useStyles = createStyles(({ css, token }) => ({
      * wider than a whole line is the one thing that ends in an ellipsis.
      */
     crumb: css`
+        flex: 0 1 auto;
+        min-width: 0;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -73,11 +91,15 @@ const useStyles = createStyles(({ css, token }) => ({
             text-decoration: line-through;
         }
     `,
-    /** The actions take the row under the trail to themselves. */
+    /**
+     * The actions take what the trail leaves of its line, at its right end; the buttons they have no room for go to
+     * the menu at the end of their bar.
+     */
     actions: css`
         display: flex;
+        flex: 1 1 ${ACTIONS_MIN_WIDTH}px;
+        justify-content: flex-end;
         min-width: 0;
-        margin-top: ${token.marginXS}px;
     `,
 }))
 
@@ -100,7 +122,7 @@ interface WorkspaceHeaderProps {
     trailAfter?: ReactNode
     /** Struck through and greyed, for a name that no longer stands. */
     muted?: boolean
-    /** The actions offered on what the name names, in the row under the trail. */
+    /** The actions offered on what the name names, at the end of the line of the trail. */
     actions?: ReactNode
     testId?: string
 }
@@ -109,7 +131,9 @@ interface WorkspaceHeaderProps {
  * The head of a workspace screen: the trail to the name of what is open, and the actions on it.
  *
  * <p>The name and the marks of its state stand in the trail as a step of their own, which wraps onto the next line
- * as a whole: the last one, or the one before the step under what it names. The actions take the row under it.
+ * as a whole: the last one, or the one before the step under what it names. The actions stand on the same line, at
+ * its right end, and fold the buttons they have no room for into their menu; where the trail leaves them too little
+ * of the line, they take a line of their own under it.
  *
  * <p>A project and a module opened from it wear the same head, so opening a module reads as going a step deeper
  * into the project rather than as arriving somewhere else.

@@ -23,7 +23,7 @@ The following topics are included in this chapter:
 
 ### Switching to Another Project or Module
 
-The breadcrumb reads **Projects / Example 1 - Bank Rating / master / Bank Rating**: the **Projects** link, the project, the branch the project is on, and the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project, branch or module; the actions of the module take the row under it, and the ones the row has no room for move to the **⋮** menu at its end. In a narrow window it continues on the next line after a slash, so no name is broken:
+The breadcrumb reads **Projects / Example 1 - Bank Rating / master / Bank Rating**: the **Projects** link, the project, the branch the project is on, and the module name, followed by the compilation indicator and **Refresh**. It switches the editor to another project, branch or module. The actions of the module stand at the right end of the same line, and the ones the line has no room for move to the **⋮** menu at their end; in a narrow window the actions take a line of their own under the breadcrumb. A long breadcrumb continues on the next line after a slash, so no name is broken:
 
 -   To see the other projects, click **Projects**. The **Projects** list opens.
 -   To switch to another branch, click the arrow next to the branch name, as described in [Working with Project Branches](project-branches.md#working-with-branches).
@@ -54,7 +54,7 @@ Rules Editor allows a user to work with one module at a time. To open a module, 
 -   tree in the left pane displaying module tables
 -   contents of the table selected in the tree in the middle pane
 -   properties of the selected table in the right pane
--   the breadcrumb with the project, branch and module names, and under it the actions for the module, above the panes
+-   the breadcrumb with the project, branch and module names, and at its right end the actions for the module, above the panes
 
 If a particular module is not available, the project in which it is defined must be opened as described in [Opening a Project](repository-editor.md#opening-a-project).
 
@@ -259,7 +259,7 @@ To open the screen, open the project, click the arrow next to the module name in
 
 The project must be open: for a closed project, the screen offers **Open**, which opens it as the module page does, asking whether to open its dependencies too.
 
-The screen has the header of the module page: the breadcrumb switches to another project or branch, its last step switches to a module, and the row under it offers the actions of the project, such as **Sync**, **Copy**, and **Test**. Switching to another branch with unsaved messages asks to discard them first. Opening the screen compiles nothing: the compilation indicator after that step follows a compilation started elsewhere, and **Refresh** beside it compiles the project again and reads the localization files anew. Refreshing, synchronizing the project, or opening another revision reads the files anew, and if the messages have unsaved changes, OpenL Studio asks to discard them first.
+The screen has the header of the module page: the breadcrumb switches to another project or branch, its last step switches to a module, and the actions at its right end are the actions of the project, such as **Sync**, **Copy**, and **Test**. Switching to another branch with unsaved messages asks to discard them first. Opening the screen compiles nothing: the compilation indicator after that step follows a compilation started elsewhere, and **Refresh** beside it compiles the project again and reads the localization files anew. Refreshing, synchronizing the project, or opening another revision reads the files anew, and if the messages have unsaved changes, OpenL Studio asks to discard them first.
 
 ![The Localization screen with the list of keys on the left and the table of the keys and their texts in the default, French and German languages](images/localization-table.png)
 

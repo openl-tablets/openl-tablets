@@ -69,7 +69,9 @@ The page of a project shows everything about one project. Its header carries the
 
 -   The path **Projects / Example 1 - Bank Rating / master**, where the project name follows the **Projects** link, and the branch the project is on ends the path, as in Rules Editor. The branch is a switcher, as described in [Working with Project Branches](project-branches.md#working-with-branches). The repository the project comes from is shown on the **Overview** tab. In a narrow window the path continues on the next line after a slash, so no name is broken.
 -   The status icon before the project name when the project is in editing or opened on an earlier revision.
--   The actions of the project, in the row under the path, listed in the table below.
+-   The actions of the project, at the right end of the line of the path, listed in the table below. The ones the
+    line has no room for move to the **⋮** menu at their end, and in a narrow window the actions take a line of their
+    own under the path.
 
 ![The page of an open project with its actions and tabs](images/project-overview.png "The project page")
 
