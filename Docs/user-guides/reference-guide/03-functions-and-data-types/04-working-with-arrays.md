@@ -132,6 +132,34 @@ where the spreadsheet result element of allEmployeeClassPremiums array is calcul
 
 *Spreadsheet for allEmployeeClassPremiums array result calculation*
 
+An array of the general `SpreadsheetResult` type, such as a `SpreadsheetResult[]` parameter or step, holds the results
+of any spreadsheet. In a spreadsheet, a cell reference in the condition or the expression of an operator applied to
+such an array is read from each element that has the cell. For an element without the cell, the step of the same
+name of the spreadsheet with the operator is read when all of the following holds:
+
+-   No other spreadsheet of the module or of the modules it depends on has a step of this name.
+-   The step, and every step it reads directly or through other steps, comes before the step with the operator:
+    above it, or to the left of it in the same row. A step that uses `this` other than to read a step, as
+    `this.$Step` does, is not read this way.
+-   The operator is not inside another array operator.
+
+Otherwise, an element without the cell gives an empty value.
+
+For example, `$Results[select all having $Premium > $PremiumLimit]` selects the results whose premium is above the
+limit: the `VehiclePremium` results have the `Premium` cell but not the `PremiumLimit` one, so the limit is the step of
+the spreadsheet with the operator.
+
+The choice is made for each element. The results of the spreadsheet with the operator itself, as the children of a
+node of a tree, have its cells: in `children[select first having $NodeAmount > $NodeLimit]` within the `TreeNode`
+spreadsheet, the amount and the limit are the cells of each child.
+
+-   To read the step of the spreadsheet with the operator for every element, write `this.$NodeLimit`.
+-   To read the cell of the element only, name the element, as in
+    `$Results[(result) select all having result.$Premium > 100]`. An element without the cell gives an empty value.
+
+An array of the type of one spreadsheet, such as `SpreadsheetResultVehiclePremium[]`, has only the cells of that
+spreadsheet, so any other cell is read from the spreadsheet with the operator.
+
 #### Advanced Usage of Array Index Operators
 
 Consider a case when the name of the array element needs to be referred explicitly in condition or expression. For example, the policy has a collection of drivers of Driver[] data type and a user wants to select all policy drivers of the age less than 19, except for the primary driver. The following syntax with an explicit definition of the `(elementName) `collection element can be used:

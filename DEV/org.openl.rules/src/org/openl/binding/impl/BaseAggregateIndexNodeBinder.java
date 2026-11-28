@@ -160,7 +160,8 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                                       IBindingContext bindingContext) {
         var elementFreeWarning = elementFreeExpressionWarning();
         var errors = elementFreeWarning == null ? 0 : bindingContext.getErrors().length;
-        var expressionContext = TypeBindingContext.create(bindingContext, variables.element(), 1, variables.index());
+        var expressionContext = TypeBindingContext
+                .createForElement(bindingContext, variables.element(), variables.index());
         var boundExpressionNode = bindChildNode(node.getChild(node.getNumberOfChildren() - 1), expressionContext);
         if (boundExpressionNode instanceof TypeBoundNode) {
             var message = "Type definition cannot be used as expression for array index operator.";

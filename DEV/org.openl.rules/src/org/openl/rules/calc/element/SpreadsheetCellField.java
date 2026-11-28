@@ -1,11 +1,13 @@
 package org.openl.rules.calc.element;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -42,14 +44,23 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
         if (this.type == null) {
             var t = cell.getType();
             if (t == null) {
-                if (structureBuilderContainer.getSpreadsheetStructureBuilder() == null) {
+                var builder = getSpreadsheetStructureBuilder();
+                if (builder == null) {
                     throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
                 }
-                t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
+                t = builder.makeType(cell);
             }
             this.type = t;
         }
         return this.type;
+    }
+
+    /**
+     * Returns the builder of the spreadsheet of the cell, or {@code null} once a spreadsheet compiled for execution
+     * no longer needs it.
+     */
+    public @Nullable SpreadsheetStructureBuilder getSpreadsheetStructureBuilder() {
+        return structureBuilderContainer.getSpreadsheetStructureBuilder();
     }
 
     @Override
