@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { WorkspaceHeader } from '../../components/WorkspaceHeader'
 import type { ModuleInfo } from '../../services/modules'
+import { projectRoute } from '../../services/projectId'
 import type { Project } from '../../types/projects'
 import { supportsBranches } from '../../utils/repositoryFeatures'
 import { CompilationMark } from '../modules/ModuleCompilationView'
@@ -10,9 +11,10 @@ import type { ConfirmBefore } from '../modules/useConfirmBefore'
 import type { ModuleCompilation } from '../modules/useModuleCompilation'
 import { ReadOnlyTag } from '../maven/mavenProject'
 import { BranchSwitcher } from './BranchSwitcher'
-import { CrumbSwitcher } from './CrumbSwitcher'
+import { CrumbSwitcher } from '../../components/CrumbSwitcher'
 import { switchedRoute, switcherItems } from './moduleSwitcher'
 import { ProjectSwitcher } from './ProjectSwitcher'
+import { useRecentVisit } from './useRecentVisit'
 
 interface ProjectScreenHeaderProps {
     project: Project
@@ -70,6 +72,8 @@ export const ProjectScreenHeader = ({
     const { t } = useTranslation('repository')
     const navigate = useNavigate()
     const hasBranches = supportsBranches({ features: project.repositoryInfo?.features }) && branch !== null
+    // The project on screen, and its branch, are the ones the switchers of the trail list first next time.
+    useRecentVisit(project.id, project.repository, hasBranches ? branch : null)
     // The modules of the project, and after them its messages, which they all share.
     const localizationLabel = t('localization:title')
     const items = useMemo(() => switcherItems(modules, localizationLabel), [modules, localizationLabel])
@@ -83,7 +87,7 @@ export const ProjectScreenHeader = ({
             currentName={project.name}
             currentProjectId={project.id}
             disabled={opening}
-            onSelect={picked => void navigate(`/projects/${picked}`)}
+            onSelect={picked => void navigate(projectRoute(picked))}
             testId="crumb-project"
         />,
         hasBranches && (
@@ -97,6 +101,7 @@ export const ProjectScreenHeader = ({
                 disabled={opening}
                 onSwitched={onBranchSwitched}
                 projectId={project.id}
+                repositoryId={project.repository}
                 tone="secondary"
             />
         ),

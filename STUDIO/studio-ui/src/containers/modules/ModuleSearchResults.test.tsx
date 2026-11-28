@@ -53,7 +53,7 @@ const show = (over: Partial<Parameters<typeof ModuleSearchResults>[0]> = {}) => 
         projectId: 'p1',
         projectName: 'Rating',
         moduleName: 'Bank Rating',
-        scope: 'module' as const,
+        scope: 'project' as const,
         text: 'region',
         showOther: true,
         onShowOther: vi.fn(),
@@ -76,14 +76,14 @@ describe('ModuleSearchResults', () => {
         vi.mocked(getRawTable).mockResolvedValue(body)
     })
 
-    it('searches every cell of the module for the text, in the order the workbook writes the tables', async () => {
+    it('searches every cell of the project for the text, in the order the workbook writes the tables', async () => {
         show()
 
         expect(screen.getByTestId('module-found-summary')).toHaveTextContent('browser.module.found_searching')
         await screen.findByTestId('module-found-rate')
         expect(searchTables).toHaveBeenCalledWith('p1', {
             module: 'Bank Rating',
-            scope: 'module',
+            scope: 'project',
             text: 'region',
             includeOther: true,
             sort: 'position',
@@ -91,16 +91,17 @@ describe('ModuleSearchResults', () => {
         expect(screen.getByTestId('module-found-summary')).toHaveTextContent('browser.module.found {"count":4,"text":"region"}')
     })
 
-    it('lists the tables found by the sheet they are written on, each named by its header and where it sits', async () => {
+    it('lists the tables found by their module, each named by its header and where it sits', async () => {
+        vi.mocked(searchTables).mockResolvedValue(found.map((table, at) => ({ ...table, module: at < 2 ? 'Bank Rating' : 'Domain' })))
         show()
 
-        const rates = await screen.findByRole('region', { name: 'Rates' })
+        const rates = await screen.findByRole('region', { name: 'Bank Rating' })
         expect(within(rates).getAllByRole('listitem')).toHaveLength(2)
         expect(within(rates).getByText('2')).toBeInTheDocument()
-        expect(screen.getByRole('region', { name: 'Types' })).toBeInTheDocument()
+        expect(screen.getByRole('region', { name: 'Domain' })).toBeInTheDocument()
         const rate = screen.getByTestId('module-found-open-rate')
         expect(rate).toHaveTextContent('Rules Double Rate(String region)')
-        expect(rate).toHaveTextContent('B3:D8')
+        expect(rate).toHaveTextContent('Rates!B3:D8')
         // The text looked for is marked wherever the header holds it, whatever the case of its letters.
         expect(within(rate).getByText('region', { selector: 'mark' })).toBeInTheDocument()
         // A table with no signature of its own is named after its type once.
@@ -199,7 +200,7 @@ describe('ModuleSearchResults', () => {
         expect(await screen.findByTestId('module-found-none')).toBeInTheDocument()
     })
 
-    describe('searching wider than the module', () => {
+    describe('searching the project and the projects it depends on', () => {
         const elsewhere: ModuleTable[] = [
             { ...found[0] as ModuleTable, module: 'Bank Rating', project: 'Rating', projectId: 'p1' },
             { ...found[2] as ModuleTable, module: 'Domain', project: 'Rating', projectId: 'p1' },
@@ -210,11 +211,7 @@ describe('ModuleSearchResults', () => {
             vi.mocked(searchTables).mockResolvedValue(elsewhere)
         })
 
-        it('offers to search the whole project with Enter, then the projects it depends on, then nothing wider', async () => {
-            show()
-            expect(await screen.findByTestId('module-found-wider')).toHaveTextContent('browser.module.found_wider_project')
-            cleanup()
-
+        it('offers to search the projects it depends on with Enter, then nothing wider', async () => {
             show({ scope: 'project' })
             expect(await screen.findByTestId('module-found-wider')).toHaveTextContent('browser.module.found_wider_all')
             cleanup()
@@ -225,7 +222,7 @@ describe('ModuleSearchResults', () => {
             expect(searchTables).toHaveBeenLastCalledWith('p1', expect.objectContaining({ scope: 'all' }))
         })
 
-        it('says the search waits for the project to be compiled while a wider one is on its way', () => {
+        it('says the search waits for the project to be compiled while it is on its way', () => {
             vi.mocked(searchTables).mockReturnValue(new Promise(() => {}))
             show({ scope: 'project' })
 

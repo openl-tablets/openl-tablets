@@ -3,6 +3,8 @@ import { ConfigProvider } from 'antd'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsMenu } from './SettingsMenu'
+import { SystemContext } from 'contexts/SystemContext'
+import { NOT_FORMATTING_ON_SAVE } from 'testing/theme'
 import { useSettingsStore } from 'store'
 import { DEFAULT_USER_SETTINGS, readUserSettings } from 'store/settingsStore'
 import dayjs from 'dayjs'
@@ -16,11 +18,16 @@ vi.mock('react-i18next', () => {
 /** The menu while it is on the screen; Ant Design keeps a closed one in the page, hidden. */
 const openMenu = (): Element | null => document.querySelector('.ant-dropdown:not(.ant-dropdown-hidden)')
 
-const renderMenu = () => render(
+/** The menu, on a server whose tables are formatted on save unless said otherwise, as by default. */
+const renderMenu = (formattedOnSave = true) => render(
     // Without motion a closed menu is hidden at once: jsdom never ends an animation.
     <ConfigProvider theme={{ token: { motion: false } }}>
-        <span data-testid="elsewhere">page</span>
-        <SettingsMenu />
+        <SystemContext.Provider
+            value={formattedOnSave ? { ...NOT_FORMATTING_ON_SAVE, systemSettings: {} } : NOT_FORMATTING_ON_SAVE}
+        >
+            <span data-testid="elsewhere">page</span>
+            <SettingsMenu />
+        </SystemContext.Provider>
     </ConfigProvider>
 )
 
@@ -54,7 +61,7 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('settings-menu'))
         await userEvent.click(await screen.findByText('common:settings.show_header'))
         await userEvent.click(screen.getByText('common:settings.show_numbers_without_formatting'))
-        await userEvent.click(screen.getByText('common:settings.show_hidden_files'))
+        await userEvent.click(screen.getByText('common:settings.show_all_files'))
 
         expect(readUserSettings()).toEqual({
             ...DEFAULT_USER_SETTINGS,
@@ -68,6 +75,42 @@ describe('SettingsMenu', () => {
         await userEvent.click(screen.getByTestId('elsewhere'))
 
         await waitFor(() => expect(openMenu()).toBeNull())
+    })
+
+    it('lists, one per line, the files Show All Files adds to the trees of files', async () => {
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+        await userEvent.hover(await screen.findByText('common:settings.show_all_files'))
+
+        const files = await screen.findByTestId('settings-showHiddenFiles-files')
+        expect([...files.children].map(line => line.textContent))
+            .toEqual(['rules.xml', 'rules-deploy.xml', 'tags.properties', 'pom.xml', 'META-INF/MANIFEST.MF'])
+    })
+
+    it('offers no Excel Formatting while the tables are formatted on save', async () => {
+        renderMenu()
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+
+        expect(await screen.findByText('common:settings.show_header')).toBeInTheDocument()
+        expect(screen.queryByText('common:settings.excel_formatting')).toBeNull()
+        expect(screen.queryByTestId('settings-excelFormatting')).toBeNull()
+    })
+
+    it('turns Excel Formatting on and off among the table settings while the tables are not formatted on save', async () => {
+        renderMenu(false)
+
+        await userEvent.click(screen.getByTestId('settings-menu'))
+        expect(await screen.findByTestId('settings-excelFormatting')).not.toBeChecked()
+        await userEvent.click(screen.getByText('common:settings.excel_formatting'))
+
+        expect(readUserSettings().excelFormatting).toBe(true)
+        expect(localStorage.getItem('openl.settings.excelFormatting')).toBe('true')
+        expect(screen.getByTestId('settings-excelFormatting')).toBeChecked()
+
+        await userEvent.click(screen.getByText('common:settings.excel_formatting'))
+        expect(readUserSettings().excelFormatting).toBe(false)
     })
 
     it('picks how many tests a page holds among the sizes offered', async () => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Modal, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
@@ -8,8 +8,7 @@ import { joinClasses } from '../../utils/joinClasses'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { onPaper, type TableRoles } from '../../components/tableRoles'
 import { holdsRecords } from '../../constants/tableKinds'
-import { SystemContext } from '../../contexts'
-import { useAppTheme } from '../../providers/AppThemeProvider'
+import { useExcelFormatting } from '../../hooks/useExcelFormatting'
 import { notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
@@ -310,14 +309,14 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     testId,
 }) => {
     const { t } = useTranslation('repository')
-    const { excelFormatting } = useAppTheme()
+    const excelFormatting = useExcelFormatting()
     // The formatting of the workbook lays the table on paper; the Studio look draws it in the theme of the application.
     const paper = onPaper(roles, excelFormatting)
     // The look of a cell is the reader's to set only where it is kept and seen: a save that formats the table would
     // write the OpenL table style over it, the Studio look would not show it, and a Markdown file does not keep it.
     // The indent of a TBasic and a ColumnMatch table is their structure, which a Markdown file keeps too.
-    const formattedOnSave = useContext(SystemContext).systemSettings?.formatTablesOnSave !== false
-    const formatting = !plainText && !formattedOnSave && excelFormatting
+    // Excel Formatting counts only while a save does not format the table.
+    const formatting = !plainText && excelFormatting
     const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
     const { styles } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.

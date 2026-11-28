@@ -4,7 +4,6 @@ import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
     appearanceOf,
     compactModeSetting,
-    excelFormattingSetting,
     themeModeSetting,
     themeNameSetting,
 } from '../utils/themeMode'
@@ -21,12 +20,6 @@ interface AppTheme {
     /** The theme whose colours the application is painted in. */
     themeName: ThemeName
     setThemeName: (name: ThemeName) => void
-    /**
-     * Whether the tables are shown in the formatting of their Excel files, as Excel shows them, rather than drawn in
-     * the colours of the theme by what each of their cells means.
-     */
-    excelFormatting: boolean
-    setExcelFormatting: (excelFormatting: boolean) => void
 }
 
 const AppThemeContext = createContext<AppTheme>({
@@ -34,11 +27,9 @@ const AppThemeContext = createContext<AppTheme>({
     setCompact: () => {},
     themeName: 'standard',
     setThemeName: () => {},
-    excelFormatting: false,
-    setExcelFormatting: () => {},
 })
 
-/** The theme, the density and the formatting of the tables the user picked, and the way to change them. */
+/** The theme and the density the user picked, and the way to change them. */
 export const useAppTheme = (): AppTheme => useContext(AppThemeContext)
 
 /**
@@ -74,7 +65,7 @@ const ThemeColorMeta = () => {
 
 /**
  * Gives the whole application the theme the user picked, the appearance they picked — light, dark, or the
- * one the operating system asks for — the density and the formatting of the tables they picked with them.
+ * one the operating system asks for — and the density they picked with them.
  *
  * Every choice is restored from browser storage on start and written back whenever it changes, so it
  * survives a reload. The first render is already drawn in the remembered appearance: antd-style would
@@ -91,18 +82,15 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, onThemeModeChange] = useStoredSetting(themeModeSetting)
     const [compact, rememberCompact] = useStoredSetting(compactModeSetting)
     const [themeName, rememberThemeName] = useStoredSetting(themeNameSetting)
-    const [excelFormatting, rememberExcelFormatting] = useStoredSetting(excelFormattingSetting)
 
     const value = useMemo(
         () => ({
             compact,
-            excelFormatting,
             setCompact: rememberCompact,
-            setExcelFormatting: rememberExcelFormatting,
             setThemeName: rememberThemeName,
             themeName,
         }),
-        [compact, excelFormatting, rememberCompact, rememberExcelFormatting, rememberThemeName, themeName]
+        [compact, rememberCompact, rememberThemeName, themeName]
     )
 
     const theme = useCallback(

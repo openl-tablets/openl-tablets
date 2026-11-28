@@ -41,6 +41,16 @@ describe('settingsStore', () => {
         })
     })
 
+    it('keeps Excel Formatting among the settings, not under the key of the theme menu', () => {
+        localStorage.setItem('openl.theme.excelFormatting', 'true')
+
+        expect(readUserSettings().excelFormatting).toBe(false)
+
+        useSettingsStore.getState().setSetting('excelFormatting', true)
+
+        expect(storedSettings()).toEqual({ 'openl.settings.excelFormatting': 'true' })
+    })
+
     it('forgets a setting set back to its default', () => {
         useSettingsStore.getState().setSetting('showFormulas', true)
         useSettingsStore.getState().setSetting('showHeader', true)

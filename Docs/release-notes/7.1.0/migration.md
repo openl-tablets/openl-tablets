@@ -121,10 +121,16 @@ own project only, as listed for the developers.
   so it could return wrong results. Add a vertical condition, which tells the rows of the keys.
 
 * **The extended search of Rules Editor is removed.** The search field of the top bar narrows the module tree down by
-  table name as before, and **Enter** now searches the cells of every table of the module, headers included, listing
-  the tables found in place of the table; **Enter** again searches the whole project, and a third time the projects it
-  depends on too. A search by table type or by table properties is no longer offered. To find the tables of a
-  property value, search the cells for the value, since a property is written in a cell of the table that declares it.
+  table name as before, and **Enter** now searches the cells of every table of the project, headers included, listing
+  the tables found in place of the table; **Enter** again searches the projects it depends on too. A button at the end
+  of the field chooses whether **Enter** searches the project or the projects it depends on too at once. A search by
+  table type or by table properties is no longer offered. To find the tables of a property value, search the cells
+  for the value, since a property is written in a cell of the table that declares it.
+
+* **Excel Formatting moved from the theme menu to My Settings, and starts off again.** The switch now stands in the
+  **Table Settings** group of **My Settings**, and is offered only while **Format tables on save** is cleared in the
+  system settings; while it is selected, as by default, the tables are drawn in the colours of the theme. The choice
+  made in the theme menu of an earlier version is not carried over: turn the switch on again in **My Settings**.
 
 ## Administrators
 
@@ -138,7 +144,7 @@ own project only, as listed for the developers.
   is a technical revision, which the **Revisions** list hides unless it is the latest revision of the branch.
   `META-INF/MANIFEST.MF` is protected too, so a deployment archive uploaded as a project no longer brings the manifest
   of that deployment with it. The new `project.hidden-files` property hides `rules.xml`, `rules-deploy.xml` and
-  `tags.properties` in the project tree unless **Show Hidden Files** is on in **My Settings**.
+  `tags.properties` in the project tree unless **Show All Files** is on in **My Settings**.
 
   ```properties
   project.protected-files = pom.xml, META-INF/MANIFEST.MF

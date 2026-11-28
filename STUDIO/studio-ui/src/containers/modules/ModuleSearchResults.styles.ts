@@ -3,8 +3,8 @@ import { keyCap } from '../../styles/keyCap'
 import { paperToken } from '../../styles/paper'
 
 /**
- * The results of a search of the cells of a module, in place of the table: a band saying what was found, and the
- * tables found, one line each, by the sheet they are written on.
+ * The results of a search of the cells of a project, in place of the table: a band saying what was found, and the
+ * tables found, one line each, by the module they are written in.
  *
  * <p>What the text was found in is marked as a highlighter marks a page: the text in the line of a table, and a cell
  * of a table opened under it.
@@ -20,16 +20,24 @@ export const useStyles = createStyles(({ css, token }) => ({
         min-height: ${token.controlHeight}px;
         font-weight: 600;
     `,
-    /** The text looked for, quoted as it was typed. */
+    /**
+     * How many tables hold the text looked for, quoted as it was typed: the last to give way, where the band is narrow,
+     * and then only a long text.
+     */
     text: css`
+        flex: none;
+        max-width: 50%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     `,
-    /** Where the search looked, said quietly beside what it found. */
+    /** Where the search looked, said quietly beside what it found; the first to give way where the band is narrow. */
     scope: css`
+        min-width: 0;
+        overflow: hidden;
         color: ${token.colorTextSecondary};
         font-weight: normal;
+        text-overflow: ellipsis;
         white-space: nowrap;
     `,
     /** What Enter pressed again reaches, offered after what was searched. */
@@ -54,7 +62,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         padding: ${token.paddingXS}px 0 ${token.padding}px;
         background: ${token.colorBgContainer};
     `,
-    /** A sheet heads the tables written on it, as the tree groups them when it opens. */
+    /** A module, or a project and its module, heads the tables found in it. */
     sheet: css`
         display: flex;
         align-items: center;
@@ -64,7 +72,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-size: ${token.fontSizeSM}px;
         font-weight: 600;
     `,
-    /** How many tables of the sheet were found, at the end of its heading. */
+    /** How many tables of the group were found, at the end of its heading. */
     count: css`
         margin-left: auto;
         font-weight: normal;

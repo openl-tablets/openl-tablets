@@ -9,7 +9,13 @@ export interface UserSettings {
     showHeader: boolean
     /** A cell holding an Excel formula shows the formula rather than its value. */
     showFormulas: boolean
-    /** The trees of files show the hidden files of a project too, such as `rules.xml` and `pom.xml`. */
+    /**
+     * The tables are drawn in the formatting of their Excel files, as Excel shows them, rather than in the colours of
+     * the theme by what each of their cells means. It counts only while the tables are not formatted on save; see
+     * `useExcelFormatting`.
+     */
+    excelFormatting: boolean
+    /** The trees of files show every file of a project, `rules.xml` and `pom.xml` among them. */
     showHiddenFiles: boolean
     /** How many test tables one page of the test results holds; `-1` for all of them. */
     testsPerPage: number
@@ -54,6 +60,7 @@ export const TIME_FORMATS = ['HH:mm:ss', 'h:mm:ss A'] as const
 export const DEFAULT_USER_SETTINGS: Readonly<UserSettings> = {
     showHeader: true,
     showFormulas: false,
+    excelFormatting: false,
     showHiddenFiles: false,
     testsPerPage: TESTS_PAGE_SIZE,
     testsFailuresOnly: false,
@@ -76,6 +83,7 @@ const setting = <K extends keyof UserSettings>(key: K, codec: SettingCodec<UserS
 const STORED: {readonly [K in keyof UserSettings]: StoredSetting<UserSettings[K]> } = {
     showHeader: setting('showHeader', booleanText),
     showFormulas: setting('showFormulas', booleanText),
+    excelFormatting: setting('excelFormatting', booleanText),
     showHiddenFiles: setting('showHiddenFiles', booleanText),
     testsPerPage: setting('testsPerPage', oneOf(TESTS_PAGE_SIZES)),
     testsFailuresOnly: setting('testsFailuresOnly', booleanText),

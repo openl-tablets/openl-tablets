@@ -21,7 +21,7 @@ import { COMPILE_RELEVANT_STATUSES } from '../../constants/projectStatusMeta'
 import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import type { Project, ProjectModule } from '../../types/projects'
 import type { FsNode } from '../../types/files'
-import { localizationRoute, moduleRoute } from '../../services/projectId'
+import { localizationRoute, moduleRoute, projectRoute } from '../../services/projectId'
 import type { RepositoryFeatures } from '../../types/repositories'
 import { StatusMark } from './StatusIndicator'
 import { LiveCompileDot } from './CompileIndicator'
@@ -38,6 +38,8 @@ import { OverviewPanel } from './OverviewPanel'
 import { PublishPanel } from './PublishPanel'
 import { AccessPanel } from './AccessPanel'
 import { BranchSwitcher } from './BranchSwitcher'
+import { ProjectSwitcher } from './ProjectSwitcher'
+import { useRecentVisit } from './useRecentVisit'
 import { ReadOnlyTag } from '../maven/mavenProject'
 import { SystemContext } from '../../contexts'
 import { supportsBranches, supportsRevisionSearch } from '../../utils/repositoryFeatures'
@@ -280,6 +282,8 @@ export const ProjectDetail = ({
         compiled ? project.compileStatus ?? null : null, statusReadAt)
     const repositorySupportsRevisionSearch = supportsRevisionSearch({ features: repoFeatures })
     const hasBranches = repositorySupportsBranches && !!project?.branch && !isLocal
+    // The project on screen, and its branch, are the ones the switchers of the trail list first next time.
+    useRecentVisit(project?.id, project?.repository, hasBranches ? project.branch : null)
     const tabKeys = [
         'overview',
         ...(canViewHistory ? ['history'] : []),
@@ -439,7 +443,6 @@ export const ProjectDetail = ({
             <WorkspaceHeader
                 crumbs={[headerPrefix]}
                 muted={muted}
-                title={project.name}
                 // A project that can only be read is told by the mark after its name, not by a status of the workspace
                 titleBefore={!project.readOnly && <StatusMark status={project.status} testId={`status-${project.id}`} />}
                 actions={(
@@ -451,6 +454,17 @@ export const ProjectDetail = ({
                             onFilesNeeded?.()
                             setAdding(kind)
                         }}
+                    />
+                )}
+                title={(
+                    <ProjectSwitcher
+                        currentName={project.name}
+                        currentProjectId={project.id}
+                        disabled={pendingId !== null}
+                        onSelect={picked => navigate(projectRoute(picked))}
+                        testId="crumb-project"
+                        // The page shows the project already: its name opens the list of the others.
+                        withLink={false}
                     />
                 )}
                 titleAfter={(
@@ -476,6 +490,7 @@ export const ProjectDetail = ({
                         onBusyChange={onBranchSwitching}
                         onSwitched={() => onChanged?.()}
                         projectId={project.id}
+                        repositoryId={project.repository}
                         tone="secondary"
                     />
                 )}

@@ -5,6 +5,7 @@ import { DeleteBranchModal, DeleteBranchModalDetail } from 'containers/DeleteBra
 import * as services from 'services'
 import { deleteBranch } from 'services/branches'
 import type { MockedFunction } from 'vitest'
+import { recentBranches, recentProjects } from 'utils/recentChoices'
 
 vi.mock('services', () => ({
     apiCall: vi.fn(),
@@ -77,6 +78,9 @@ describe('DeleteBranchModal', () => {
     })
 
     it('confirms deletion of a merged, unmodified branch and refreshes', async () => {
+        localStorage.clear()
+        recentBranches.remember('master', 'repo-1')
+        recentBranches.remember('feature', 'repo-1')
         mockApiCall
             .mockResolvedValueOnce({ status: 'VIEWING' }) // getProject -> not modified
             .mockResolvedValueOnce({ status: 'up-to-date' }) // merge check -> merged
@@ -101,6 +105,8 @@ describe('DeleteBranchModal', () => {
             expect(mockDeleteBranch).toHaveBeenCalledWith(PROJECT_ID, 'feature', false)
             expect(detail.onSuccess).toHaveBeenCalled()
         })
+        // A branch removed is offered first by no switcher of its repository.
+        expect(recentBranches.read('repo-1')).toEqual(['master'])
     })
 
     it('warns and uses the unsafe button when the project is modified', async () => {
@@ -114,6 +120,26 @@ describe('DeleteBranchModal', () => {
             expect(screen.getByText('repository:delete_branch.modified_warning')).toBeInTheDocument()
         )
         expect(screen.getByText('repository:delete_branch.confirm_button_unsafe')).toBeInTheDocument()
+    })
+
+    it('forgets the project among the recent ones once the only branch holding it is deleted', async () => {
+        localStorage.clear()
+        recentProjects.remember('kept')
+        recentProjects.remember(PROJECT_ID)
+        mockApiCall
+            .mockResolvedValueOnce({ status: 'VIEWING' })
+            .mockResolvedValueOnce({ status: 'up-to-date' })
+        mockDeleteBranch.mockResolvedValueOnce(true)
+        const detail = createDetail({ lastBranch: true })
+
+        render(<DeleteBranchModal />)
+        await dispatchOpen(detail)
+        const confirm = await screen.findByRole('button', { name: 'repository:delete_branch.confirm_button_unsafe' })
+        await waitFor(() => expect(confirm).toBeEnabled())
+        await userEvent.click(confirm)
+
+        await waitFor(() => expect(detail.onSuccess).toHaveBeenCalled())
+        expect(recentProjects.read()).toEqual(['kept'])
     })
 
     it('warns that deleting the only branch holding the project deletes the project', async () => {

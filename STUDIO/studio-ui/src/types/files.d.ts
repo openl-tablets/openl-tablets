@@ -4,7 +4,7 @@ export interface FsNode {
     basePath: string
     type: 'file' | 'folder'
     /**
-     * A technical file of the project, such as `rules.xml` or `pom.xml`, hidden from the screens unless **Show Hidden
+     * A technical file of the project, such as `rules.xml` or `pom.xml`, hidden from the screens unless **Show All
      * Files** is on. Present only when true.
      */
     hidden?: boolean

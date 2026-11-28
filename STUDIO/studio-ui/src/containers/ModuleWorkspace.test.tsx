@@ -9,9 +9,9 @@ import { ModuleWorkspace } from './ModuleWorkspace'
 import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
-import { renderInTheme, tokenFor } from '../testing/theme'
+import { NOT_FORMATTING_ON_SAVE, renderInTheme, tokenFor } from '../testing/theme'
 import { moduleNotFound, projectNotFound, tableNotFound } from '../testing/errors'
-import { useAppTheme } from '../providers/AppThemeProvider'
+import { SystemContext } from '../contexts/SystemContext'
 import { App as AntApp, ConfigProvider } from 'antd'
 import { forgetKeptReads } from '../services/keptReads'
 
@@ -80,11 +80,11 @@ vi.mock('../services/repositories', () => ({
 
 
 vi.mock('../services/modules', async importOriginal => {
-    const { isModuleNotFound, isTableNotFound, WIDER } = await importOriginal<typeof import('../services/modules')>()
+    const { cellScopeOf, isModuleNotFound, isTableNotFound } = await importOriginal<typeof import('../services/modules')>()
     return {
+        cellScopeOf,
         isModuleNotFound,
         isTableNotFound,
-        WIDER,
         cancelModuleCompilation: vi.fn(),
         getMessageStacktrace: vi.fn(),
         getModuleTables: vi.fn(),
@@ -121,13 +121,24 @@ vi.mock('./projects/openProjectDialog', () => ({
 }))
 
 // The tree itself is tested elsewhere; here it only has to ask for the utility tables, as its checkbox does,
-// and to search the cells, as Enter in the search of the header does.
+// to search the cells, as Enter in the search of the header does, and to choose how far, as its control does.
 vi.mock('./modules/ModuleTablesTree', () => ({
-    ModuleTablesTree: ({ showOther, onShowOther, reloading, onSearchCells, filterResets, onSelectTable }: {
+    ModuleTablesTree: ({
+        showOther,
+        onShowOther,
+        reloading,
+        onSearchCells,
+        cellScope,
+        onCellScope,
+        filterResets,
+        onSelectTable,
+    }: {
         showOther?: boolean
         onShowOther?: (shown: boolean) => void
         reloading?: boolean
         onSearchCells?: (text: string) => void
+        cellScope?: string
+        onCellScope?: (scope: 'project' | 'all') => void
         filterResets?: number
         onSelectTable?: (table: ModuleTable) => void
     }) => (
@@ -141,6 +152,8 @@ vi.mock('./modules/ModuleTablesTree', () => ({
                 {String(showOther)}
             </button>
             <button data-testid="tables-search" onClick={() => onSearchCells?.('premium')} type="button" />
+            <button data-scope={cellScope} data-testid="tables-scope-all" onClick={() => onCellScope?.('all')} type="button" />
+            <button data-testid="tables-scope-project" onClick={() => onCellScope?.('project')} type="button" />
             <span data-resets={filterResets} data-testid="tables-filter" />
             <button data-testid="tables-pick" onClick={() => onSelectTable?.(bankRating)} type="button" />
         </>
@@ -508,11 +521,14 @@ describe('ModuleWorkspace', () => {
     })
 
     describe('the roles of the cells of the table', () => {
-        /** Shows Excel Formatting on, as the switch of the theme menu does. */
-        const ExcelFormattingSwitch = () => {
-            const { setExcelFormatting } = useAppTheme()
-            return <button data-testid="excel-formatting" onClick={() => setExcelFormatting(true)} type="button" />
-        }
+        /** Shows Excel Formatting on, as the switch of My Settings does. */
+        const ExcelFormattingSwitch = () => (
+            <button
+                data-testid="excel-formatting"
+                onClick={() => useSettingsStore.getState().setSetting('excelFormatting', true)}
+                type="button"
+            />
+        )
 
         beforeEach(() => {
             workspace.opened = true
@@ -532,7 +548,12 @@ describe('ModuleWorkspace', () => {
         })
 
         it('reads nothing again when the reader shows the formatting of the workbook', async () => {
-            renderInTheme(<><ModuleWorkspace /><ExcelFormattingSwitch /></>)
+            renderInTheme(
+                <SystemContext.Provider value={NOT_FORMATTING_ON_SAVE}>
+                    <ModuleWorkspace />
+                    <ExcelFormattingSwitch />
+                </SystemContext.Provider>
+            )
             await waitFor(() => expect(screen.getByTestId('module-table')).toHaveAttribute('data-roles', '1'))
 
             await userEvent.click(screen.getByTestId('excel-formatting'))
@@ -705,7 +726,7 @@ describe('ModuleWorkspace', () => {
         return update(new URLSearchParams(from)).toString()
     }
 
-    it('searches every cell of the module on Enter, in the address so Back returns to the table', async () => {
+    it('searches every cell of the project on Enter, in the address so Back returns to the table', async () => {
         workspace.opened = true
         render(<ModuleWorkspace />)
         await screen.findByTestId('table-toolbar')
@@ -716,11 +737,11 @@ describe('ModuleWorkspace', () => {
     })
 
     it.each([
-        ['the module', 'table=t-1', 'table=t-1&find=premium'],
-        ['the whole project, on Enter again', 'table=t-1&find=premium', 'table=t-1&find=premium&scope=project'],
-        ['the projects it depends on, on Enter a third time', 'find=premium&scope=project', 'find=premium&scope=all'],
+        ['the project', 'table=t-1', 'table=t-1&find=premium'],
+        ['the projects it depends on, on Enter again', 'table=t-1&find=premium', 'table=t-1&find=premium&scope=all'],
+        ['the projects it depends on of an old address naming the project', 'find=premium&scope=project', 'find=premium&scope=all'],
         ['no further than that', 'find=premium&scope=all', 'find=premium&scope=all'],
-        ['the module again, for another text', 'find=bonus&scope=all', 'find=premium'],
+        ['the project again, for another text', 'find=bonus&scope=all', 'find=premium'],
     ])('searches the cells of %s', async (_, from, to) => {
         workspace.opened = true
         render(<ModuleWorkspace />)
@@ -729,6 +750,38 @@ describe('ModuleWorkspace', () => {
         await userEvent.click(screen.getByTestId('tables-search'))
 
         expect(addressAfter(from)).toBe(to)
+    })
+
+    it('searches the projects it depends on at once when the control of the search says so', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+        await screen.findByTestId('table-toolbar')
+        setSearchParamsMock.mockClear()
+
+        await userEvent.click(screen.getByTestId('tables-scope-all'))
+        expect(screen.getByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'all')
+        // Nothing is on screen to search again.
+        expect(setSearchParamsMock).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByTestId('tables-search'))
+        expect(addressAfter('table=t-1')).toBe('table=t-1&find=premium&scope=all')
+
+        await userEvent.click(screen.getByTestId('tables-scope-project'))
+        await userEvent.click(screen.getByTestId('tables-search'))
+        expect(addressAfter('table=t-1')).toBe('table=t-1&find=premium')
+    })
+
+    it('searches the text on screen again as far as the control of the search says, and shows how far it went', async () => {
+        workspace.opened = true
+        searchParams.set('find', 'premium')
+        searchParams.set('scope', 'all')
+        render(<ModuleWorkspace />)
+        expect(await screen.findByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'all')
+        searchParams.delete('scope')
+
+        await userEvent.click(screen.getByTestId('tables-scope-project'))
+
+        expect(addressAfter('find=premium&scope=all')).toBe('find=premium')
     })
 
     it('hands the results the scope the address names', async () => {
@@ -817,10 +870,38 @@ describe('ModuleWorkspace', () => {
             await waitFor(() => expect(filter).toHaveAttribute('data-resets', '1'))
         })
 
+        it('is cleared with the reach of the search, which goes back to the project', async () => {
+            searchParams.set('scope', 'all')
+            const filter = await searchedThen(() => userEvent.click(screen.getByTestId('search-close')))
+
+            await waitFor(() => expect(filter).toHaveAttribute('data-resets', '1'))
+            expect(screen.getByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'project')
+        })
+
+        it('is cleared with the reach of the search when a link in a table is followed', async () => {
+            workspace.opened = true
+            handed.usage = { tableId: 't-2', module: 'Bank Rating' }
+            render(<ModuleWorkspace />)
+            await userEvent.click(await screen.findByTestId('tables-scope-all'))
+            expect(screen.getByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'all')
+
+            await userEvent.click(await screen.findByTestId('table-open-usage'))
+
+            expect(screen.getByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'project')
+        })
+
         it('stays when the table is picked in the tree it filters', async () => {
             const filter = await searchedThen(() => userEvent.click(screen.getByTestId('tables-pick')))
 
             expect(filter).toHaveAttribute('data-resets', '0')
+        })
+
+        it('stays with the reach of the results when the table is picked in the tree it filters', async () => {
+            searchParams.set('scope', 'all')
+            const filter = await searchedThen(() => userEvent.click(screen.getByTestId('tables-pick')))
+
+            expect(filter).toHaveAttribute('data-resets', '0')
+            expect(screen.getByTestId('tables-scope-all')).toHaveAttribute('data-scope', 'all')
         })
 
         it('stays while no search was made', async () => {

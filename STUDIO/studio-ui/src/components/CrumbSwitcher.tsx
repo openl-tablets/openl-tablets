@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Dropdown } from 'antd'
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons'
-import { SearchInput } from '../../components/SearchInput'
+import { useTranslation } from 'react-i18next'
+import { SearchInput } from './SearchInput'
 import { ListLoading } from './ListLoading'
 import { useStyles } from './CrumbSwitcher.styles'
 
@@ -38,7 +39,27 @@ interface CrumbSwitcherProps {
     searchPlaceholder: string
     /** What stands in the list's place when the search matches nothing. */
     emptyText: string
+    /**
+     * The keys of the items the reader chose most recently, the most recent first. Given them, the list leads with
+     * those items in that order, a line under them, and goes on with the others by name; given none, the items keep
+     * the order they come in.
+     */
+    recent?: readonly string[] | undefined
     testId: string
+}
+
+/**
+ * The items the recent ones first, in the order they were chosen, then the others by name in the UI language, a line
+ * between.
+ */
+const recentFirst = (items: CrumbSwitcherItem[], recent: readonly string[], byName: Intl.Collator): CrumbSwitcherItem[] => {
+    const known = new Map(items.map(item => [item.key, item]))
+    const first = recent.flatMap(key => known.get(key) ?? [])
+    const chosen = new Set(recent)
+    const others = items
+        .filter(item => !chosen.has(item.key))
+        .sort((one, other) => byName.compare(one.search, other.search))
+    return [...first, ...others.map((item, at) => (at === 0 && first.length > 0 ? { ...item, divided: true } : item))]
 }
 
 /**
@@ -49,6 +70,9 @@ interface CrumbSwitcherProps {
  * put. What there is to switch to is read when the list first opens — a workspace of any size takes a moment
  * to list it, and the list says it is being read rather than showing nothing to choose from — and the search
  * narrows what was read without going back to the server.
+ *
+ * <p>A switcher handed the recent choices leads with them, the most recent first, and lists the others by name
+ * after a line: the projects and the branches are switched that way.
  */
 export const CrumbSwitcher = ({
     current,
@@ -62,15 +86,23 @@ export const CrumbSwitcher = ({
     disabled = false,
     searchPlaceholder,
     emptyText,
+    recent,
     testId,
 }: CrumbSwitcherProps) => {
     const { styles, cx } = useStyles()
+    const { i18n } = useTranslation()
+    const locale = i18n.resolvedLanguage ?? i18n.language
     const [query, setQuery] = useState('')
 
     const needle = query.trim().toLowerCase()
-    const shown = needle
-        ? (items ?? []).filter(item => item.search.toLowerCase().includes(needle))
-        : items ?? []
+    // Worked out again only for other items, another text or other recent choices: a switcher once opened keeps its
+    // list while the screen around it is drawn again.
+    const shown = useMemo(() => {
+        const found = needle ? (items ?? []).filter(item => item.search.toLowerCase().includes(needle)) : items ?? []
+        return recent === undefined
+            ? found
+            : recentFirst(found, recent, new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }))
+    }, [items, locale, needle, recent])
 
     const listContent = (menu: ReactNode) => {
         if (items === null && loading) {
