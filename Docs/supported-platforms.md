@@ -20,10 +20,10 @@ description: Supported platforms, application servers, databases, browsers, Java
 * linux/arm64
 
 #### Web Browser
-* Firefox 140 ESR
-* Chrome 145
-* Edge 145
-* Safari 26
+* Firefox 153 ESR
+* Chrome 150
+* Edge 156
+* Safari 27
 
 #### Database
 * PostgreSQL 16.1
@@ -80,8 +80,8 @@ depending on the size and complexity of the projects being developed, on the cou
 | 5.27.8        |        |        |        | Y       | Y       | Y       |         |         |
 | 5.27.12       |        |        |        | Y       | Y       | Y       | Y       |         |
 | 6.0.0         |        |        |        |         |         | Y       | Y       |         |
-| 7.0.0         |        |        |        |         |         |         | Y       |         |
-| 8.0.0         |        |        |        |         |         |         | Y       | Y       |
+| 8.0.0         |        |        |        |         |         |         | Y       |         |
+| 9.0.0         |        |        |        |         |         |         | Y       | Y       |
 
 ## Support References
 
