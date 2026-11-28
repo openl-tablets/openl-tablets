@@ -8,10 +8,12 @@ suggests when a project is saved, created, copied or restored are no longer conf
 the administrators who configured comments and the clients of the repository settings API. Several fixes of the rules
 engine change how an existing project compiles or runs, as listed for the rules authors. With `secret.key` set, OpenL
 Studio stores its secrets encrypted, though a secret an earlier version stored in plain text may stay so until it is
-changed, and the `pom.xml` of a project turns from an ignored file into a protected one, which a developer edits but an
-export and an import leave out, as listed for the administrators. In OpenL Rule Services, the store log data advices of
-a service method also run when an interceptor of the method fails, and a service takes the Spring configuration of its
-own project only, as listed for the developers.
+changed, the `pom.xml` of a project turns from an ignored file into a protected one, which a developer edits but an
+export and an import leave out, and an application at the root context, as in the Docker images, reads no properties
+file but `application.properties`, as listed for the administrators. A project class that refers to a missing class no
+longer compiles, and in OpenL Rule Services, the store log data advices of a service method also run when an
+interceptor of the method fails, and a service takes the Spring configuration of its own project only, as listed for
+the developers.
 
 ## Rules Authors
 
@@ -69,6 +71,19 @@ own project only, as listed for the developers.
   followed the locale of the server: on a server with a US locale a week started on Sunday and week 1 held January 1,
   so the same date was in week `1`. Update the expected values of the tests that check a week number near the start
   or the end of a year or a month.
+
+* **An invalid `like` pattern written as text does not compile.** A pattern written as text in the call, such as
+  `like(code, "[a-A]*")`, is checked when the module compiles, and an invalid one stops the module with
+  `Pattern '[a-A]' of the function 'like' is not valid: Illegal character range.` Before, such a module compiled, and
+  the pattern failed only when the rule ran. Correct the pattern, such as `[a-z]` for a range of letters. A pattern
+  built at runtime is still checked when the rule runs.
+
+* **OpenAPI reconciliation checks the result of every operation.** In a project reconciled with its OpenAPI file, a
+  rule that returns another type than the response of its operation, such as a number where the response is a
+  datatype, stops the project with
+  `OpenAPI Reconciliation: Return type of method 'PlanPOST' for path '/Plan' must be compatible with OpenAPI schema 'Plan'.`,
+  also for a path that has several operations, such as `PUT` and `POST`. Before, the result of such a path was not
+  checked. Return the type the OpenAPI file declares, or correct the response in the OpenAPI file.
 
 * **An order key that does not use the element gets a warning.** An `order by`, `order increasing by` or
   `order decreasing by` expression that uses neither the element nor its index, such as
@@ -174,6 +189,13 @@ own project only, as listed for the developers.
   key. See
   [Encrypting Passwords](https://openl-tablets.github.io/openl-tablets/user-guides/installation-guide/configuration#encrypting-passwords).
 
+* **An application at the root context reads only `application.properties`.** OpenL Studio and OpenL Rule Services
+  deployed at the root context, as in the Docker images, have no application name, so in every location of the
+  settings, such as the working folder `/opt/openl`, its `conf/` and `config/` folders, the home folder and the
+  classpath, they read `application.properties` and `application-{profile}.properties` only. Before, every properties
+  file of these locations was read as settings, whatever its name, such as a `notes.properties` copied into
+  `/opt/openl`. Move such settings into `application.properties`, or set them as environment variables.
+
 * **The User message templates are removed.** The **Save project**, **Create project**, **Copy project** and
   **Restore from old version** fields leave the **Comments** section of a design repository, and these settings are
   no longer read:
@@ -215,6 +237,14 @@ own project only, as listed for the developers.
   before committing, and a request of the REST API that sends no comment is refused by such a repository.
 
 ## Developers
+
+* **A project class that refers to a missing class does not compile.** The classes a project class names in its
+  fields, methods, constructors, parent class and interfaces must be on the classpath of the project, also when they
+  are reached through other project classes. A module that uses a class referring to a missing one stops with
+  `Cannot load type '<class>' because of absent type '<missing class>'.` Before, such a module compiled, and a rule
+  using the class failed when it ran. Add the jar of the missing class to the project, such as to its `lib/` folder or
+  as a dependency of `rules.xml` or `pom.xml`. A class named only in a method body, or only as a type argument such
+  as `Missing` in `List<Missing>`, still fails the rule when it runs.
 
 * **The Files API marks the hidden files of a project.** A file or a folder of `GET /rest/projects/{id}/files` and
   `POST /rest/projects/{id}/file-search` that `project.hidden-files` or `project.protected-files` names carries
