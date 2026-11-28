@@ -17,14 +17,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AccessLevel;
@@ -32,8 +28,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.base.INamedThing;
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.gen.InterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -492,81 +486,6 @@ public class JavaOpenClass extends AOpenClass {
         public Object nullObject() {
             return nullObject;
         }
-    }
-
-    // A Java type is equal by its Java class; the state added here is derived from that class.
-    @SuppressWarnings("java:S2160")
-    private static class JavaOpenInterface extends JavaOpenClass {
-
-        private final AtomicReference<Class<?>> generatedImplClass = new AtomicReference<>();
-
-        @Override
-        protected Map<MethodKey, IOpenMethod> initMethodMap() {
-            var methodMap = new HashMap<MethodKey, IOpenMethod>(super.initMethodMap());
-
-            for (IOpenMethod om : JavaOpenClass.OBJECT.getMethods()) { // Any interface has Object methods. For example:
-                // toString()
-                methodMap.put(new MethodKey(om), om);
-            }
-
-            return Collections.unmodifiableMap(methodMap);
-        }
-
-        protected JavaOpenInterface(Class<?> instanceClass) {
-            super(instanceClass);
-        }
-
-        @Override
-        public Object newInstance(IRuntimeEnv env) {
-            try {
-                var res = createCollectionInstance();
-                if (res != null) {
-                    return res;
-                }
-
-                var implClass = generatedImplClass.get();
-                if (implClass == null) {
-                    synchronized (this) {
-                        implClass = generatedImplClass.get();
-                        if (implClass == null) {
-                            var builder = new InterfaceImplBuilder(getInstanceClass());
-                            implClass = ClassLoaderUtils.defineClass(builder.getBeanName(),
-                                    builder.byteCode(),
-                                    Thread.currentThread().getContextClassLoader());
-                            generatedImplClass.set(implClass);
-                        }
-                    }
-                }
-                return implClass.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
-        }
-
-        private Object createCollectionInstance() {
-            if (List.class.isAssignableFrom(getInstanceClass())) {
-                return new ArrayList<>();
-            }
-            if (Set.class.isAssignableFrom(getInstanceClass())) {
-                return new HashSet<>();
-            }
-            if (SortedMap.class.isAssignableFrom(getInstanceClass())) {
-                return new TreeMap<>();
-            }
-            if (Map.class.isAssignableFrom(getInstanceClass())) {
-                return new HashMap<>();
-            }
-            if (Collection.class.isAssignableFrom(getInstanceClass())) {
-                return new ArrayList<>();
-            }
-            return null;
-        }
-
-        @Override
-        public boolean isInterface() {
-            return true;
-        }
-
     }
 
     @Override

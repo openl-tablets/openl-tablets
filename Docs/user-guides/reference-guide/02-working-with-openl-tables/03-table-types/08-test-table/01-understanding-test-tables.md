@@ -31,6 +31,8 @@ A test table has the following structure:
 
 For more information on how to specify values of input parameters and expected test results of complex constructions, see [Specifying Data for Aggregated Objects](../07-data-table/04-specifying-data-for-aggregated-objects.md#specifying-data-for-aggregated-objects) and [Ensuring Data Integrity](../07-data-table/05-ensuring-data-integrity.md#ensuring-data-integrity).
 
+An input parameter or an expected result of a Java interface type takes its values the same way, even when the interface has getters only. The test builds an object of the interface and sets the values of its cells on it. For example, **\_res\_.state** checks the **state** property of the **TableProperties** that a rule returns with **$properties**.
+
 If a test table field is a list or a map, it can be used to create a data table or test table in the same way as for data tables as described in [Specifying Data in Data Tables with List and Map Fields](../07-data-table/03-specifying-data-in-data-tables-with-list-and-map-fields.md#specifying-data-in-data-tables-with-list-and-map-fields).
 
 **Note for experienced users:** Test tables can be used to execute any Java method. In this case, a spreadsheet table that calls the method must be used as a proxy.

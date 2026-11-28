@@ -20,6 +20,8 @@ In the preceding example, columns **Zip1** and **Zip2** contain values for the `
 
 **Note:** The attribute name chain can be of any arbitrary depth, for example, `account.person.address.street`.
 
+The data type and the type of an attribute can be a Java interface, even one with getters only, such as `Person` with `getName()` and `getAddress()`. OpenL Tablets builds an object of the interface and sets the values of the table on it, including the properties of the interfaces it extends. Rules only read such properties.
+
 If a data table must store information for an array of objects, OpenL Tablets allows defining attribute values for each element of an array.
 
 **The first option** is to use the following format in the row of data table attribute names:

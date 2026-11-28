@@ -494,11 +494,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 var method = simpleRuntimeEnv.getMethodWrapper()
                         .getTopOpenClassMethod(simpleRuntimeEnv.getTopClass());
                 if (method instanceof ExecutableRulesMethod executableRulesMethod) {
-                    return new TableProperties[]{new TableProperties(executableRulesMethod.getMethodProperties())};
+                    return new TableProperties[]{new TablePropertiesImpl(executableRulesMethod.getMethodProperties())};
                 } else if (method instanceof OpenMethodDispatcher openMethodDispatcher) {
                     return openMethodDispatcher.getCandidates().stream()
                             .filter(ExecutableRulesMethod.class::isInstance)
-                            .map(candidate -> new TableProperties(
+                            .map(candidate -> new TablePropertiesImpl(
                                     ((ExecutableRulesMethod) candidate).getMethodProperties()))
                             .toArray(TableProperties[]::new);
                 }
@@ -579,12 +579,12 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             if (env instanceof SimpleRuntimeEnv simpleRuntimeEnv) {
                 if (simpleRuntimeEnv.getMethodWrapper()
                         .getDelegate() instanceof ExecutableRulesMethod executableRulesMethod) {
-                    return new TableProperties(executableRulesMethod.getMethodProperties());
+                    return new TablePropertiesImpl(executableRulesMethod.getMethodProperties());
                 } else if (simpleRuntimeEnv.getMethodWrapper()
                         .getDelegate() instanceof OpenMethodDispatcher openMethodDispatcher) {
                     var method = openMethodDispatcher.findMatchingMethod(env);
                     if (method instanceof ExecutableRulesMethod executableRulesMethod) {
-                        return new TableProperties(executableRulesMethod.getMethodProperties());
+                        return new TablePropertiesImpl(executableRulesMethod.getMethodProperties());
                     }
                 }
             }

@@ -1,0 +1,12 @@
+<project>
+    <name>EPBDS-13583_Interface_Properties_In_Tables</name>
+    <modules>
+        <module>
+            <name>Ticket</name>
+            <rules-root path="Ticket.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

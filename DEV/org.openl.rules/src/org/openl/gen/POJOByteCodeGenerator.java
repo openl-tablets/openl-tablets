@@ -178,9 +178,11 @@ public class POJOByteCodeGenerator {
     }
 
     /**
-     * Sets the type of an element declared as an interface other than a map or a collection: the value type of its
-     * {@code XmlJavaTypeAdapter}, or {@code Object} when it has none. An array of such elements gets an object array
-     * of the same dimensions.
+     * Sets the type of an element declared as an interface, other than a map or a collection, that has an
+     * {@code XmlJavaTypeAdapter}: the value type of the adapter, so that the element is read as that type. An array
+     * of such elements gets an object array of the same dimensions.
+     *
+     * <p>An element of any other interface gets no type and is written as the class of its value.
      */
     private static void visitXmlElementType(AnnotationVisitor av, String javaType) {
         try {
@@ -188,13 +190,12 @@ public class POJOByteCodeGenerator {
             String clsName = Type.getType(componentJavaType).getClassName();
             Class<?> type = Thread.currentThread().getContextClassLoader().loadClass(clsName);
             if (type.isInterface() && !Map.class.isAssignableFrom(type) && !Collection.class.isAssignableFrom(type)) {
-                int d = javaType.length() - componentJavaType.length();
-                Class<?> g = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
-                Class<?> useType = g != null ? g : Object.class;
-                if (d > 0) {
-                    useType = Array.newInstance(Object.class, new int[d]).getClass();
+                Class<?> valueType = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(type);
+                if (valueType != null) {
+                    int d = javaType.length() - componentJavaType.length();
+                    var useType = d > 0 ? Array.newInstance(Object.class, new int[d]).getClass() : valueType;
+                    av.visit("type", Type.getType(useType));
                 }
-                av.visit("type", Type.getType(useType));
             }
         } catch (Exception ignored) {
             // a primitive or a class that cannot be loaded yet is no interface, so no type is set

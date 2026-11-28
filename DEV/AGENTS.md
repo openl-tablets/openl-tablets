@@ -57,6 +57,25 @@ Key implementations:
 - `StaticOpenClass` — wraps a Java `Class`
 - `ADynamicClass` — base for types built at runtime (in `types/impl/`)
 - `ComponentOpenClass` — composite type (in `binding/impl/component/`)
+- `JavaOpenInterface` — a Java interface as an OpenL type:
+    - **Instances** — a collection or a map is a JDK class that implements the interface; any other public, not
+      sealed, exported interface gets a bean `InterfaceImplBuilder` generates from the abstract methods
+      `Class.getMethods()` gives, one class per interface
+    - **Accessors** — the bean keeps every property in its narrowest type, and each getter and setter reads or writes
+      it (`isX()`, a wider type, a primitive for its wrapper); one of a type the value does not fit throws
+      `UnsupportedOperationException`. The default methods and the methods of `Object` stay as they are, but for a
+      default accessor of a property with an abstract one
+    - **Class loader** — the bean lives in the nearest OpenL class loader of the interface, that of its project, so
+      the project finds it by its name; the bean of an interface of the engine, of the JDK or of a library stays under
+      the class loader of the interface. It is kept in a `ClassValue`, or in a map of the engine for an interface that
+      may stay loaded after the engine, which would keep the engine in memory otherwise: one whose class loader and its
+      parents are neither that of the engine nor one OpenL creates, such as one of the JDK or of a library
+    - **Tables** — a Data or Test table fills a property without a setter on the bean (`getFieldToFill`, through
+      `DataTableBindHelper.findField`); rules only read it, so `$properties` (`org.openl.rules.binding.TableProperties`)
+      is an interface a test can build
+    - **JSON** — a Datatype field of an interface type is written as the class of its value. `POJOByteCodeGenerator`
+      sets the `XmlElement` type of such a field only for an interface with an `@XmlJavaTypeAdapter`, such as
+      `IRulesRuntimeContext`: a type the value cannot widen to, such as `Object`, fails Jackson
 - `JavaOpenClassCache` — caches Java-to-OpenL type mappings
 
 **Rules**: Never change method signatures on `IOpenClass`/`IOpenMethod`/`IOpenField`. Add new capabilities via new interfaces.

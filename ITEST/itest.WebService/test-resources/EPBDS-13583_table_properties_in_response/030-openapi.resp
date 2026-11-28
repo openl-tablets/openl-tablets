@@ -1,0 +1,1047 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "openapi": "3.0.1",
+  "info": {
+    "description": "Auto-generated OpenAPI schema from the OpenL rules",
+    "title": "***",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "***"
+    }
+  ],
+  "paths": {
+    "/TEST_ID": {
+      "post": {
+        "description": "TEST Description",
+        "operationId": "TEST_ID",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyDatatype"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "PropertyDatatype TEST_ID(Integer)"
+      }
+    },
+    "/TEST_ID2": {
+      "post": {
+        "description": "TEST Description",
+        "operationId": "TEST_ID2",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyDatatype"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "PropertyDatatype TEST_ID2(Integer)"
+      }
+    },
+    "/testRule/{a}": {
+      "get": {
+        "description": "Rules method: org.openl.rules.binding.TableProperties testRule(int a)",
+        "operationId": "testRule",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "a",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableProperties"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "TableProperties testRule(int)"
+      }
+    },
+    "/theRules": {
+      "post": {
+        "description": "TEST Description",
+        "operationId": "theRules",
+        "parameters": [
+          {
+            "example": "en-GB",
+            "in": "header",
+            "name": "Accept-Language",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyDatatype"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "PropertyDatatype theRules(Integer)"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          }
+        }
+      },
+      "JAXRSUserErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PropertyDatatype": {
+        "type": "object",
+        "properties": {
+          "currentProperty": {
+            "$ref": "#/components/schemas/TableProperties"
+          },
+          "allTheProperies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableProperties"
+            }
+          },
+          "itemId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Lobs": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "state": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "AL",
+                "AK",
+                "AS",
+                "AZ",
+                "AR",
+                "CA",
+                "CO",
+                "CT",
+                "DC",
+                "DE",
+                "FL",
+                "GA",
+                "GU",
+                "HI",
+                "ID",
+                "IL",
+                "IN",
+                "IA",
+                "KS",
+                "KY",
+                "LA",
+                "ME",
+                "MD",
+                "MA",
+                "MI",
+                "MN",
+                "MS",
+                "MO",
+                "MT",
+                "NE",
+                "NV",
+                "NH",
+                "NJ",
+                "NM",
+                "NY",
+                "NC",
+                "ND",
+                "MP",
+                "OH",
+                "OK",
+                "OR",
+                "PA",
+                "PR",
+                "RI",
+                "SC",
+                "SD",
+                "TN",
+                "TX",
+                "UT",
+                "VT",
+                "VI",
+                "VA",
+                "WA",
+                "WV",
+                "WI",
+                "WY"
+              ]
+            }
+          }
+        }
+      },
+      "TableProperties": {
+        "type": "object",
+        "properties": {
+          "startRequestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "spreadsheetResultPackage": {
+            "type": "string"
+          },
+          "emptyResultProcessing": {
+            "type": "string",
+            "enum": [
+              "SKIP",
+              "RETURN"
+            ]
+          },
+          "tableStructureDetails": {
+            "type": "boolean"
+          },
+          "calculateAllCells": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ALL",
+                "DZD",
+                "ARS",
+                "AUD",
+                "BHD",
+                "BYR",
+                "BOB",
+                "BAM",
+                "BRL",
+                "CAD",
+                "CLP",
+                "CNY",
+                "COP",
+                "CRC",
+                "HRK",
+                "CZK",
+                "DKK",
+                "DOP",
+                "EGP",
+                "EUR",
+                "GTQ",
+                "HNL",
+                "HKD",
+                "HUF",
+                "ISK",
+                "INR",
+                "IDR",
+                "IQD",
+                "ILS",
+                "JPY",
+                "JOD",
+                "KWD",
+                "LVL",
+                "LBP",
+                "LTL",
+                "MKD",
+                "MYR",
+                "MXN",
+                "MAD",
+                "NZD",
+                "NIO",
+                "NOK",
+                "OMR",
+                "PAB",
+                "PYG",
+                "PEN",
+                "PHP",
+                "PLN",
+                "QAR",
+                "RON",
+                "RUB",
+                "SAR",
+                "RSD",
+                "SGD",
+                "ZAR",
+                "SDG",
+                "SEK",
+                "CHF",
+                "SYP",
+                "TWD",
+                "THB",
+                "TND",
+                "TRY",
+                "UAH",
+                "AED",
+                "GBP",
+                "USD",
+                "UYU",
+                "VEF",
+                "VND",
+                "YER"
+              ]
+            }
+          },
+          "precision": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string"
+          },
+          "state": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "AL",
+                "AK",
+                "AS",
+                "AZ",
+                "AR",
+                "CA",
+                "CO",
+                "CT",
+                "DC",
+                "DE",
+                "FL",
+                "GA",
+                "GU",
+                "HI",
+                "ID",
+                "IL",
+                "IN",
+                "IA",
+                "KS",
+                "KY",
+                "LA",
+                "ME",
+                "MD",
+                "MA",
+                "MI",
+                "MN",
+                "MS",
+                "MO",
+                "MT",
+                "NE",
+                "NV",
+                "NH",
+                "NJ",
+                "NM",
+                "NY",
+                "NC",
+                "ND",
+                "MP",
+                "OH",
+                "OK",
+                "OR",
+                "PA",
+                "PR",
+                "RI",
+                "SC",
+                "SD",
+                "TN",
+                "TX",
+                "UT",
+                "VT",
+                "VI",
+                "VA",
+                "WA",
+                "WV",
+                "WI",
+                "WY"
+              ]
+            }
+          },
+          "scope": {
+            "type": "string"
+          },
+          "region": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NCSA",
+                "EU",
+                "EMEA",
+                "APJ"
+              ]
+            }
+          },
+          "country": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "AE",
+                "AL",
+                "AR",
+                "AS",
+                "AT",
+                "AU",
+                "BA",
+                "BB",
+                "BE",
+                "BG",
+                "BH",
+                "BO",
+                "BR",
+                "BY",
+                "CA",
+                "CH",
+                "CK",
+                "CL",
+                "CN",
+                "CO",
+                "CR",
+                "CS",
+                "CY",
+                "CZ",
+                "DE",
+                "DK",
+                "DO",
+                "DZ",
+                "EC",
+                "EE",
+                "EG",
+                "ES",
+                "FI",
+                "FJ",
+                "FR",
+                "GB",
+                "GR",
+                "GT",
+                "HK",
+                "HN",
+                "HR",
+                "HU",
+                "ID",
+                "IE",
+                "IL",
+                "IN",
+                "IQ",
+                "IS",
+                "IT",
+                "JM",
+                "JO",
+                "JP",
+                "KW",
+                "LB",
+                "LT",
+                "LU",
+                "LV",
+                "MA",
+                "MK",
+                "MT",
+                "MX",
+                "MY",
+                "NI",
+                "NL",
+                "NO",
+                "NZ",
+                "OM",
+                "PA",
+                "PE",
+                "PG",
+                "PH",
+                "PL",
+                "PR",
+                "PT",
+                "PY",
+                "QA",
+                "RO",
+                "RU",
+                "SA",
+                "SB",
+                "SD",
+                "SE",
+                "SG",
+                "SI",
+                "SK",
+                "SV",
+                "SY",
+                "TH",
+                "TN",
+                "TO",
+                "TR",
+                "TW",
+                "UA",
+                "US",
+                "UY",
+                "VE",
+                "VN",
+                "VU",
+                "WS",
+                "YE",
+                "ZA"
+              ]
+            }
+          },
+          "version": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "Base",
+              "Deviation"
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "lang": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ALB",
+                "ARA",
+                "BEL",
+                "BUL",
+                "CAT",
+                "CHI",
+                "SCR",
+                "CZE",
+                "DAN",
+                "DUT",
+                "ENG",
+                "FIN",
+                "FRE",
+                "GER",
+                "GRE",
+                "HEB",
+                "HIN",
+                "HUN",
+                "IND",
+                "GLE",
+                "ITA",
+                "JPN",
+                "LAV",
+                "LIT",
+                "MAC",
+                "MAY",
+                "MLT",
+                "NOR",
+                "POL",
+                "POR",
+                "RUM",
+                "RUS",
+                "SCC",
+                "SLO",
+                "SPA",
+                "THA",
+                "TUR",
+                "UKR",
+                "VIE"
+              ]
+            }
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedBy": {
+            "type": "string"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endRequestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "caRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "QC",
+                "HQ"
+              ]
+            }
+          },
+          "caProvinces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "AB",
+                "BC",
+                "PE",
+                "MB",
+                "NB",
+                "NS",
+                "NU",
+                "ON",
+                "QC",
+                "SK",
+                "NL",
+                "YT",
+                "NT"
+              ]
+            }
+          },
+          "lob": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usregion": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "MW",
+                "NE",
+                "SE",
+                "SW",
+                "W"
+              ]
+            }
+          },
+          "buildPhase": {
+            "type": "string"
+          },
+          "validateDT": {
+            "type": "string",
+            "enum": [
+              "ON",
+              "OFF"
+            ]
+          },
+          "failOnMiss": {
+            "type": "boolean"
+          },
+          "datatypePackage": {
+            "type": "string"
+          },
+          "cacheable": {
+            "type": "boolean"
+          },
+          "recalculate": {
+            "type": "string",
+            "enum": [
+              "ALWAYS",
+              "NEVER",
+              "ANALYZE"
+            ]
+          },
+          "autoType": {
+            "type": "boolean"
+          },
+          "parallel": {
+            "type": "boolean"
+          },
+          "nature": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
